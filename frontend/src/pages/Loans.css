@@ -1,0 +1,91 @@
+/* Loans Page Styles */
+.loans-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: var(--spacing-xl);
+}
+
+.loans-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.loans-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+}
+
+.loans-table th {
+    background-color: #f8fafc;
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.loans-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.loans-table tr:hover td {
+    background-color: #fcfcfc;
+}
+
+.loan-id {
+    font-weight: 600;
+    color: var(--primary);
+    font-family: monospace;
+}
+
+.amount-cell {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-closed {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.status-overdue {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.action-btn-sm {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.action-btn-sm:hover {
+    color: var(--primary);
+}

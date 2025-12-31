@@ -1,0 +1,218 @@
+import { useState, useEffect } from 'react';
+import api from '../api/axios';
+import { Settings, TrendingUp, Layers, Save } from 'lucide-react';
+import './Masters.css';
+
+const Masters = () => {
+    // Gold Rate State
+    const [rate22k, setRate22k] = useState('');
+    const [rate24k, setRate24k] = useState('');
+    const [currentRate, setCurrentRate] = useState(null);
+    const [loadingRate, setLoadingRate] = useState(false);
+
+    // Scheme State
+    const [schemeName, setSchemeName] = useState('');
+    const [interestRate, setInterestRate] = useState('');
+    const [tenure, setTenure] = useState('');
+    const [maxLoan, setMaxLoan] = useState('');
+    const [schemes, setSchemes] = useState([]);
+
+    useEffect(() => {
+        fetchInitialData();
+    }, []);
+
+    const fetchInitialData = async () => {
+        try {
+            const [rateRes, schemeRes] = await Promise.all([
+                api.get('/masters/gold-rate/latest'),
+                api.get('/masters/schemes')
+            ]);
+            setCurrentRate(rateRes.data);
+            setSchemes(schemeRes.data);
+        } catch (error) {
+            console.error("Error fetching master data", error);
+        }
+    };
+
+    const handleGoldRateSubmit = async (e) => {
+        e.preventDefault();
+        setLoadingRate(true);
+        try {
+            const { data } = await api.post('/masters/gold-rate', {
+                ratePerGram22k: parseFloat(rate22k),
+                ratePerGram24k: parseFloat(rate24k)
+            });
+            setCurrentRate(data);
+            alert('Gold Rate Updated!');
+            setRate22k('');
+            setRate24k('');
+        } catch (error) {
+            alert('Failed to update rate');
+        } finally {
+            setLoadingRate(false);
+        }
+    };
+
+    const handleSchemeSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await api.post('/masters/schemes', {
+                schemeName,
+                interestRate: parseFloat(interestRate),
+                tenureMonths: parseInt(tenure),
+                maxLoanPercentage: parseFloat(maxLoan)
+            });
+            setSchemes([...schemes, data]);
+            alert('Scheme Added!');
+            setSchemeName('');
+            setInterestRate('');
+            setTenure('');
+            setMaxLoan('');
+        } catch (error) {
+            alert('Failed to add scheme');
+        }
+    };
+
+    return (
+        <div className="masters-container">
+            <div className="page-header">
+                <div className="page-title">
+                    <h1>System Masters</h1>
+                    <p>Configure gold rates and loan schemes</p>
+                </div>
+            </div>
+
+            <div className="masters-grid">
+
+                {/* Gold Rate Card */}
+                <div className="master-card">
+                    <div className="card-header">
+                        <div className="icon-box gold-icon">
+                            <TrendingUp size={20} />
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Daily Gold Rates</h3>
+                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Set today's market rate</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleGoldRateSubmit} className="form-stack">
+                        <div className="form-group">
+                            <label className="form-label">22k Rate (per gram) ($)</label>
+                            <input
+                                type="number"
+                                className="input-field"
+                                value={rate22k}
+                                onChange={e => setRate22k(e.target.value)}
+                                placeholder={currentRate ? currentRate.ratePerGram22k : "0.00"}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">24k Rate (per gram) ($)</label>
+                            <input
+                                type="number"
+                                className="input-field"
+                                value={rate24k}
+                                onChange={e => setRate24k(e.target.value)}
+                                placeholder={currentRate ? currentRate.ratePerGram24k : "0.00"}
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="btn-primary" disabled={loadingRate}>
+                            <Save size={16} /> Update Rate
+                        </button>
+                    </form>
+
+                    <div className="history-list">
+                        <h4 className="history-title">Current Active Rate</h4>
+                        {currentRate ? (
+                            <>
+                                <div className="history-item">
+                                    <span>Rate Date</span>
+                                    <span>{new Date(currentRate.rateDate).toLocaleDateString()}</span>
+                                </div>
+                                <div className="history-item">
+                                    <span>22k Standard</span>
+                                    <span className="rate-val">${currentRate.ratePerGram22k}</span>
+                                </div>
+                                <div className="history-item">
+                                    <span>24k Fine</span>
+                                    <span className="rate-val">${currentRate.ratePerGram24k}</span>
+                                </div>
+                            </>
+                        ) : <p className="text-muted text-sm">No rate set for today.</p>}
+                    </div>
+                </div>
+
+                {/* Schemes Card */}
+                <div className="master-card">
+                    <div className="card-header">
+                        <div className="icon-box scheme-icon">
+                            <Layers size={20} />
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Loan Schemes</h3>
+                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Define interest & limits</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSchemeSubmit} className="form-stack">
+                        <div className="form-group">
+                            <label className="form-label">Scheme Name</label>
+                            <input
+                                type="text" className="input-field"
+                                value={schemeName} onChange={e => setSchemeName(e.target.value)}
+                                placeholder="e.g. Standard Gold Loan" required
+                            />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div className="form-group">
+                                <label className="form-label">Interest (%)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={interestRate} onChange={e => setInterestRate(e.target.value)}
+                                    placeholder="12" step="0.1" required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Tenure (Mos)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={tenure} onChange={e => setTenure(e.target.value)}
+                                    placeholder="12" required
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Max Loan to Value (%)</label>
+                            <input
+                                type="number" className="input-field"
+                                value={maxLoan} onChange={e => setMaxLoan(e.target.value)}
+                                placeholder="75" max="100" required
+                            />
+                        </div>
+                        <button type="submit" className="btn-primary">
+                            <Save size={16} /> Add Scheme
+                        </button>
+                    </form>
+
+                    <div className="history-list">
+                        <h4 className="history-title">Active Schemes</h4>
+                        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                            {schemes.map(s => (
+                                <div key={s._id} className="history-item">
+                                    <span>{s.schemeName}</span>
+                                    <span style={{ fontWeight: 600 }}>{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+};
+
+export default Masters;

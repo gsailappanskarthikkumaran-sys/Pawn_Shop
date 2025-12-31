@@ -1,0 +1,248 @@
+/* Customers Page Styles */
+
+.page-container {
+    padding: var(--spacing-lg);
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Header Section */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.page-title h1 {
+    font-size: 1.875rem;
+    /* 30px */
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.page-title p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.btn-add {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-lg);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+}
+
+.btn-add:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Content Card */
+.customers-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-toolbar {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    /* slightly lighter bg */
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    outline: none;
+    font-size: 0.95rem;
+    background: white;
+    transition: all 0.2s;
+    color: var(--text-main);
+}
+
+.search-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(202, 138, 4, 0.1);
+}
+
+.filter-btn {
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+}
+
+.customers-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+}
+
+.customers-table th {
+    background-color: #f8fafc;
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.customers-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: var(--text-main);
+}
+
+.customers-table tr:last-child td {
+    border-bottom: none;
+}
+
+.customers-table tr:hover td {
+    background-color: #fcfcfc;
+}
+
+/* Cell Styles */
+.customer-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.customer-avatar {
+    width: 3rem;
+    /* 48px */
+    height: 3rem;
+    border-radius: var(--radius-lg);
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.customer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.customer-id-badge {
+    font-size: 0.75rem;
+    font-family: monospace;
+    background-color: #f1f5f9;
+    color: var(--text-muted);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.contact-info p {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.address-cell {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    max-width: 250px;
+    line-height: 1.4;
+}
+
+.action-cell {
+    text-align: right;
+}
+
+.action-arrow-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+}
+
+.action-arrow-btn:hover {
+    background-color: var(--primary-bg);
+    color: var(--primary);
+    border-color: var(--primary-light);
+}

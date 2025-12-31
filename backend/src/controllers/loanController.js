@@ -1,0 +1,316 @@
+import Loan from '../models/Loan.js';
+import Item from '../models/Item.js';
+import Scheme from '../models/Scheme.js';
+import GoldRate from '../models/GoldRate.js';
+import Payment from '../models/Payment.js';
+
+// @desc    Create a new Pledge (Loan)
+// @route   POST /api/loans
+// @access  Private
+const createLoan = async (req, res) => {
+    const { customerId, schemeId, items, requestedLoanAmount } = req.body;
+    // items is expected to be a JSON string if sent via FormData with files, or body parsing handles it? 
+    // With Multer, we need to handle mixed form data. 
+    // Simplified approach: Client sends JSON for data and Files separately? 
+    // Or FormData: 'items' as stringified JSON.
+
+    try {
+        let itemsData;
+        try {
+            itemsData = typeof items === 'string' ? JSON.parse(items) : items;
+        } catch (e) {
+            itemsData = [];
+        }
+
+        // 1. Fetch related data
+        const scheme = await Scheme.findById(schemeId);
+        if (!scheme) return res.status(404).json({ message: 'Scheme not found' });
+
+        // Get latest gold rate (or specific one if passed, but usually latest)
+        const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
+        if (!goldRateObj) return res.status(400).json({ message: 'Gold Rate not set for today' });
+
+        // 2. Process Items and Photos
+        // req.files is array of files. We need to map files to items.
+        // This is tricky with multiple items and multiple photos per item.
+        // Client strategy: "item-0-photo-0", "item-0-photo-1" keys?
+        // Start simple: Global photos specific to items or just attach all to loan?
+        // Requirement: "Upload multiple jewellery photos". Let's assume per loan for now or mapping.
+        // Better: let's save items without photos first or map by index if client sends distinct fields.
+
+        // Calculation
+        let totalWeight = 0;
+        let totalValuation = 0;
+
+        itemsData.forEach(item => {
+            totalWeight += parseFloat(item.netWeight);
+            // Valuation logic: Weight * PurityFactor * Rate
+            // If purity is '22k', use 22k rate. If '24k', use 24k rate.
+            const rate = item.purity === '24k' ? goldRateObj.ratePerGram24k : goldRateObj.ratePerGram22k;
+            totalValuation += parseFloat(item.netWeight) * rate;
+        });
+
+        const maxLoan = totalValuation * (scheme.maxLoanPercentage / 100);
+
+        if (requestedLoanAmount > maxLoan) {
+            return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
+        }
+
+        // 3. Create Loan
+        const loan = new Loan({
+            loanId: `LN-${Date.now()}`,
+            customer: customerId,
+            scheme: schemeId,
+            totalWeight,
+            totalPurity: 'Mixed', // Simplified
+            goldRateAtPledge: goldRateObj.ratePerGram22k, // Storing base 22k as ref or average
+            valuation: totalValuation,
+            loanAmount: requestedLoanAmount,
+            interestRate: scheme.interestRate,
+            dueDate: new Date(Date.now() + scheme.tenureMonths * 30 * 24 * 60 * 60 * 1000),
+            createdBy: req.user._id,
+            currentBalance: requestedLoanAmount
+        });
+
+        const createdLoan = await loan.save();
+
+        // 4. Create Items
+        // Handling images: req.files is flat array.
+        // If we want specific item images, client needs to send them with specific fieldnames.
+        // For MVP, we'll assign ALL uploaded images to the first item or spread them.
+        // Or just "Group Photos".
+        // Let's attach all photos to the first item for now to keep it robust against complex form data parsing issues.
+
+        const photoPaths = req.files ? req.files.map(f => f.path.replace(/\\/g, "/")) : [];
+
+        const itemDocs = itemsData.map((item, index) => ({
+            loan: createdLoan._id,
+            name: item.name,
+            description: item.description,
+            netWeight: item.netWeight,
+            purity: item.purity,
+            photos: index === 0 ? photoPaths : [] // Assign all images to first item for now
+        }));
+
+        const createdItems = await Item.insertMany(itemDocs);
+
+        // Update loan with item refs
+        createdLoan.items = createdItems.map(i => i._id);
+        await createdLoan.save();
+
+        res.status(201).json(createdLoan);
+
+    } catch (error) {
+        res.status(400).json({ message: 'Error creating loan', error: error.message });
+    }
+};
+
+// @desc    Get all loans
+// @route   GET /api/loans
+// @access  Private
+const getLoans = async (req, res) => {
+    try {
+        const loans = await Loan.find()
+            .populate('customer', 'name phone')
+            .populate('scheme', 'schemeName interestRate')
+            .sort({ createdAt: -1 });
+        res.json(loans);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get loan by ID (ObjectId or loanId)
+// @route   GET /api/loans/:id
+// @access  Private
+const getLoanById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let query;
+
+        // Check if valid ObjectId
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            query = { _id: id };
+        } else {
+            query = { loanId: id };
+        }
+
+        const loan = await Loan.findOne(query)
+            .populate('customer')
+            .populate('scheme')
+            .populate('items');
+
+        if (loan) res.json(loan);
+        else res.status(404).json({ message: 'Loan not found' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get Dashboard Statistics
+// @route   GET /api/loans/stats/dashboard
+// @access  Private
+const getDashboardStats = async (req, res) => {
+    try {
+        const totalLoans = await Loan.countDocuments();
+        const activeLoans = await Loan.countDocuments({ status: { $ne: 'closed' } });
+        const overdueLoans = await Loan.countDocuments({ status: 'overdue' }); // Assuming overdue status handled by cron
+
+        // Aggregations
+        const totals = await Loan.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalDisbursed: { $sum: "$loanAmount" },
+                    totalOutstanding: { $sum: "$currentBalance" }
+                }
+            }
+        ]);
+
+        const schemeStats = await Loan.aggregate([
+            {
+                $lookup: {
+                    from: 'schemes',
+                    localField: 'scheme',
+                    foreignField: '_id',
+                    as: 'schemeDetails'
+                }
+            },
+            { $unwind: "$schemeDetails" },
+            {
+                $group: {
+                    _id: "$schemeDetails.schemeName",
+                    value: { $sum: 1 },
+                    amount: { $sum: "$loanAmount" }
+                }
+            }
+        ]);
+
+        // Monthly Trend (Last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+        const monthlyTrend = await Loan.aggregate([
+            { $match: { createdAt: { $gte: sixMonthsAgo } } },
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    loans: { $sum: 1 },
+                    amount: { $sum: "$loanAmount" }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        const recentLoans = await Loan.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('customer', 'name');
+
+        res.json({
+            counts: {
+                total: totalLoans,
+                active: activeLoans,
+                overdue: overdueLoans
+            },
+            financials: {
+                disbursed: totals[0]?.totalDisbursed || 0,
+                outstanding: totals[0]?.totalOutstanding || 0
+            },
+            schemeStats: schemeStats.map(s => ({ name: s._id, value: s.value, amount: s.amount })),
+            monthlyTrend: monthlyTrend.map(m => ({
+                month: new Date(0, m._id - 1).toLocaleString('default', { month: 'short' }),
+                amount: m.amount,
+                count: m.loans
+            })),
+            recentLoans
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get Staff Dashboard Statistics (Daily Focus)
+// @route   GET /api/loans/stats/staff-dashboard
+// @access  Private
+const getStaffDashboardStats = async (req, res) => {
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        // 1. Today's Loans Issued
+        const loansIssuedToday = await Loan.find({
+            createdAt: { $gte: todayStart, $lte: todayEnd }
+        });
+        const loansIssuedCount = loansIssuedToday.length;
+        const loansIssuedAmount = loansIssuedToday.reduce((acc, loan) => acc + loan.loanAmount, 0);
+
+        // 2. Payments Received Today
+        const paymentsToday = await Payment.aggregate([
+            {
+                $match: {
+                    paymentDate: { $gte: todayStart, $lte: todayEnd }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$amount" },
+                    interestAmount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$type", "interest"] }, "$amount", 0]
+                        }
+                    }
+                }
+            }
+        ]);
+
+        const totalReceivedToday = paymentsToday[0]?.totalAmount || 0;
+        const interestCollectedToday = paymentsToday[0]?.interestAmount || 0;
+
+        // 3. Quick Stats (Active, Outstanding)
+        const totalActive = await Loan.countDocuments({ status: { $ne: 'closed' } });
+
+        const outstandingAgg = await Loan.aggregate([
+            { $match: { status: { $ne: 'closed' } } },
+            { $group: { _id: null, total: { $sum: "$currentBalance" } } }
+        ]);
+        const totalOutstanding = outstandingAgg[0]?.total || 0;
+
+        // 4. Pending Redemptions (Loans due soon or overdue)
+        const dueThreshold = new Date();
+        dueThreshold.setDate(dueThreshold.getDate() + 7); // Next 7 days
+
+        const pendingRedemptions = await Loan.countDocuments({
+            status: { $ne: 'closed' },
+            dueDate: { $lte: dueThreshold }
+        });
+
+        res.json({
+            today: {
+                loansCount: loansIssuedCount,
+                loansAmount: loansIssuedAmount,
+                paymentsReceived: totalReceivedToday,
+                interestCollected: interestCollectedToday,
+                pendingRedemptions: pendingRedemptions
+            },
+            stats: {
+                activeLoans: totalActive,
+                outstandingAmount: totalOutstanding
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+export { createLoan, getLoans, getLoanById, getDashboardStats, getStaffDashboardStats };
+
