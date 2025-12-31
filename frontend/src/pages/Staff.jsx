@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { UserPlus, User, Trash2, Shield } from 'lucide-react';
+import { UserPlus, User, Trash2, Shield, Edit } from 'lucide-react';
 import './Staff.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -83,6 +83,13 @@ const Staff = () => {
                                 </div>
 
                                 <div className="staff-footer">
+                                    <button
+                                        className="btn-delete"
+                                        style={{ backgroundColor: '#e2e8f0', color: '#475569', marginRight: '8px' }}
+                                        onClick={() => navigate(`/staff/edit/${member._id}`)}
+                                    >
+                                        <Edit size={16} /> Edit
+                                    </button>
                                     <button
                                         className="btn-delete"
                                         onClick={() => handleDelete(member._id)}

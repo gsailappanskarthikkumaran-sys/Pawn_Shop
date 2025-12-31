@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Save, X, User, Lock, Briefcase } from 'lucide-react';
-import './Staff.css'; // Reusing styles
+import './Staff.css';
 
 const AddStaff = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
+    const isEditMode = !!id;
+
     const [formData, setFormData] = useState({
         fullName: '',
         username: '',
@@ -13,15 +16,49 @@ const AddStaff = () => {
     });
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (isEditMode) {
+            fetchStaffData();
+        }
+    }, [id]);
+
+    const fetchStaffData = async () => {
+        try {
+            // Since we don't have a single staff fetch endpoint, we find from the list
+            // Or ideally, add GET /staff/:id
+            // For now, let's fetch all and find
+            const { data } = await api.get('/staff');
+            const member = data.find(s => s._id === id);
+            if (member) {
+                setFormData({
+                    fullName: member.fullName,
+                    username: member.username,
+                    password: '' // Keep empty, only send if changing
+                });
+            } else {
+                alert('Staff not found');
+                navigate('/staff');
+            }
+        } catch (error) {
+            console.error(error);
+            navigate('/staff');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/staff', formData);
-            alert('Staff Member Added Successfully!');
+            if (isEditMode) {
+                await api.put(`/staff/${id}`, formData);
+                alert('Staff Updated Successfully!');
+            } else {
+                await api.post('/staff', formData);
+                alert('Staff Added Successfully!');
+            }
             navigate('/staff');
         } catch (error) {
-            alert(error.response?.data?.message || 'Failed to add staff');
+            alert(error.response?.data?.message || 'Failed to save staff');
         } finally {
             setLoading(false);
         }
@@ -31,8 +68,8 @@ const AddStaff = () => {
         <div className="page-container" style={{ maxWidth: '600px', margin: '0 auto' }}>
             <div className="page-header">
                 <div className="page-title">
-                    <h1>Add Staff Member</h1>
-                    <p>Create credentials for a new employee</p>
+                    <h1>{isEditMode ? 'Edit Staff Member' : 'Add Staff Member'}</h1>
+                    <p>{isEditMode ? 'Update access credentials' : 'Create credentials for a new employee'}</p>
                 </div>
             </div>
 
@@ -63,14 +100,14 @@ const AddStaff = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label"><Lock size={16} style={{ display: 'inline', marginRight: '6px' }} /> Password</label>
+                        <label className="form-label"><Lock size={16} style={{ display: 'inline', marginRight: '6px' }} /> Password {isEditMode && '(Leave blank to keep current)'}</label>
                         <input
                             type="password"
                             className="input-field"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            required
-                            placeholder="Set initial password"
+                            required={!isEditMode}
+                            placeholder={isEditMode ? "Enter new password to change" : "Set initial password"}
                             minLength="6"
                         />
                     </div>
@@ -80,7 +117,7 @@ const AddStaff = () => {
                             Cancel
                         </button>
                         <button type="submit" className="btn-primary" disabled={loading}>
-                            {loading ? 'Creating...' : 'Create Account'}
+                            {loading ? 'Saving...' : (isEditMode ? 'Update Account' : 'Create Account')}
                         </button>
                     </div>
                 </form>

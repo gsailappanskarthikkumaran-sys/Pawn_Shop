@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ArrowLeft, User, Phone, MapPin, Printer, FileText, DollarSign, Calendar } from 'lucide-react';
+import { ArrowLeft, User, Phone, MapPin, Printer, FileText, DollarSign, Calendar, Edit } from 'lucide-react';
 import './CustomerDetails.css';
 
 const CustomerDetails = () => {
@@ -60,6 +60,13 @@ const CustomerDetails = () => {
                     <ArrowLeft size={20} /> Back
                 </button>
                 <div className="header-actions">
+                    <button
+                        className="print-btn"
+                        style={{ marginRight: '8px' }}
+                        onClick={() => navigate(`/customers/edit/${customer._id}`)}
+                    >
+                        <Edit size={18} /> Edit
+                    </button>
                     <button
                         className="print-btn"
                         onClick={() => window.open(`/print/customer/${customer._id}`, '_blank')}

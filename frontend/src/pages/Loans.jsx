@@ -58,7 +58,9 @@ const Loans = () => {
                                 <th>Loan ID</th>
                                 <th>Customer</th>
                                 <th>Scheme</th>
+                                <th>Interest</th>
                                 <th>Date</th>
+                                <th>Due Date</th>
                                 <th>Amount</th>
                                 <th>Result</th>
                                 <th>Status</th>
@@ -79,7 +81,9 @@ const Loans = () => {
                                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{loan.customer?.phone}</div>
                                         </td>
                                         <td>{loan.scheme?.schemeName}</td>
+                                        <td>{loan.interestRate}%</td>
                                         <td>{new Date(loan.createdAt).toLocaleDateString()}</td>
+                                        <td>{new Date(loan.dueDate).toLocaleDateString()}</td>
                                         <td className="amount-cell">₹{loan.loanAmount}</td>
                                         <td style={{ color: '#64748b' }}>₹{loan.valuation}</td>
                                         <td>

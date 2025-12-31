@@ -44,6 +44,38 @@ const addStaff = async (req, res) => {
     }
 };
 
+// @desc    Update staff
+// @route   PUT /api/staff/:id
+// @access  Private/Admin
+const updateStaff = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.fullName = req.body.fullName || user.fullName;
+        user.username = req.body.username || user.username;
+
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            username: updatedUser.username,
+            fullName: updatedUser.fullName,
+            role: updatedUser.role
+        });
+
+    } catch (error) {
+        res.status(400).json({ message: 'Error updating staff', error: error.message });
+    }
+};
+
 // @desc    Delete staff
 // @route   DELETE /api/staff/:id
 // @access  Private/Admin
@@ -60,4 +92,4 @@ const deleteStaff = async (req, res) => {
     }
 };
 
-export { getAllStaff, addStaff, deleteStaff };
+export { getAllStaff, addStaff, updateStaff, deleteStaff };

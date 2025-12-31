@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { Upload, Save, X } from 'lucide-react';
 import './AddCustomer.css';
 
 const AddCustomer = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
+    const isEditMode = !!id;
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -18,6 +21,36 @@ const AddCustomer = () => {
     const [idFiles, setIdFiles] = useState({ aadharCard: null, panCard: null });
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (isEditMode) {
+            fetchCustomerData();
+        }
+    }, [id]);
+
+    const fetchCustomerData = async () => {
+        setLoading(true);
+        try {
+            const { data } = await api.get(`/customers/${id}`);
+            setFormData({
+                name: data.name || '',
+                email: data.email || '',
+                phone: data.phone || '',
+                address: data.address || '',
+                aadharNumber: data.aadharNumber || '',
+                panNumber: data.panNumber || ''
+            });
+            if (data.photo) {
+                setPreview(`http://localhost:5000/${data.photo}`);
+            }
+        } catch (error) {
+            console.error("Failed to fetch customer", error);
+            alert("Failed to load customer data");
+            navigate('/customers');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,13 +88,22 @@ const AddCustomer = () => {
         if (idFiles.panCard) data.append('panCard', idFiles.panCard);
 
         try {
-            await api.post('/customers', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            navigate('/customers');
+            if (isEditMode) {
+                await api.put(`/customers/${id}`, data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                alert('Customer Updated Successfully!');
+                navigate(`/customers/${id}`);
+            } else {
+                await api.post('/customers', data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                alert('Customer Added Successfully!');
+                navigate('/customers');
+            }
         } catch (error) {
-            console.error('Error adding customer:', error);
-            alert('Failed to add customer');
+            console.error('Error saving customer:', error);
+            alert('Failed to save customer');
         } finally {
             setLoading(false);
         }
@@ -71,8 +113,8 @@ const AddCustomer = () => {
         <div className="page-container form-container">
             <div className="page-header">
                 <div className="page-title">
-                    <h1>Add New Customer</h1>
-                    <p>Register a new customer for KYC</p>
+                    <h1>{isEditMode ? 'Edit Customer' : 'Add New Customer'}</h1>
+                    <p>{isEditMode ? 'Update customer details' : 'Register a new customer for KYC'}</p>
                 </div>
             </div>
 
@@ -154,7 +196,7 @@ const AddCustomer = () => {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Aadhar Card Photo</label>
+                            <label className="form-label">Aadhar Card Photo {isEditMode && '(Upload to replace)'}</label>
                             <input
                                 type="file"
                                 name="aadharCard"
@@ -164,7 +206,7 @@ const AddCustomer = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">PAN Card Photo</label>
+                            <label className="form-label">PAN Card Photo {isEditMode && '(Upload to replace)'}</label>
                             <input
                                 type="file"
                                 name="panCard"
@@ -195,11 +237,11 @@ const AddCustomer = () => {
                     </div>
 
                     <div className="form-actions">
-                        <button type="button" className="btn-secondary" onClick={() => navigate('/customers')}>
+                        <button type="button" className="btn-secondary" onClick={() => navigate(isEditMode ? `/customers/${id}` : '/customers')}>
                             <X size={18} /> Cancel
                         </button>
                         <button type="submit" className="btn-primary" disabled={loading}>
-                            <Save size={18} /> {loading ? 'Saving...' : 'Save Customer'}
+                            <Save size={18} /> {loading ? 'Saving...' : (isEditMode ? 'Update Customer' : 'Save Customer')}
                         </button>
                     </div>
                 </form>

@@ -38,6 +38,7 @@ const App = () => {
         <Route path="/" element={<Dashboard />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/customers/add" element={<AddCustomer />} />
+        <Route path="/customers/edit/:id" element={<AddCustomer />} />
         <Route path="/customers/:id" element={<CustomerDetails />} />
         <Route path="/auctions" element={<Auctions />} />
         <Route path="/pledge" element={<PledgeEntry />} />
@@ -52,6 +53,7 @@ const App = () => {
         {/* Admin Only Routes */}
         <Route path="/staff" element={<Staff />} />
         <Route path="/staff/add" element={<AddStaff />} />
+        <Route path="/staff/edit/:id" element={<AddStaff />} />
       </Route>
     </Routes>
   );
