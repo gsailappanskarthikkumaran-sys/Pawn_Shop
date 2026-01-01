@@ -6,10 +6,8 @@ import {
     Gem,
     FileText,
     Settings,
-    LogOut,
     Receipt,
     Book,
-    Bell,
     Gavel
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -30,7 +28,7 @@ const Sidebar = () => {
         { name: 'Accounts', path: '/accounts', icon: <Book size={20} /> },
         { name: 'Auctions', path: '/auctions', icon: <Gavel size={20} /> },
         { name: 'Vouchers', path: '/vouchers', icon: <Receipt size={20} /> },
-        { name: 'Notifications', path: '/notifications', icon: <Bell size={20} /> },
+
         ...(isAdmin ? [
             { name: 'Masters', path: '/masters', icon: <Settings size={20} /> },
             { name: 'Staff', path: '/staff', icon: <Users size={20} /> }
@@ -41,10 +39,10 @@ const Sidebar = () => {
         <div className="sidebar">
             <div className="sidebar-header">
                 <div className="brand-icon">
-                    <Gem size={22} color="#0f172a" strokeWidth={2.5} />
+                    <Banknote size={22} color="#0f172a" strokeWidth={2.5} />
                 </div>
                 <div className="brand-info">
-                    <h1>GoldLend</h1>
+                    <h1>Pawn broking</h1>
                     <p>Management System</p>
                 </div>
             </div>
@@ -80,9 +78,6 @@ const Sidebar = () => {
                         <p>{user?.role}</p>
                     </div>
                 </div>
-                <button onClick={logout} className="logout-btn">
-                    <LogOut size={18} /> Logout
-                </button>
             </div>
         </div>
     );

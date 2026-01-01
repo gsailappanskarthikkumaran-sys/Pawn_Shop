@@ -1,11 +1,9 @@
-/* Login Page Styles */
 .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: var(--spacing-md);
-    /* Dark Gradient Background */
     background: radial-gradient(circle at top right, #1e293b, var(--bg-dark));
 }
 
@@ -13,7 +11,6 @@
     width: 100%;
     max-width: 440px;
     background: rgba(30, 41, 59, 0.4);
-    /* Glass effect */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -25,7 +22,6 @@
     animation: fadeInUp 0.5s ease-out;
 }
 
-/* Top decorative line */
 .card-decoration {
     position: absolute;
     top: 0;
@@ -68,7 +64,6 @@
 
 .login-subtitle {
     color: #94a3b8;
-    /* Slate-400 */
     font-size: 1rem;
 }
 
@@ -98,8 +93,7 @@
 }
 
 .form-label {
-    color: #cbd5e1;
-    /* Slate-300 */
+    color: #c61d1dea;
     font-size: 0.875rem;
     font-weight: 500;
 }
@@ -131,7 +125,6 @@
     width: 100%;
     padding: 1rem;
     background: linear-gradient(to right, #ca8a04, #eab308);
-    /* Yellow-600 to 500 */
     color: #0f172a;
     font-weight: 700;
     font-size: 1.125rem;

@@ -9,22 +9,27 @@
    Since Sidebar is fixed with width 280px (defined in Sidebar.css),
    we need to push the main content to the right.
 */
-.main-content {
+.main-content-wrapper {
     flex: 1;
     margin-left: 280px;
-    /* Matches sidebar width */
-    min-height: 100vh;
-    background-color: var(--bg-light);
     width: calc(100% - 280px);
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     transition: margin-left 0.3s;
 }
 
+.main-content {
+    flex: 1;
+    background-color: var(--bg-light);
+    position: relative;
+    /* Remove margin-left from here as it's on wrapper */
+}
+
 @media (max-width: 768px) {
-    .main-content {
+    .main-content-wrapper {
         margin-left: 0;
         width: 100%;
         padding-top: 60px;
-        /* Space for mobile header if we add one later */
     }
 }

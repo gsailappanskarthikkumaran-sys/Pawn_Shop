@@ -34,12 +34,12 @@ const Dashboard = () => {
         }
     };
 
-    // If Staff, Render Staff Dashboard (Must be after hooks)
+   
     if (user?.role === 'staff') {
         return <StaffDashboard />;
     }
 
-    // Chart Colors
+   
     const COLORS = ['#ca8a04', '#3b82f6', '#22c55e', '#a855f7', '#ef4444']; // Yellow, Blue, Green, Purple, Red
 
     if (loading) {
@@ -50,7 +50,7 @@ const Dashboard = () => {
         );
     }
 
-    // Fallback data if API returns empty
+    
     const monthlyData = stats?.monthlyTrend?.length ? stats.monthlyTrend : [
         { month: 'Jan', amount: 0 }, { month: 'Feb', amount: 0 }
     ];
