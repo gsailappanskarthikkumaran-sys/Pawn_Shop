@@ -11,6 +11,10 @@ const AddStaff = () => {
     const location = useLocation();
     const isEditMode = !!id;
 
+    // Get returnUrl from query params
+    const searchParams = new URLSearchParams(location.search);
+    const returnUrl = searchParams.get('returnUrl');
+
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -32,7 +36,6 @@ const AddStaff = () => {
         if (isEditMode) {
             fetchStaffData();
         } else {
-            const searchParams = new URLSearchParams(location.search);
             const branchId = searchParams.get('branchId');
             if (branchId) {
                 setFormData(prev => ({ ...prev, branch: branchId }));
@@ -62,14 +65,22 @@ const AddStaff = () => {
                     idProofNumber: member.idProofNumber || '',
                     username: member.username,
                     password: '',
-                    branch: member.branch || ''
+                    branch: member.branch?._id || member.branch || '' // Handle populated or raw ID
                 });
             } else {
                 alert('Staff not found');
-                navigate('/staff');
+                handleNavigateBack();
             }
         } catch (error) {
             console.error(error);
+            handleNavigateBack();
+        }
+    };
+
+    const handleNavigateBack = () => {
+        if (returnUrl) {
+            navigate(returnUrl);
+        } else {
             navigate('/staff');
         }
     };
@@ -95,13 +106,13 @@ const AddStaff = () => {
             if (isEditMode) {
                 await api.put(`/staff/${id}`, payload);
                 alert('Staff Updated Successfully!');
-                navigate('/staff');
+                handleNavigateBack();
             } else {
                 const { data } = await api.post('/staff', payload);
                 // Show generated credentials
                 setCreatedCredentials(null); // Ensure this is cleared
                 alert('Staff Added Successfully!');
-                navigate('/staff');
+                handleNavigateBack();
             }
         } catch (error) {
             alert(error.response?.data?.message || 'Failed to save staff');
@@ -227,7 +238,7 @@ const AddStaff = () => {
                     </div>
 
                     <div className="form-actions border-t pt-4 mt-6 flex justify-end gap-3">
-                        <button type="button" className="btn-secondary" onClick={() => navigate('/staff')}>
+                        <button type="button" className="btn-secondary" onClick={handleNavigateBack}>
                             Cancel
                         </button>
                         <button type="submit" className="btn-primary" disabled={loading}>

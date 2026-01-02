@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { ArrowLeft, UserPlus, MapPin, Building2, User } from 'lucide-react';
+import { ArrowLeft, UserPlus, MapPin, Building2, User, Edit, Trash2 } from 'lucide-react';
 
 const BranchDetails = () => {
     const { id } = useParams();
@@ -26,6 +26,18 @@ const BranchDetails = () => {
             console.error("Error fetching branch details", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteStaff = async (staffId) => {
+        if (window.confirm('Are you sure you want to remove this staff member?')) {
+            try {
+                await api.delete(`/staff/${staffId}`);
+                setStaff(staff.filter(s => s._id !== staffId));
+            } catch (error) {
+                console.error("Error deleting staff", error);
+                alert('Failed to remove staff member');
+            }
         }
     };
 
@@ -58,7 +70,7 @@ const BranchDetails = () => {
                         </div>
                     </div>
                     <button
-                        onClick={() => navigate(`/staff/add?branchId=${branch._id}`)}
+                        onClick={() => navigate(`/staff/add?branchId=${branch._id}&returnUrl=/branches/${branch._id}`)}
                         className="btn-primary"
                         style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >
@@ -69,7 +81,23 @@ const BranchDetails = () => {
                 {staff.length > 0 ? (
                     <div className="staff-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                         {staff.map(member => (
-                            <div key={member._id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem' }}>
+                            <div key={member._id} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', position: 'relative' }}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginBottom: '0.5rem' }}>
+                                    <button
+                                        onClick={() => navigate(`/staff/edit/${member._id}?returnUrl=/branches/${branch._id}`)}
+                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                                        title="Edit Staff"
+                                    >
+                                        <Edit size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteStaff(member._id)}
+                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
+                                        title="Remove Staff"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.5rem' }}>
                                     <div style={{ width: '36px', height: '36px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                                         <User size={18} />
