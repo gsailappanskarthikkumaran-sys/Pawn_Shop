@@ -8,7 +8,8 @@ const About = () => {
             <h1 className="about-title">About Us</h1>
 
             <div className="card about-card">
-                <h2 className="about-subtitle">Our Mission</h2>
+                <
+                    h2 className="about-subtitle">Our Mission</h2>
                 <p className="about-description">
                     We aim to provide a transparent, secure, and efficient pawn broking management system that empowers businesses to manage their loans, customers, and inventory with ease. Our solution is built with modern technology to ensure reliability and speed.
                 </p>

@@ -5,7 +5,12 @@ const createCustomer = async (req, res) => {
     try {
         const { name, email, phone, address, aadharNumber, panNumber } = req.body;
 
-        const customerExists = await Customer.findOne({ $or: [{ phone }, { email }] });
+        const orConditions = [{ phone }];
+        if (email) {
+            orConditions.push({ email });
+        }
+
+        const customerExists = await Customer.findOne({ $or: orConditions });
         if (customerExists) {
             return res.status(400).json({ message: 'Customer already exists with this phone or email' });
         }

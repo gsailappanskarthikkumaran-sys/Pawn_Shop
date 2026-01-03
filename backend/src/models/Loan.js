@@ -24,12 +24,12 @@ const loanSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    totalPurity: { // Average purity or just informative
+    totalPurity: { 
         type: String,
     },
     goldRateAtPledge: {
         type: Number,
-        required: true, // Rate per gram used for calculation
+        required: true, 
     },
     valuation: {
         type: Number,

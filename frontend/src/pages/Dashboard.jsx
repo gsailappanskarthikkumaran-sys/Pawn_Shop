@@ -79,25 +79,18 @@ const Dashboard = () => {
                 </div>
                 <div className="dashboard-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     {user?.role !== 'staff' && (
-                        <select
-                            className="branch-select"
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.target.value)}
-                            style={{
-                                padding: '0.5rem',
-                                borderRadius: '0.5rem',
-                                border: '1px solid #e2e8f0',
-                                backgroundColor: 'white',
-                                color: '#0f172a',
-                                fontSize: '0.875rem',
-                                outline: 'none'
-                            }}
-                        >
-                            <option value="">All Branches</option>
-                            {branches.map(branch => (
-                                <option key={branch._id} value={branch._id}>{branch.name}</option>
-                            ))}
-                        </select>
+                        <div className="branch-select-container">
+                            <select
+                                className="branch-select"
+                                value={selectedBranch}
+                                onChange={(e) => setSelectedBranch(e.target.value)}
+                            >
+                                <option value="">All Branches</option>
+                                {branches.map(branch => (
+                                    <option key={branch._id} value={branch._id}>{branch.name}</option>
+                                ))}
+                            </select>
+                        </div>
                     )}
                     <div className="date-badge">
                         <Calendar size={14} />
@@ -134,6 +127,20 @@ const Dashboard = () => {
                     <div className="stat-info">
                         <p>Overdue</p>
                         <h3>{stats?.counts?.overdue || 0}</h3>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon gray-icon"><FileText size={24} /></div>
+                    <div className="stat-info">
+                        <p>Closed Pledges</p>
+                        <h3>{stats?.counts?.closed || 0}</h3>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon purple-icon"><TrendingUp size={24} /></div>
+                    <div className="stat-info">
+                        <p>Interest Today</p>
+                        <h3>₹{stats?.financials?.interestToday?.toLocaleString() || 0}</h3>
                     </div>
                 </div>
             </div>

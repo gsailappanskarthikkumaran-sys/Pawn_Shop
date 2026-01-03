@@ -26,7 +26,7 @@ const Contact = () => {
                             <Mail size={24} />
                         </div>
                         <h3>Email</h3>
-                        <p>support@pawnbroker.com</p>
+                        <p>support@gmail.com</p>
                         <p className="contact-subtext">24/7 Support</p>
                     </div>
 
@@ -35,8 +35,7 @@ const Contact = () => {
                             <MapPin size={24} />
                         </div>
                         <h3>Office</h3>
-                        <p>123, </p>
-                        <p className="contact-subtext">Mumbai, Maharashtra</p>
+                        <p className="contact-subtext">123, North Street, West side,East Mambalam </p>
                     </div>
                 </div>
             </div>

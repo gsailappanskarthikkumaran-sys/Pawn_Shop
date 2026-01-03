@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Loan from '../models/Loan.js';
 import Item from '../models/Item.js';
 import Scheme from '../models/Scheme.js';
@@ -165,24 +166,80 @@ const getLoanById = async (req, res) => {
 const getDashboardStats = async (req, res) => {
     try {
         let query = {};
+        let branchId = null;
+
         if (req.user.role === 'staff' && req.user.branch) {
-            query.branch = req.user.branch;
+            branchId = req.user.branch;
         } else if (req.query.branch) {
-            query.branch = req.query.branch;
+            branchId = req.query.branch;
+        }
+
+        if (branchId) {
+            try {
+                const oid = new mongoose.Types.ObjectId(branchId);
+                query.$or = [{ branch: oid }, { branch: branchId.toString() }];
+            } catch (e) {
+                query.branch = branchId;
+            }
         }
 
         const totalLoans = await Loan.countDocuments(query);
         const activeLoans = await Loan.countDocuments({ ...query, status: { $ne: 'closed' } });
-        const overdueLoans = await Loan.countDocuments({ ...query, status: 'overdue' }); // Assuming overdue status handled by cron
+        const overdueLoans = await Loan.countDocuments({ ...query, status: 'overdue' });
 
         // Aggregations
         const totals = await Loan.aggregate([
-            { $match: query }, // Filter Match First
+            { $match: query },
             {
                 $group: {
                     _id: null,
                     totalDisbursed: { $sum: "$loanAmount" },
                     totalOutstanding: { $sum: "$currentBalance" }
+                }
+            }
+        ]);
+
+        // Interest Collected Today
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const paymentMatch = {
+            paymentDate: { $gte: todayStart, $lte: todayEnd },
+            type: 'interest'
+        };
+
+        // Construct branch match for looked-up loan details
+        let loanBranchMatch = {};
+        if (query.$or) {
+            loanBranchMatch.$or = query.$or.map(cond => ({
+                'loanDetails.branch': cond.branch
+            }));
+        } else if (query.branch) {
+            loanBranchMatch['loanDetails.branch'] = query.branch;
+        }
+
+        const interestAgg = await Payment.aggregate([
+            {
+                $lookup: {
+                    from: 'loans',
+                    localField: 'loan',
+                    foreignField: '_id',
+                    as: 'loanDetails'
+                }
+            },
+            { $unwind: '$loanDetails' },
+            {
+                $match: {
+                    ...paymentMatch,
+                    ...loanBranchMatch
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalInterest: { $sum: "$amount" }
                 }
             }
         ]);
@@ -207,7 +264,7 @@ const getDashboardStats = async (req, res) => {
             }
         ]);
 
-        // Monthly Trend (Last 6 months)
+        // Monthly Trend
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -232,11 +289,13 @@ const getDashboardStats = async (req, res) => {
             counts: {
                 total: totalLoans,
                 active: activeLoans,
+                closed: await Loan.countDocuments({ ...query, status: 'closed' }),
                 overdue: overdueLoans
             },
             financials: {
                 disbursed: totals[0]?.totalDisbursed || 0,
-                outstanding: totals[0]?.totalOutstanding || 0
+                outstanding: totals[0]?.totalOutstanding || 0,
+                interestToday: interestAgg[0]?.totalInterest || 0
             },
             schemeStats: schemeStats.map(s => ({ name: s._id, value: s.value, amount: s.amount })),
             monthlyTrend: monthlyTrend.map(m => ({
