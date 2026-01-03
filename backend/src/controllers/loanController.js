@@ -70,6 +70,7 @@ const createLoan = async (req, res) => {
             preInterestAmount: preInterestAmount || 0,
             interestRate: scheme.interestRate,
             dueDate: new Date(Date.now() + scheme.tenureMonths * 30 * 24 * 60 * 60 * 1000),
+            nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 1 month from now
             createdBy: req.user._id,
             branch: req.user.branch, // Assign Loan to User's Branch
             currentBalance: requestedLoanAmount

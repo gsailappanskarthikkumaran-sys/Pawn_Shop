@@ -24,12 +24,12 @@ const loanSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    totalPurity: { 
+    totalPurity: {
         type: String,
     },
     goldRateAtPledge: {
         type: Number,
-        required: true, 
+        required: true,
     },
     valuation: {
         type: Number,
@@ -58,6 +58,14 @@ const loanSchema = new mongoose.Schema({
     currentBalance: { // To track remaining principal/interest
         type: Number,
         default: 0
+    },
+    nextPaymentDate: {
+        type: Date,
+        required: true,
+    },
+    paymentFrequency: {
+        type: String,
+        default: 'monthly', // monthly, quarterly, etc.
     },
     status: {
         type: String,

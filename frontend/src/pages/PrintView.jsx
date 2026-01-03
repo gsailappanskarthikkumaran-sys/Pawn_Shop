@@ -87,12 +87,33 @@ const LoanReceipt = ({ loan }) => (
                     <label>Date</label>
                     <div>{new Date(loan.createdAt).toLocaleDateString()}</div>
                 </div>
+                {/* New: Customer Details here for better flow ? No, keep structure */}
             </div>
             <div className="text-right">
                 <div className="detail-group mb-4">
-                    <label>Amount</label>
+                    <label>Principal Amount</label>
                     <div className="text-2xl font-bold">₹{loan.loanAmount}</div>
                 </div>
+                {loan.preInterestAmount > 0 && (
+                    <div className="detail-group mb-4">
+                        <label>Less: Pre-interest Deduction</label>
+                        <div className="text-lg text-red-600">- ₹{loan.preInterestAmount}</div>
+                        <div className="text-xs text-gray-500">
+                            ({loan.scheme?.preInterestMonths || 0} months @ {loan.scheme?.interestRate}%)
+                        </div>
+                    </div>
+                )}
+                <div className="detail-group mb-4 border-t border-black pt-2">
+                    <label>Net Cash Received</label>
+                    <div className="text-2xl font-bold">
+                        ₹{loan.loanAmount - (loan.preInterestAmount || 0)}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div className="grid-2 mt-4">
+            <div>
                 <div className="detail-group mb-4">
                     <label>Scheme</label>
                     <div>{loan.scheme?.schemeName} ({loan.scheme?.interestRate}%)</div>
@@ -101,14 +122,18 @@ const LoanReceipt = ({ loan }) => (
                     <label>Maturity Date</label>
                     <div>{new Date(loan.dueDate).toLocaleDateString()}</div>
                 </div>
+            </div>
+            <div className="text-right">
                 <div className="detail-group mb-4">
-                    <label>Next Due Date</label>
-                    <div>
-                        {(() => {
-                            const d = new Date(loan.createdAt);
-                            d.setMonth(d.getMonth() + 1);
-                            return d.toLocaleDateString();
-                        })()}
+                    <label>Next Payment Due Date</label>
+                    <div className="font-bold text-lg">
+                        {new Date(loan.nextPaymentDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                    </div>
+                </div>
+                <div className="detail-group mb-4">
+                    <label>Next Due Amount (Interest)</label>
+                    <div className="font-bold">
+                        ₹{((loan.loanAmount * (loan.interestRate || 2)) / 100).toFixed(2)}
                     </div>
                 </div>
             </div>
@@ -263,17 +288,39 @@ const PaymentReceipt = ({ payment }) => (
                     <div style={{ textTransform: 'capitalize' }}>{payment.paymentMode || 'Cash'}</div>
                 </div>
                 <div className="detail-group">
+                    <label>Loan ID</label>
+                    <div>{payment.loan?.loanId || 'N/A'}</div>
+                </div>
+                <div className="detail-group">
                     <label>Remarks</label>
                     <div>{payment.remarks || '-'}</div>
                 </div>
             </div>
         </div>
 
-        {/* Since Payment model only has Loan ID, we might need to populate it. 
-            Backend getPaymentsByLoan doesn't populate loan/customer deeply by default usually, 
-            but for a receipt we need fetch logic in PrintView to populate. 
-            Let's update PrintView fetch logic first.
-        */}
+        {payment.loan && (
+            <div className="mb-6 p-4 bg-gray-50 border border-gray-200">
+                <h3 className="text-sm font-bold border-b border-gray-400 mb-2 uppercase">Upcoming Payment</h3>
+                <div className="grid-2">
+                    <div className="detail-group">
+                        <label>Next Due Date</label>
+                        <div className="font-bold text-lg">
+                            {/* Determine date based on current payment or loan next date */}
+                            {new Date(payment.loan.nextPaymentDate).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div className="detail-group text-right">
+                        <label>Next Interest Amount</label>
+                        <div className="font-bold">
+                            ₹{((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+                <div className="text-xs text-gray-500 mt-2 text-center">
+                    Please pay by the due date to avoid penalty charges.
+                </div>
+            </div>
+        )}
     </div>
 );
 

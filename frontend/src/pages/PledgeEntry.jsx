@@ -13,6 +13,19 @@ const PledgeEntry = () => {
         requestedLoan: '',
     });
     const [preInterestAmount, setPreInterestAmount] = useState(''); // New State
+
+    useEffect(() => {
+        if (formData.schemeId && formData.requestedLoan) {
+            const scheme = schemes.find(s => s._id === formData.schemeId);
+            if (scheme && scheme.preInterestMonths > 0) {
+                const interest = (parseFloat(formData.requestedLoan) * scheme.interestRate) / 100;
+                const preInterest = interest * scheme.preInterestMonths;
+                setPreInterestAmount(preInterest.toFixed(2));
+            } else {
+                setPreInterestAmount('');
+            }
+        }
+    }, [formData.schemeId, formData.requestedLoan, schemes]);
     const [items, setItems] = useState([{ name: '', netWeight: '', purity: '22k', description: '' }]);
     const [files, setFiles] = useState([]);
 

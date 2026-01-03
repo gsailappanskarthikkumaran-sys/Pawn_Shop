@@ -40,6 +40,11 @@ const addPayment = async (req, res) => {
                 loan.status = 'closed';
                 loan.currentBalance = 0;
             }
+        } else if (type === 'interest') {
+            // Advance next payment date by 1 month
+            const nextDate = new Date(loan.nextPaymentDate);
+            nextDate.setMonth(nextDate.getMonth() + 1);
+            loan.nextPaymentDate = nextDate;
         }
         // For interest, we assume it handles offline calc or separate field, but for now we just log it.
 
