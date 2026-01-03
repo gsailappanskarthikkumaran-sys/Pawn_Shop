@@ -3,6 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 const createCustomer = async (req, res) => {
     try {
+        console.log('--- Create Customer Request ---');
+        console.log('User:', req.user);
+        console.log('Body:', req.body);
+        console.log('Files:', req.files);
+
         const { name, email, phone, address, aadharNumber, panNumber } = req.body;
 
         const customerExists = await Customer.findOne({ $or: [{ phone }, { email }] });
@@ -26,6 +31,26 @@ const createCustomer = async (req, res) => {
             }
         }
 
+        // Determine Branch
+        let branchToAssign = req.user.branch; // Default to user's branch
+
+        if (req.user.role === 'admin') {
+            branchToAssign = req.body.branch; // Admin must provide branch
+            if (!branchToAssign) {
+                return res.status(400).json({ message: 'Admin must select a branch for the customer' });
+            }
+        }
+
+        // If Staff, user.branch must exist
+        if (req.user.role === 'staff' && !branchToAssign) {
+            return res.status(400).json({ message: 'Staff user is not assigned to any branch. Contact Admin.' });
+        }
+
+        if (!branchToAssign) {
+            // Catch-all
+            return res.status(400).json({ message: 'Branch assignment failed' });
+        }
+
         const customer = await Customer.create({
             customerId: `CUST-${uuidv4().substring(0, 8).toUpperCase()}`,
             name,
@@ -38,7 +63,7 @@ const createCustomer = async (req, res) => {
             aadharCard: aadharCardPath,
             panCard: panCardPath,
             createdBy: req.user._id,
-            branch: req.user.branch // Associate Customer with Branch
+            branch: branchToAssign
         });
 
         res.status(201).json(customer);

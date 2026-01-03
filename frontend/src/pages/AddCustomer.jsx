@@ -15,18 +15,40 @@ const AddCustomer = () => {
         phone: '',
         address: '',
         aadharNumber: '',
-        panNumber: ''
+        panNumber: '',
+        branch: ''
     });
+    const [branches, setBranches] = useState([]);
     const [photo, setPhoto] = useState(null);
     const [idFiles, setIdFiles] = useState({ aadharCard: null, panCard: null });
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    // Get user role/branch to decide if we show dropdown
+    // We don't have direct access to user context here unless we import useAuth
+    // Let's assume we can fetch branches. If api returns branches, we show them. 
+    // If user is staff, api/branches might return only 1 or 403? 
+    // Actually, we updated getBranches to return user's branch for staff.
+    // So distinct logic: If > 1 branch or Admin, show dropdown?
+    // Safer: Just fetch branches. If user is staff, backend createCustomer ignores input anyway.
+    // But for UX, better to show selected or separate. 
+    // Let's just add the field.
+
     useEffect(() => {
+        fetchBranches();
         if (isEditMode) {
             fetchCustomerData();
         }
     }, [id]);
+
+    const fetchBranches = async () => {
+        try {
+            const { data } = await api.get('/branches');
+            setBranches(data);
+        } catch (error) {
+            console.error("Failed to fetch branches");
+        }
+    };
 
     const fetchCustomerData = async () => {
         setLoading(true);
@@ -38,7 +60,8 @@ const AddCustomer = () => {
                 phone: data.phone || '',
                 address: data.address || '',
                 aadharNumber: data.aadharNumber || '',
-                panNumber: data.panNumber || ''
+                panNumber: data.panNumber || '',
+                branch: data.branch || ''
             });
             if (data.photo) {
                 setPreview(`http://localhost:5000/${data.photo}`);
@@ -81,7 +104,9 @@ const AddCustomer = () => {
         data.append('phone', formData.phone);
         data.append('address', formData.address);
         data.append('aadharNumber', formData.aadharNumber);
+        data.append('aadharNumber', formData.aadharNumber);
         data.append('panNumber', formData.panNumber);
+        if (formData.branch) data.append('branch', formData.branch);
 
         if (photo) data.append('photo', photo);
         if (idFiles.aadharCard) data.append('aadharCard', idFiles.aadharCard);
@@ -103,7 +128,8 @@ const AddCustomer = () => {
             }
         } catch (error) {
             console.error('Error saving customer:', error);
-            alert('Failed to save customer');
+            const serverMsg = error.response?.data?.message || 'Failed to save customer';
+            alert(serverMsg);
         } finally {
             setLoading(false);
         }
@@ -146,6 +172,25 @@ const AddCustomer = () => {
                                 placeholder="e.g. +1 234 567 890"
                             />
                         </div>
+
+                        {/* Branch Selection (Visible if branches loaded, usually for Admin) */}
+                        {branches.length > 0 && (
+                            <div className="form-group">
+                                <label className="form-label">Assign Branch</label>
+                                <select
+                                    name="branch"
+                                    className="input-field"
+                                    value={formData.branch || ''}
+                                    onChange={handleChange}
+                                    required={!isEditMode && branches.length > 1} // Required if multiple choices (Admin)
+                                >
+                                    <option value="">Select Branch</option>
+                                    {branches.map(b => (
+                                        <option key={b._id} value={b._id}>{b.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label className="form-label">Email Address (Optional)</label>
