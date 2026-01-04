@@ -3,7 +3,7 @@ import axios from 'axios';
 import GoldRate from '../models/GoldRate.js';
 
 // Configuration
-const BASE_RATE_22K = 6750; // Approximated base rate
+const BASE_RATE_22K = 12600; // Base rate for Current Location (approx)
 const VARIANCE = 50; // Max daily fluctuation in INR
 
 const fetchMarketRate = async () => {
@@ -18,17 +18,7 @@ const updateDailyGoldRate = async () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Check if rate exists for today
-        const existingRate = await GoldRate.findOne({
-            rateDate: { $gte: today }
-        });
-
-        if (existingRate) {
-            console.log('Gold rate for today already exists.');
-            return;
-        }
-
-        console.log('Fetching/Generating daily gold rate...');
+        console.log('Checking daily market rates...');
 
         let rate22k = 0;
         let rate24k = 0;
@@ -36,25 +26,31 @@ const updateDailyGoldRate = async () => {
         const marketRate = await fetchMarketRate();
 
         if (marketRate) {
-            rate24k = marketRate; // Assumption
+            rate24k = marketRate;
             rate22k = marketRate * 0.916;
         } else {
-            // SIMULATION: Generate a realistic fluctuation
-            // Get yesterday's rate or use base
-            const lastRate = await GoldRate.findOne().sort({ rateDate: -1 });
-            const previous22k = lastRate ? lastRate.ratePerGram22k : BASE_RATE_22K;
-
-            const fluctuation = (Math.random() * VARIANCE * 2) - VARIANCE; // +/- VARIANCE
-            rate22k = Math.round(previous22k + fluctuation);
+            // SIMULATION: Use Chennai Base Rate with slight variance
+            const fluctuation = (Math.random() * VARIANCE * 2) - VARIANCE;
+            rate22k = Math.round(BASE_RATE_22K + fluctuation);
             rate24k = Math.round(rate22k * (24 / 22));
         }
 
-        await GoldRate.create({
-            rateDate: new Date(),
-            ratePerGram22k: rate22k,
-            ratePerGram24k: rate24k,
-            updatedBy: null // System generated
-        });
+        // Upsert: Update if exists for today, else create
+        // Define day start and end
+        const startOfDay = new Date(today);
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        await GoldRate.findOneAndUpdate(
+            { rateDate: { $gte: startOfDay, $lte: endOfDay } },
+            {
+                rateDate: new Date(),
+                ratePerGram22k: rate22k,
+                ratePerGram24k: rate24k,
+                updatedBy: null
+            },
+            { upsert: true, new: true }
+        );
 
         console.log(`Daily Gold Rate Updated: 22k=₹${rate22k}, 24k=₹${rate24k}`);
 
