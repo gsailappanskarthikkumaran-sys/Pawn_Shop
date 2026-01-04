@@ -104,7 +104,7 @@ const AddCustomer = () => {
         data.append('phone', formData.phone);
         data.append('address', formData.address);
         data.append('aadharNumber', formData.aadharNumber);
-        data.append('aadharNumber', formData.aadharNumber);
+
         data.append('panNumber', formData.panNumber);
         if (formData.branch) data.append('branch', formData.branch);
 

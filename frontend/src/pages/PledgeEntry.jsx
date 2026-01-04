@@ -115,7 +115,8 @@ const PledgeEntry = () => {
             // Reset form logic here
         } catch (error) {
             console.error('Submission failed', error);
-            alert('Failed to create pledge');
+            const serverMsg = error.response?.data?.message || 'Failed to create pledge';
+            alert(serverMsg);
         }
     };
 

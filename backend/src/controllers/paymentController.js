@@ -5,7 +5,7 @@ import Loan from '../models/Loan.js';
 // @route   POST /api/payments
 // @access  Private
 const addPayment = async (req, res) => {
-    const { loanId, amount, type, remarks, paymentMode } = req.body;
+    const { loanId, amount, type, remarks, paymentMode, paymentDate } = req.body;
 
     try {
         const loan = await Loan.findById(loanId);
@@ -19,7 +19,8 @@ const addPayment = async (req, res) => {
             type,
             paymentMode: paymentMode || 'cash', // Default to cash if not sent
             remarks,
-            collectedBy: req.user._id
+            collectedBy: req.user._id,
+            paymentDate: paymentDate || Date.now()
         });
 
         // Update Loan Balance

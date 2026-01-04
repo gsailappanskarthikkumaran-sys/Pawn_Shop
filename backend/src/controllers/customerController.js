@@ -1,5 +1,19 @@
 import Customer from '../models/Customer.js';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+
+const cleanupFiles = (files) => {
+    if (!files) return;
+    Object.values(files).forEach(fileArray => {
+        fileArray.forEach(file => {
+            try {
+                fs.unlinkSync(file.path);
+            } catch (err) {
+                console.error("Failed to delete file:", file.path, err);
+            }
+        });
+    });
+};
 
 const createCustomer = async (req, res) => {
     try {
@@ -17,6 +31,7 @@ const createCustomer = async (req, res) => {
 
         const customerExists = await Customer.findOne({ $or: orConditions });
         if (customerExists) {
+            cleanupFiles(req.files);
             return res.status(400).json({ message: 'Customer already exists with this phone or email' });
         }
 
@@ -42,17 +57,20 @@ const createCustomer = async (req, res) => {
         if (req.user.role === 'admin') {
             branchToAssign = req.body.branch; // Admin must provide branch
             if (!branchToAssign) {
+                cleanupFiles(req.files);
                 return res.status(400).json({ message: 'Admin must select a branch for the customer' });
             }
         }
 
         // If Staff, user.branch must exist
         if (req.user.role === 'staff' && !branchToAssign) {
+            cleanupFiles(req.files);
             return res.status(400).json({ message: 'Staff user is not assigned to any branch. Contact Admin.' });
         }
 
         if (!branchToAssign) {
             // Catch-all
+            cleanupFiles(req.files);
             return res.status(400).json({ message: 'Branch assignment failed' });
         }
 
@@ -74,6 +92,8 @@ const createCustomer = async (req, res) => {
         res.status(201).json(customer);
 
     } catch (error) {
+        cleanupFiles(req.files);
+        // Specialized error for generic cleanup, but preserving original message if possible
         res.status(400).json({ message: 'Invalid customer data', error: error.message });
     }
 };
