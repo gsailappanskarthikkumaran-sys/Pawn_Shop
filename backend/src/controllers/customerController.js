@@ -3,11 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const createCustomer = async (req, res) => {
     try {
-        console.log('--- Create Customer Request ---');
-        console.log('User:', req.user);
-        console.log('Body:', req.body);
-        console.log('Files:', req.files);
-
         const { name, email, phone, address, aadharNumber, panNumber } = req.body;
 
         const orConditions = [{ phone }];

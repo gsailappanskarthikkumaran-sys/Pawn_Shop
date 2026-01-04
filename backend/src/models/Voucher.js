@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const voucherSchema = mongoose.Schema({
     type: {
         type: String,
-        enum: ['expense', 'income'], // income could be 'other income'
+        enum: ['expense', 'income', 'Payment', 'Receipt', 'Contra', 'Journal', 'Sales', 'Purchase'],
         required: true
     },
     category: {

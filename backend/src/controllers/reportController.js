@@ -70,19 +70,19 @@ const getDayBook = async (req, res) => {
 
         // Add Vouchers
         vouchers.forEach(v => {
-            if (v.type === 'expense') {
+            if (['expense', 'Payment', 'Purchase'].includes(v.type)) {
                 transactions.push({
                     type: 'DEBIT',
                     category: v.category,
-                    description: v.description || 'Expense Voucher',
+                    description: v.description || `${v.type} Voucher`,
                     amount: v.amount,
                     time: v.date
                 });
-            } else {
+            } else if (['income', 'Receipt', 'Sales'].includes(v.type)) {
                 transactions.push({
                     type: 'CREDIT',
                     category: v.category,
-                    description: v.description || 'Income Voucher',
+                    description: v.description || `${v.type} Voucher`,
                     amount: v.amount,
                     time: v.date
                 });
@@ -142,11 +142,11 @@ const getFinancialStats = async (req, res) => {
             { $group: { _id: null, total: { $sum: "$loanAmount" } } }
         ]);
         const allExpenseVouchers = await Voucher.aggregate([
-            { $match: { ...query, type: 'expense' } },
+            { $match: { ...query, type: { $in: ['expense', 'Payment', 'Purchase'] } } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
         const allIncomeVouchers = await Voucher.aggregate([
-            { $match: { ...query, type: 'income' } },
+            { $match: { ...query, type: { $in: ['income', 'Receipt', 'Sales'] } } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
 
@@ -214,8 +214,8 @@ const getBusinessReport = async (req, res) => {
         // Re-using logic or improved logic if Cashbook model existed.
         const allPayments = await Payment.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
         const allLoans = await Loan.aggregate([{ $group: { _id: null, total: { $sum: "$loanAmount" } } }]);
-        const allExpense = await Voucher.aggregate([{ $match: { type: 'expense' } }, { $group: { _id: null, total: { $sum: "$amount" } } }]);
-        const allIncome = await Voucher.aggregate([{ $match: { type: 'income' } }, { $group: { _id: null, total: { $sum: "$amount" } } }]);
+        const allExpense = await Voucher.aggregate([{ $match: { type: { $in: ['expense', 'Payment', 'Purchase'] } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]);
+        const allIncome = await Voucher.aggregate([{ $match: { type: { $in: ['income', 'Receipt', 'Sales'] } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]);
 
         const totalIn = (allPayments[0]?.total || 0) + (allIncome[0]?.total || 0);
         const totalOut = (allLoans[0]?.total || 0) + (allExpense[0]?.total || 0);

@@ -72,4 +72,33 @@ const deleteVoucher = async (req, res) => {
     }
 };
 
-export { addVoucher, getVouchers, deleteVoucher };
+// @desc    Update voucher
+// @route   PUT /api/vouchers/:id
+// @access  Private
+const updateVoucher = async (req, res) => {
+    try {
+        const { type, category, amount, description, date } = req.body;
+        const voucher = await Voucher.findById(req.params.id);
+
+        if (voucher) {
+            // Optional: Check ownership or permissions here
+            // if(req.user.role !== 'admin' && voucher.createdBy.toString() !== req.user._id.toString()) ...
+
+            voucher.type = type || voucher.type;
+            voucher.category = category || voucher.category;
+            voucher.amount = amount || voucher.amount;
+            voucher.description = description || voucher.description;
+            voucher.date = date || voucher.date;
+            // branch usually doesn't change
+
+            const updatedVoucher = await voucher.save();
+            res.json(updatedVoucher);
+        } else {
+            res.status(404).json({ message: 'Voucher not found' });
+        }
+    } catch (error) {
+        res.status(400).json({ message: 'Error updating voucher', error: error.message });
+    }
+};
+
+export { addVoucher, getVouchers, deleteVoucher, updateVoucher };

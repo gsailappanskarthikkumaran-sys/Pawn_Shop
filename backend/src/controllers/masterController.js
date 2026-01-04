@@ -61,4 +61,23 @@ const getSchemes = async (req, res) => {
     }
 };
 
-export { addGoldRate, getLatestGoldRate, addScheme, getSchemes };
+// @desc    Delete Scheme (Soft Delete)
+// @route   DELETE /api/masters/schemes/:id
+// @access  Admin
+const deleteScheme = async (req, res) => {
+    try {
+        const scheme = await Scheme.findById(req.params.id);
+
+        if (scheme) {
+            scheme.isActive = false;
+            await scheme.save();
+            res.json({ message: 'Scheme removed' });
+        } else {
+            res.status(404).json({ message: 'Scheme not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+export { addGoldRate, getLatestGoldRate, addScheme, getSchemes, deleteScheme };

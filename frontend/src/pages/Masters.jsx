@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Settings, TrendingUp, Layers, Save } from 'lucide-react';
+import { Settings, TrendingUp, Layers, Save, Trash2 } from 'lucide-react';
 import './Masters.css';
 
 const Masters = () => {
@@ -73,6 +73,19 @@ const Masters = () => {
             setMaxLoan('');
         } catch (error) {
             alert('Failed to add scheme');
+        }
+    };
+
+    const handleDeleteScheme = async (id) => {
+        if (window.confirm('Are you sure you want to delete this scheme?')) {
+            try {
+                await api.delete(`/masters/schemes/${id}`);
+                setSchemes(schemes.filter(s => s._id !== id));
+                alert('Scheme Deleted');
+            } catch (error) {
+                console.error("Error deleting scheme", error);
+                alert('Failed to delete scheme');
+            }
         }
     };
 
@@ -211,6 +224,14 @@ const Masters = () => {
                                         <span style={{ fontWeight: 600, display: 'block' }}>{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
                                         {s.preInterestMonths > 0 && <span style={{ fontSize: '0.7rem', color: '#ea580c' }}>Pre: {s.preInterestMonths} Mos</span>}
                                     </div>
+                                    <button
+                                        onClick={() => handleDeleteScheme(s._id)}
+                                        className="btn-icon-danger"
+                                        style={{ marginLeft: '12px', padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
+                                        title="Delete Scheme"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             ))}
                         </div>
