@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Book, TrendingUp, TrendingDown, DollarSign, Calendar, FileText, PieChart, Printer } from 'lucide-react';
+import { Book, TrendingUp, TrendingDown, DollarSign, Calendar, FileText, PieChart, Printer, PlusCircle, Save } from 'lucide-react';
 import './Accounts.css';
 
 const Accounts = () => {
@@ -16,7 +16,7 @@ const Accounts = () => {
     const [financials, setFinancials] = useState(null);
 
     useEffect(() => {
-        if (activeTab === 'daybook') {
+        if (activeTab === 'daybook' || activeTab === 'ledger') {
             fetchDayBook();
         } else if (activeTab === 'financials') {
             fetchFinancials();
@@ -79,6 +79,70 @@ const Accounts = () => {
         }
     };
 
+    // Ledger / Voucher Entry
+    const [voucherForm, setVoucherForm] = useState({
+        type: 'expense',
+        category: '',
+        amount: '',
+        description: '',
+        date: new Date().toISOString().split('T')[0]
+    });
+
+    const handleVoucherSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            await api.post('/vouchers', voucherForm);
+            alert('Ledger Entry Added Successfully!');
+            setVoucherForm(prev => ({ ...prev, amount: '', description: '', category: '' }));
+            fetchDayBook(); // Refresh table immediately
+        } catch (error) {
+            console.error("Error adding voucher", error);
+            alert('Failed to add ledger entry');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderTransactionTable = () => (
+        <div className="transactions-table-container">
+            <table className="data-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th className="text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {loading ? (
+                        <tr><td colSpan="5" className="text-center">Loading...</td></tr>
+                    ) : dayBookData.transactions?.length === 0 ? (
+                        <tr><td colSpan="5" className="text-center">No transactions for this date.</td></tr>
+                    ) : (
+                        dayBookData.transactions?.map((t, idx) => (
+                            <tr key={idx}>
+                                <td>{new Date(t.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                <td>
+                                    <span className={`badge ${t.type === 'CREDIT' ? 'badge-success' : 'badge-danger'}`}>
+                                        {t.type}
+                                    </span>
+                                </td>
+                                <td>{t.category}</td>
+                                <td>{t.description}</td>
+                                <td className={`text-right font-bold ${t.type === 'CREDIT' ? 'text-green' : 'text-red'}`}>
+                                    {t.type === 'CREDIT' ? '+' : '-'}₹{t.amount.toLocaleString()}
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
+
     return (
         <div className="accounts-container">
             <div className="page-header">
@@ -114,6 +178,12 @@ const Accounts = () => {
                 >
                     <TrendingDown size={18} /> Demand List
                 </button>
+                <button
+                    className={`tab-btn ${activeTab === 'ledger' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('ledger')}
+                >
+                    <PlusCircle size={18} /> Ledger Entry
+                </button>
             </div>
 
             <div className="tab-content">
@@ -146,42 +216,7 @@ const Accounts = () => {
                         </div>
 
                         {/* Transaction Table */}
-                        <div className="transactions-table-container">
-                            <table className="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Time</th>
-                                        <th>Type</th>
-                                        <th>Category</th>
-                                        <th>Description</th>
-                                        <th className="text-right">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr><td colSpan="5" className="text-center">Loading...</td></tr>
-                                    ) : dayBookData.transactions?.length === 0 ? (
-                                        <tr><td colSpan="5" className="text-center">No transactions for this date.</td></tr>
-                                    ) : (
-                                        dayBookData.transactions?.map((t, idx) => (
-                                            <tr key={idx}>
-                                                <td>{new Date(t.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                                <td>
-                                                    <span className={`badge ${t.type === 'CREDIT' ? 'badge-success' : 'badge-danger'}`}>
-                                                        {t.type}
-                                                    </span>
-                                                </td>
-                                                <td>{t.category}</td>
-                                                <td>{t.description}</td>
-                                                <td className={`text-right font-bold ${t.type === 'CREDIT' ? 'text-green' : 'text-red'}`}>
-                                                    {t.type === 'CREDIT' ? '+' : '-'}₹{t.amount.toLocaleString()}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                        {renderTransactionTable()}
                     </div>
                 )}
 
@@ -194,7 +229,7 @@ const Accounts = () => {
                                     <div className="icon-circle"><DollarSign size={32} /></div>
                                     <div className="info">
                                         <h2>Cash In Hand (Net)</h2>
-                                        <div className="big-amount">${financials?.balanceSheet?.assets?.cashInHand?.toLocaleString()}</div>
+                                        <div className="big-amount">₹{financials?.balanceSheet?.assets?.cashInHand?.toLocaleString()}</div>
                                         <p>Calculated as (Total In - Total Out)</p>
                                     </div>
                                 </div>
@@ -207,16 +242,16 @@ const Accounts = () => {
                                         </div>
                                         <div className="report-row">
                                             <span>Outstanding Loans (Principal)</span>
-                                            <span>${financials?.balanceSheet?.assets?.outstandingLoans?.toLocaleString()}</span>
+                                            <span>₹{financials?.balanceSheet?.assets?.outstandingLoans?.toLocaleString()}</span>
                                         </div>
                                         <div className="report-row">
                                             <span>Cash Asset</span>
-                                            <span>${financials?.balanceSheet?.assets?.cashInHand?.toLocaleString()}</span>
+                                            <span>₹{financials?.balanceSheet?.assets?.cashInHand?.toLocaleString()}</span>
                                         </div>
                                         <div className="divider"></div>
                                         <div className="report-row total">
                                             <span>Total Assets</span>
-                                            <span>${(financials?.balanceSheet?.assets?.outstandingLoans + financials?.balanceSheet?.assets?.cashInHand).toLocaleString()}</span>
+                                            <span>₹{(financials?.balanceSheet?.assets?.outstandingLoans + financials?.balanceSheet?.assets?.cashInHand).toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -227,25 +262,25 @@ const Accounts = () => {
                                         </div>
                                         <div className="report-row success">
                                             <span>Loan Repayments Received</span>
-                                            <span>+${financials?.profitAndLoss?.income?.loanRepayments?.toLocaleString()}</span>
+                                            <span>+₹{financials?.profitAndLoss?.income?.loanRepayments?.toLocaleString()}</span>
                                         </div>
                                         <div className="report-row success">
                                             <span>Other Income</span>
-                                            <span>+${financials?.profitAndLoss?.income?.otherIncome?.toLocaleString()}</span>
+                                            <span>+₹{financials?.profitAndLoss?.income?.otherIncome?.toLocaleString()}</span>
                                         </div>
                                         <div className="report-row danger">
                                             <span>Loans Issued</span>
-                                            <span>-${financials?.profitAndLoss?.expenses?.loansIssued?.toLocaleString()}</span>
+                                            <span>-₹{financials?.profitAndLoss?.expenses?.loansIssued?.toLocaleString()}</span>
                                         </div>
                                         <div className="report-row danger">
                                             <span>Operating Expenses</span>
-                                            <span>-${financials?.profitAndLoss?.expenses?.operatingExpenses?.toLocaleString()}</span>
+                                            <span>-₹{financials?.profitAndLoss?.expenses?.operatingExpenses?.toLocaleString()}</span>
                                         </div>
                                         <div className="divider"></div>
                                         <div className="report-row total">
                                             <span>Net Cash Flow</span>
                                             <span className={financials?.profitAndLoss?.netCashFlow >= 0 ? 'text-green' : 'text-red'}>
-                                                ${financials?.profitAndLoss?.netCashFlow?.toLocaleString()}
+                                                ₹{financials?.profitAndLoss?.netCashFlow?.toLocaleString()}
                                             </span>
                                         </div>
                                     </div>
@@ -265,11 +300,11 @@ const Accounts = () => {
                                     </div>
                                     <div className="report-row">
                                         <span>Principal Outstanding</span>
-                                        <span>${businessData?.loanPortfolio?.principalOutstanding?.toLocaleString()}</span>
+                                        <span>₹{businessData?.loanPortfolio?.principalOutstanding?.toLocaleString()}</span>
                                     </div>
                                     <div className="report-row">
                                         <span>Total Disbursed (Lifetime)</span>
-                                        <span>${businessData?.loanPortfolio?.totalDisbursed?.toLocaleString()}</span>
+                                        <span>₹{businessData?.loanPortfolio?.totalDisbursed?.toLocaleString()}</span>
                                     </div>
                                 </div>
                                 <div className="report-card">
@@ -278,11 +313,11 @@ const Accounts = () => {
                                     </div>
                                     <div className="report-row success">
                                         <span>Interest Revenue</span>
-                                        <span>${businessData?.revenue?.interestCollected?.toLocaleString()}</span>
+                                        <span>₹{businessData?.revenue?.interestCollected?.toLocaleString()}</span>
                                     </div>
                                     <div className="report-row">
                                         <span>Net Cash Position</span>
-                                        <span>${businessData?.cashPosition?.cashInHand?.toLocaleString()}</span>
+                                        <span>₹{businessData?.cashPosition?.cashInHand?.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -333,7 +368,7 @@ const Accounts = () => {
                                                     }
                                                 </td>
                                                 <td><span className={`badge status-${loan.status}`}>{loan.status}</span></td>
-                                                <td className="text-right font-bold">${loan.balance}</td>
+                                                <td className="text-right font-bold">₹{loan.balance}</td>
                                                 <td>
                                                     <button className="text-blue-600 hover:underline text-xs" onClick={() => window.open(`/print/loan/${loan._id}`, '_blank')}>
                                                         Print Notice
@@ -345,6 +380,169 @@ const Accounts = () => {
                                 </table>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {activeTab === 'ledger' && (
+                    <div className="daybook-view">
+                        <div className="tally-container">
+                            {/* Tally Header */}
+                            <div className="tally-header">
+                                <div className="tally-header-left">
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#854d0e', textTransform: 'uppercase' }}>Voucher Type</span>
+                                        <select
+                                            className="tally-select"
+                                            style={{ padding: '0', fontSize: '1.2rem', background: 'transparent', width: 'auto' }}
+                                            value={voucherForm.type}
+                                            onChange={e => setVoucherForm({ ...voucherForm, type: e.target.value })}
+                                        >
+                                            <option value="expense">Payment / Expense</option>
+                                            <option value="income">Receipt / Income</option>
+                                            <option value="Contra">Contra</option>
+                                            <option value="Journal">Journal</option>
+                                            <option value="Sales">Sales</option>
+                                            <option value="Purchase">Purchase</option>
+                                        </select>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontSize: '0.8rem', color: '#854d0e', textTransform: 'uppercase' }}>Date</span>
+                                        <input
+                                            type="date"
+                                            style={{ background: 'transparent', border: 'none', fontWeight: 'bold', color: '#451a03', outline: 'none' }}
+                                            value={voucherForm.date}
+                                            onChange={e => {
+                                                const newDate = e.target.value;
+                                                setVoucherForm({ ...voucherForm, date: newDate });
+                                                setSelectedDate(newDate);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="tally-header-right">
+                                    <span style={{ fontWeight: 'bold' }}>No: Auto</span>
+                                </div>
+                            </div>
+
+                            {/* Tally Body */}
+                            <div className="tally-body">
+                                <table className="tally-table">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: '60px' }}>Dr/Cr</th>
+                                            <th>Particulars</th>
+                                            <th style={{ textAlign: 'right', width: '150px' }}>Debit</th>
+                                            <th style={{ textAlign: 'right', width: '150px' }}>Credit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {/* Row 1: The Account/Category */}
+                                        <tr>
+                                            <td className="tally-dr-cr">
+                                                {['expense', 'Purchase'].includes(voucherForm.type) ? 'Dr' : 'Cr'}
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    className="tally-input"
+                                                    placeholder="Particulars (e.g. Rent, Salary, Tea Exp)"
+                                                    value={voucherForm.category}
+                                                    onChange={e => setVoucherForm({ ...voucherForm, category: e.target.value })}
+                                                    required
+                                                    autoFocus
+                                                />
+                                            </td>
+                                            {/* Logic: Expenses are Dr, Incomes are Cr */}
+                                            {['expense', 'Purchase'].includes(voucherForm.type) ? (
+                                                <>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <input
+                                                            type="number"
+                                                            className="tally-input"
+                                                            style={{ textAlign: 'right' }}
+                                                            value={voucherForm.amount}
+                                                            onChange={e => setVoucherForm({ ...voucherForm, amount: e.target.value })}
+                                                            placeholder="0.00"
+                                                        />
+                                                    </td>
+                                                    <td style={{ textAlign: 'right', background: '#f8fafc' }}></td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td style={{ textAlign: 'right', background: '#f8fafc' }}></td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <input
+                                                            type="number"
+                                                            className="tally-input"
+                                                            style={{ textAlign: 'right' }}
+                                                            value={voucherForm.amount}
+                                                            onChange={e => setVoucherForm({ ...voucherForm, amount: e.target.value })}
+                                                            placeholder="0.00"
+                                                        />
+                                                    </td>
+                                                </>
+                                            )}
+                                        </tr>
+
+                                        {/* Row 2: The Cash/Bank (Contra Entry) */}
+                                        <tr>
+                                            <td className="tally-dr-cr">
+                                                {['expense', 'Purchase'].includes(voucherForm.type) ? 'Cr' : 'Dr'}
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    className="tally-input"
+                                                    value="Cash / Bank Account"
+                                                    readOnly
+                                                    style={{ color: '#64748b' }}
+                                                />
+                                            </td>
+                                            {['expense', 'Purchase'].includes(voucherForm.type) ? (
+                                                <>
+                                                    <td style={{ textAlign: 'right', background: '#f8fafc' }}></td>
+                                                    <td style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 'bold' }}>
+                                                        {voucherForm.amount || '0.00'}
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 'bold' }}>
+                                                        {voucherForm.amount || '0.00'}
+                                                    </td>
+                                                    <td style={{ textAlign: 'right', background: '#f8fafc' }}></td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Tally Footer - Narration */}
+                            <div className="tally-footer">
+                                <div className="narration-container">
+                                    <label className="narration-label">Narration:</label>
+                                    <textarea
+                                        className="narration-box"
+                                        placeholder="Enter narration here..."
+                                        value={voucherForm.description}
+                                        onChange={e => setVoucherForm({ ...voucherForm, description: e.target.value })}
+                                    ></textarea>
+                                </div>
+                                <div className="tally-actions" style={{ justifyContent: 'center' }}>
+                                    <button className="btn-secondary" onClick={() => setVoucherForm({ ...voucherForm, amount: '', description: '', category: '' })}>Clear</button>
+                                    <button className="btn-primary" onClick={handleVoucherSubmit} disabled={loading}>
+                                        <Save size={18} /> {loading ? 'Saving...' : 'Accept (Save)'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Transactions Table Below */}
+                        <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                            <h3 style={{ marginBottom: '1rem', color: '#64748b' }}>Transactions for {new Date(selectedDate).toLocaleDateString()}</h3>
+                            {renderTransactionTable()}
+                        </div>
                     </div>
                 )}
             </div>
