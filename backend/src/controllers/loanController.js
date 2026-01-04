@@ -1,9 +1,28 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
+
 import Loan from '../models/Loan.js';
 import Item from '../models/Item.js';
 import Scheme from '../models/Scheme.js';
 import GoldRate from '../models/GoldRate.js';
 import Payment from '../models/Payment.js';
+
+// @desc    Create a new Pledge (Loan)
+// @route   POST /api/loans
+// @access  Private
+const cleanupFiles = (files) => {
+    if (!files) return;
+    // req.files is an array in loanController (unlike fields in customer)
+    if (Array.isArray(files)) {
+        files.forEach(file => {
+            try {
+                fs.unlinkSync(file.path);
+            } catch (err) {
+                console.error("Failed to delete file:", file.path, err);
+            }
+        });
+    }
+};
 
 // @desc    Create a new Pledge (Loan)
 // @route   POST /api/loans
@@ -25,11 +44,17 @@ const createLoan = async (req, res) => {
 
         // 1. Fetch related data
         const scheme = await Scheme.findById(schemeId);
-        if (!scheme) return res.status(404).json({ message: 'Scheme not found' });
+        if (!scheme) {
+            cleanupFiles(req.files);
+            return res.status(404).json({ message: 'Scheme not found' });
+        }
 
         // Get latest gold rate (or specific one if passed, but usually latest)
         const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
-        if (!goldRateObj) return res.status(400).json({ message: 'Gold Rate not set for today' });
+        if (!goldRateObj) {
+            cleanupFiles(req.files);
+            return res.status(400).json({ message: 'Gold Rate not set for today' });
+        }
 
         // 2. Process Items and Photos
         // req.files is array of files. We need to map files to items.
@@ -54,8 +79,18 @@ const createLoan = async (req, res) => {
         const maxLoan = totalValuation * (scheme.maxLoanPercentage / 100);
 
         if (requestedLoanAmount > maxLoan) {
+            cleanupFiles(req.files);
             return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
         }
+
+        // Date Calculation Logic (Calendar Months)
+        const now = new Date();
+
+        const dueDate = new Date(now);
+        dueDate.setMonth(dueDate.getMonth() + scheme.tenureMonths);
+
+        const nextPaymentDate = new Date(now);
+        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); // Exact 1 month form now
 
         // 3. Create Loan
         const loan = new Loan({
@@ -69,8 +104,8 @@ const createLoan = async (req, res) => {
             loanAmount: requestedLoanAmount,
             preInterestAmount: preInterestAmount || 0,
             interestRate: scheme.interestRate,
-            dueDate: new Date(Date.now() + scheme.tenureMonths * 30 * 24 * 60 * 60 * 1000),
-            nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 1 month from now
+            dueDate: dueDate,
+            nextPaymentDate: nextPaymentDate,
             createdBy: req.user._id,
             branch: req.user.branch, // Assign Loan to User's Branch
             currentBalance: requestedLoanAmount
@@ -105,6 +140,7 @@ const createLoan = async (req, res) => {
         res.status(201).json(createdLoan);
 
     } catch (error) {
+        cleanupFiles(req.files);
         res.status(400).json({ message: 'Error creating loan', error: error.message });
     }
 };

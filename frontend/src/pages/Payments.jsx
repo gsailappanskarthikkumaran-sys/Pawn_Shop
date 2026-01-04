@@ -13,6 +13,7 @@ const Payments = () => {
     const [amount, setAmount] = useState('');
     const [type, setType] = useState('interest'); // interest, principal, full_settlement
     const [paymentMode, setPaymentMode] = useState('cash');
+    const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
     const [remarks, setRemarks] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -61,6 +62,7 @@ const Payments = () => {
 
                 type,
                 paymentMode,
+                paymentDate,
                 remarks
             });
             alert('Payment Recorded Successfully!');
@@ -161,6 +163,17 @@ const Payments = () => {
                                         <option value="online">Online / UPI</option>
                                         <option value="bank_transfer">Bank Transfer</option>
                                     </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Payment Date</label>
+                                    <input
+                                        type="date"
+                                        className="input-field"
+                                        value={paymentDate}
+                                        onChange={(e) => setPaymentDate(e.target.value)}
+                                        required
+                                    />
                                 </div>
 
                                 <div className="form-group">
