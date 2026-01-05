@@ -24,7 +24,8 @@ const VoucherEntry = () => {
         Contra: ['Cash to Bank', 'Bank to Cash'],
         Sales: ['Gold Sales', 'Silver Sales', 'Old Gold Sale'],
         Purchase: ['Stationery Purchase', 'Asset Purchase'],
-        Journal: ['General Adjustment', 'Correction']
+        Journal: ['General Adjustment', 'Correction'],
+        Memo: ['Reminder', 'Suspense', 'Provisional', 'Note']
     };
 
     // Color Theme Map
@@ -34,7 +35,8 @@ const VoucherEntry = () => {
         Contra: '#10b981',    // Emerald Green
         Journal: '#3b82f6',   // Royal Blue
         Sales: '#475569',     // Slate
-        Purchase: '#f59e0b'   // Amber
+        Purchase: '#f59e0b',  // Amber
+        Memo: '#8b5cf6'       // Violet
     };
 
     const currentColor = typeColors[formData.type] || '#0ea5e9';
@@ -244,7 +246,13 @@ const VoucherEntry = () => {
 
                 {/* --- Bottom Toolbar --- */}
                 <div className="bottom-toolbar">
-                    <button type="button" className="toolbar-btn btn-memo">Memo</button>
+                    <button
+                        type="button"
+                        className={`toolbar-btn btn-memo ${formData.type === 'Memo' ? 'active' : ''}`}
+                        onClick={() => setFormData({ ...formData, type: 'Memo', category: '' })}
+                    >
+                        Memo
+                    </button>
                     <button
                         type="button"
                         className={`toolbar-btn btn-payment ${formData.type === 'Payment' ? 'active' : ''}`}
@@ -315,7 +323,7 @@ const VoucherEntry = () => {
                                 </div>
                                 <div className="voucher-right">
                                     <span className={`voucher-amount ${['income', 'Receipt', 'Sales'].includes(v.type) ? 'income' : 'expense'}`}>
-                                        {['income', 'Receipt', 'Sales'].includes(v.type) ? '+' : '-'}${v.amount.toLocaleString()}
+                                        {['income', 'Receipt', 'Sales'].includes(v.type) ? '+' : '-'}₹{v.amount.toLocaleString()}
                                     </span>
                                     <div style={{ display: 'flex', gap: '8px' }}>
                                         <button

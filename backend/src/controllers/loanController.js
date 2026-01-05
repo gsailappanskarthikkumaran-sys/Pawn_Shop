@@ -36,9 +36,13 @@ const createLoan = async (req, res) => {
 
     try {
         let itemsData;
+        console.log("createLoan req.body:", req.body);
+        console.log("createLoan req.files:", req.files);
         try {
             itemsData = typeof items === 'string' ? JSON.parse(items) : items;
+            console.log("Parsed itemsData:", itemsData);
         } catch (e) {
+            console.error("Failed to parse items:", e);
             itemsData = [];
         }
 
@@ -52,6 +56,7 @@ const createLoan = async (req, res) => {
         // Get latest gold rate (or specific one if passed, but usually latest)
         const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
         if (!goldRateObj) {
+            console.log("Error: Gold Rate not set for today");
             cleanupFiles(req.files);
             return res.status(400).json({ message: 'Gold Rate not set for today' });
         }
@@ -77,8 +82,10 @@ const createLoan = async (req, res) => {
         });
 
         const maxLoan = totalValuation * (scheme.maxLoanPercentage / 100);
+        console.log("Valuation debug:", { totalValuation, maxLoan, requestedLoanAmount });
 
         if (requestedLoanAmount > maxLoan) {
+            console.log("Error: Loan amount exceeds limit");
             cleanupFiles(req.files);
             return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
         }

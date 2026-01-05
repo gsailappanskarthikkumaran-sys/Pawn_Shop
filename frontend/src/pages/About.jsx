@@ -3,6 +3,7 @@ import { Target, Shield, Users } from 'lucide-react';
 import './About.css';
 
 const About = () => {
+    const year = new Date().getFullYear();
     return (
         <div className="about-page">
             <h1 className="about-title">About Us</h1>
@@ -48,7 +49,8 @@ const About = () => {
             </div>
 
             <div className="about-footer">
-                <p>&copy; 2024 Pawn Broking Management System. Version 1.0.0</p>
+
+                <p>&copy; {year} Pawn Broking Management System. Version 1.0.0</p>
             </div>
         </div>
     );
