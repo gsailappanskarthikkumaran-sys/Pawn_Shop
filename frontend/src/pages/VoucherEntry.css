@@ -23,6 +23,9 @@
     padding: 20px 32px;
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    /* Allow wrap for mobile */
+    gap: 16px;
 }
 
 .tally-field-group {
@@ -58,15 +61,14 @@
 .tally-form-box {
     margin: 20px 32px;
     border: 2px solid #38bdf8;
-    /* Cyan-400 */
     background: #e0f2fe;
-    /* Cyan-50 */
     border-radius: 4px;
 }
 
 .form-header-row {
     display: grid;
-    grid-template-columns: 60px 2fr 1fr 1fr;
+    /* # | Dr/Cr | Particulars | Debit | Credit | Del */
+    grid-template-columns: 50px 70px 2fr 1fr 1fr 40px;
     gap: 16px;
     padding: 10px 16px;
     background: #38bdf8;
@@ -84,7 +86,8 @@
 
 .ledger-row {
     display: grid;
-    grid-template-columns: 60px 2fr 1fr 1fr;
+    /* # | Dr/Cr | Particulars | Debit | Credit | Del */
+    grid-template-columns: 50px 70px 2fr 1fr 1fr 40px;
     gap: 16px;
     align-items: center;
 }
@@ -108,10 +111,25 @@
     font-family: 'Roboto Mono', monospace;
 }
 
+.tally-btn-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: none;
+    color: #0f172a;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.tally-btn-add:hover {
+    color: #0ea5e9;
+}
+
 .narration-box {
     margin-top: 12px;
     background: #0ea5e9;
-    /* Sky-500 */
     padding: 12px;
     color: white;
 }
@@ -138,7 +156,6 @@
     margin-top: 16px;
     padding: 12px;
     background: #f59e0b;
-    /* Amber */
     color: #fff;
     font-weight: 700;
     text-transform: uppercase;
@@ -160,6 +177,8 @@
     background: #f8fafc;
     border-top: 1px solid #e2e8f0;
     flex-wrap: wrap;
+    justify-content: center;
+    /* Center on wrap */
 }
 
 .toolbar-btn {
@@ -171,6 +190,10 @@
     cursor: pointer;
     transition: opacity 0.2s;
     font-size: 0.9rem;
+    flex: 1 1 auto;
+    /* Grow to fill space */
+    min-width: 100px;
+    text-align: center;
 }
 
 .toolbar-btn:hover {
@@ -181,38 +204,30 @@
     background: #0ea5e9;
 }
 
-/* Blue */
 .btn-receipt {
     background: #ef4444;
 }
 
-/* Red */
 .btn-contra {
     background: #10b981;
 }
 
-/* Green */
 .btn-journal {
     background: #3b82f6;
 }
 
-/* Royal Blue */
 .btn-sales {
     background: #475569;
 }
 
-/* Slate */
 .btn-purchase {
     background: #f59e0b;
 }
 
-/* Orange */
 .btn-memo {
     background: #8b5cf6;
     color: white;
 }
-
-/* Gray */
 
 .toolbar-btn.active {
     outline: 3px solid #0f172a;
@@ -223,4 +238,126 @@
 .voucher-list-section {
     max-width: 1000px;
     margin: 32px auto 0;
+}
+
+.voucher-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: transform 0.2s;
+    margin-bottom: 8px;
+    background: white;
+}
+
+.voucher-icon-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 8px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.voucher-details {
+    flex: 1;
+}
+
+.voucher-right {
+    text-align: right;
+    margin-left: 12px;
+}
+
+.voucher-amount {
+    font-weight: 700;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.btn-del-mini {
+    padding: 6px;
+    color: #94a3b8;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    .voucher-container {
+        padding: 12px;
+    }
+
+    .tally-wrapper {
+        border-radius: 0;
+    }
+
+    .tally-top-bar {
+        padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tally-field-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .tally-input-s,
+    .tally-input-m {
+        flex: 1;
+        width: auto;
+    }
+
+    .tally-form-box {
+        margin: 0;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+
+    /* Hide Header Row on Mobile */
+    .form-header-row {
+        display: none !important;
+    }
+
+    .ledger-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        margin-bottom: 12px;
+        align-items: stretch;
+    }
+
+    .ledger-row>span {
+        /* Hide index number and spacers */
+        display: none;
+    }
+
+    .tally-select,
+    .tally-input-l {
+        width: 100%;
+    }
+
+    /* Toolbar stack */
+    .bottom-toolbar {
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .toolbar-btn {
+        flex: 1 1 45%;
+        font-size: 0.8rem;
+        padding: 10px;
+    }
 }

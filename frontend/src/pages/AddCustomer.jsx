@@ -24,16 +24,6 @@ const AddCustomer = () => {
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Get user role/branch to decide if we show dropdown
-    // We don't have direct access to user context here unless we import useAuth
-    // Let's assume we can fetch branches. If api returns branches, we show them. 
-    // If user is staff, api/branches might return only 1 or 403? 
-    // Actually, we updated getBranches to return user's branch for staff.
-    // So distinct logic: If > 1 branch or Admin, show dropdown?
-    // Safer: Just fetch branches. If user is staff, backend createCustomer ignores input anyway.
-    // But for UX, better to show selected or separate. 
-    // Let's just add the field.
-
     useEffect(() => {
         fetchBranches();
         if (isEditMode) {
@@ -172,7 +162,7 @@ const AddCustomer = () => {
                             />
                         </div>
 
-                        {/* Branch Selection (Visible if branches loaded, usually for Admin) */}
+
                         {branches.length > 0 && (
                             <div className="form-group">
                                 <label className="form-label">Assign Branch</label>
@@ -181,7 +171,7 @@ const AddCustomer = () => {
                                     className="input-field"
                                     value={formData.branch || ''}
                                     onChange={handleChange}
-                                    required={!isEditMode && branches.length > 1} // Required if multiple choices (Admin)
+                                    required={!isEditMode && branches.length > 1}
                                 >
                                     <option value="">Select Branch</option>
                                     {branches.map(b => (
@@ -219,7 +209,7 @@ const AddCustomer = () => {
                         <div className="form-group">
                             <label className="form-label">Aadhar Number</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="aadharNumber"
                                 className="input-field"
                                 value={formData.aadharNumber}
