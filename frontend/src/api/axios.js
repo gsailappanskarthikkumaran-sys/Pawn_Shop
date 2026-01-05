@@ -15,8 +15,7 @@ api.interceptors.request.use(
                 }
             } catch (error) {
                 console.error("Error parsing user from local storage in axios interceptor", error);
-                // Optionally clear it here too, but AuthContext handles the main cleanup
-            }
+                           }
         }
         return config;
     },

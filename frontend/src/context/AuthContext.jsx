@@ -1,12 +1,9 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
-
 const AuthContext = createContext();
-
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser && storedUser !== 'undefined') {
@@ -31,7 +28,6 @@ export const AuthProvider = ({ children }) => {
                 console.error("AuthContext: No data received from login API");
                 throw new Error("No data received from login API");
             }
-
             console.log("AuthContext: User data received:", data);
             localStorage.setItem('user', JSON.stringify(data));
             setUser(data);

@@ -4,12 +4,10 @@ import GoldRate from '../models/GoldRate.js';
 
 // Configuration
 const BASE_RATE_22K = 12600; // Base rate for Current Location (approx)
-const VARIANCE = 50; // Max daily fluctuation in INR
+const VARIANCE = 50;
 
 const fetchMarketRate = async () => {
-    // Placeholder for Real API call
-    // const response = await axios.get('API_URL');
-    // return response.data.price;
+
     return null; // Force simulation for now
 };
 

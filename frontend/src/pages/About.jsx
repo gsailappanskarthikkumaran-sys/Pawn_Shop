@@ -49,7 +49,6 @@ const About = () => {
             </div>
 
             <div className="about-footer">
-
                 <p>&copy; {year} Pawn Broking Management System. Version 1.0.0</p>
             </div>
         </div>
