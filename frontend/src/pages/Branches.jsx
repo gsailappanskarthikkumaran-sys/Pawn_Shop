@@ -66,7 +66,7 @@ const Branches = () => {
                                 className="input-field"
                                 value={newBranch.name}
                                 onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
-                                placeholder="Main Branch"
+                                placeholder="Enter Branch Name"
                                 required
                             />
                         </div>
