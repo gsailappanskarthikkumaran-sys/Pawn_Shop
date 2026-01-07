@@ -2,8 +2,7 @@ import Loan from '../models/Loan.js';
 import Payment from '../models/Payment.js';
 import Voucher from '../models/Voucher.js';
 
-// @desc    Get Day Book (Transactions for a specific date)
-// @route   GET /api/reports/day-book?date=YYYY-MM-DD
+
 const getDayBook = async (req, res) => {
     try {
         const { date } = req.query;
@@ -19,17 +18,14 @@ const getDayBook = async (req, res) => {
             query.branch = req.user.branch;
         }
 
-        // 1. Loans Issued (Money Out)
         const loans = await Loan.find({
             ...query,
             createdAt: { $gte: start, $lte: end }
         }).select('loanId loanAmount customer createdAt').populate('customer', 'name');
 
-        // 2. Payments Received (Money In)
-        // Need to filter payments linked to loans of this branch
+
         let paymentQuery = { paidAt: { $gte: start, $lte: end } };
 
-        // If staff, first find all loans for this branch, then find payments for those loans
         if (query.branch) {
             const branchLoanIds = await Loan.find({ branch: query.branch }).distinct('_id');
             paymentQuery.loan = { $in: branchLoanIds };
@@ -37,16 +33,15 @@ const getDayBook = async (req, res) => {
 
         const payments = await Payment.find(paymentQuery).select('amount type loanId paidAt');
 
-        // 3. Vouchers (Money In/Out)
         const vouchers = await Voucher.find({
             ...query,
             date: { $gte: start, $lte: end }
         });
 
-        // Combine into a standardized Transaction format
+
         let transactions = [];
 
-        // Add Loans (Expense/Debit from cash perspective)
+
         loans.forEach(l => {
             transactions.push({
                 type: 'DEBIT',
@@ -57,18 +52,18 @@ const getDayBook = async (req, res) => {
             });
         });
 
-        // Add Payments (Credit/Income to cash)
+
         payments.forEach(p => {
             transactions.push({
                 type: 'CREDIT',
                 category: 'Loan Payment',
-                description: `Payment for Loan`, // Could fetch Loan ID if needed
+                description: `Payment for Loan`,
                 amount: p.amount,
                 time: p.paidAt
             });
         });
 
-        // Add Vouchers
+
         vouchers.forEach(v => {
             if (['expense', 'Payment', 'Purchase'].includes(v.type)) {
                 transactions.push({
@@ -89,10 +84,10 @@ const getDayBook = async (req, res) => {
             }
         });
 
-        // Sort by time
+
         transactions.sort((a, b) => new Date(b.time) - new Date(a.time));
 
-        // Calculate Totals for the Day
+
         const totalCredit = transactions.filter(t => t.type === 'CREDIT').reduce((acc, t) => acc + t.amount, 0);
         const totalDebit = transactions.filter(t => t.type === 'DEBIT').reduce((acc, t) => acc + t.amount, 0);
 
@@ -111,8 +106,6 @@ const getDayBook = async (req, res) => {
     }
 };
 
-// @desc    Get Financial Stats (P&L, Balance Sheet high-level)
-// @route   GET /api/reports/financials
 const getFinancialStats = async (req, res) => {
     try {
         let query = {};
@@ -120,13 +113,8 @@ const getFinancialStats = async (req, res) => {
             query.branch = req.user.branch;
         }
 
-        // --- BALANCE SHEET ITEMS ---
-        // 1. Assets: Outstanding Loans (Principal)
         const activeLoans = await Loan.find({ ...query, status: { $ne: 'closed' } });
         const outstandingPrincipal = activeLoans.reduce((acc, l) => acc + l.loanAmount, 0);
-
-        // 2. Cash In Hand (Calculated from ALL time history - simplified)
-        // Filter Payments by branch
         let paymentMatch = {};
         if (query.branch) {
             const branchLoanIds = await Loan.find({ branch: query.branch }).distinct('_id');
@@ -154,7 +142,7 @@ const getFinancialStats = async (req, res) => {
         const totalOut = (allLoans[0]?.total || 0) + (allExpenseVouchers[0]?.total || 0);
         const cashInHand = totalIn - totalOut;
 
-        // --- P&L ITEMS ---
+
         const totalExpenses = allExpenseVouchers[0]?.total || 0;
         const totalOtherIncome = allIncomeVouchers[0]?.total || 0;
 
@@ -170,7 +158,7 @@ const getFinancialStats = async (req, res) => {
             },
             expenses: {
                 operating: totalExpenses,
-                badDebts: 0 // Placeholder
+                badDebts: 0
             },
             netProfit: (interestIncome[0]?.total || 0) + totalOtherIncome - totalExpenses
         };
@@ -180,10 +168,10 @@ const getFinancialStats = async (req, res) => {
                 assets: {
                     cashInHand,
                     outstandingLoans: outstandingPrincipal,
-                    goldStockValuation: 0 // Placeholder
+                    goldStockValuation: 0
                 },
                 liabilities: {
-                    capital: 0 // Placeholder
+                    capital: 0
                 }
             },
             profitAndLoss: profitLossLocal
@@ -194,24 +182,21 @@ const getFinancialStats = async (req, res) => {
     }
 };
 
-// @desc    Get Business Report (Valuation vs Cash)
-// @route   GET /api/reports/business
 const getBusinessReport = async (req, res) => {
     try {
-        // 1. Total Loan Outstanding (Principal Receivable)
+
         const activeLoans = await Loan.aggregate([
             { $match: { status: { $ne: 'closed' } } },
             { $group: { _id: null, totalPrincipal: { $sum: "$loanAmount" }, totalBalance: { $sum: "$currentBalance" } } }
         ]);
 
-        // 2. Total Interest Collected (Revenue)
+
         const interestPayments = await Payment.aggregate([
             { $match: { type: 'interest' } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
 
-        // 3. Cash In Hand (Simple Calc: Income - Expense)
-        // Re-using logic or improved logic if Cashbook model existed.
+
         const allPayments = await Payment.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }]);
         const allLoans = await Loan.aggregate([{ $group: { _id: null, total: { $sum: "$loanAmount" } } }]);
         const allExpense = await Voucher.aggregate([{ $match: { type: { $in: ['expense', 'Payment', 'Purchase'] } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]);
@@ -240,8 +225,7 @@ const getBusinessReport = async (req, res) => {
     }
 };
 
-// @desc    Get Demand Report (Loans Expiring/Overdue)
-// @route   GET /api/reports/demand
+
 const getDemandReport = async (req, res) => {
     try {
         const { days = 30 } = req.query;
@@ -249,10 +233,6 @@ const getDemandReport = async (req, res) => {
         const futureDate = new Date();
         futureDate.setDate(today.getDate() + parseInt(days));
 
-        // Find loans that are active and (overdue OR expiring soon)
-        // Note: 'overdue' status is set by Cron. We also check simple expiry date.
-        // Assuming Loan has 'endDate' or we calc from tenure.
-        // Simplified: Fetch 'overdue' status + loans created (tenure) months ago.
 
         const loans = await Loan.find({
             status: { $in: ['active', 'overdue'] }

@@ -5,6 +5,6 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.get('/eligible', protect, getEligibleLoans);
-router.post('/:id/sell', protect, admin, recordAuctionSale); // Only admin can sell
+router.post('/:id/sell', protect, admin, recordAuctionSale);
 
 export default router;

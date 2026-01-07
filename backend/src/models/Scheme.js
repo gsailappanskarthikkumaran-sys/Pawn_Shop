@@ -7,14 +7,14 @@ const schemeSchema = new mongoose.Schema({
         unique: true,
     },
     interestRate: {
-        type: Number, // Percentage per month
+        type: Number,
         required: true,
     },
     tenureMonths: {
         type: Number,
         required: true,
     },
-    maxLoanPercentage: { // Max loan amount as % of gold value
+    maxLoanPercentage: {
         type: Number,
         required: true,
     },

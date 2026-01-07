@@ -7,12 +7,8 @@ import Scheme from '../models/Scheme.js';
 import GoldRate from '../models/GoldRate.js';
 import Payment from '../models/Payment.js';
 
-// @desc    Create a new Pledge (Loan)
-// @route   POST /api/loans
-// @access  Private
 const cleanupFiles = (files) => {
     if (!files) return;
-    // req.files is an array in loanController (unlike fields in customer)
     if (Array.isArray(files)) {
         files.forEach(file => {
             try {
@@ -24,15 +20,8 @@ const cleanupFiles = (files) => {
     }
 };
 
-// @desc    Create a new Pledge (Loan)
-// @route   POST /api/loans
-// @access  Private
 const createLoan = async (req, res) => {
     const { customerId, schemeId, items, requestedLoanAmount, preInterestAmount } = req.body;
-    // items is expected to be a JSON string if sent via FormData with files, or body parsing handles it? 
-    // With Multer, we need to handle mixed form data. 
-    // Simplified approach: Client sends JSON for data and Files separately? 
-    // Or FormData: 'items' as stringified JSON.
 
     try {
         let itemsData;
@@ -46,14 +35,13 @@ const createLoan = async (req, res) => {
             itemsData = [];
         }
 
-        // 1. Fetch related data
+
         const scheme = await Scheme.findById(schemeId);
         if (!scheme) {
             cleanupFiles(req.files);
             return res.status(404).json({ message: 'Scheme not found' });
         }
 
-        // Get latest gold rate (or specific one if passed, but usually latest)
         const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
         if (!goldRateObj) {
             console.log("Error: Gold Rate not set for today");
@@ -61,22 +49,12 @@ const createLoan = async (req, res) => {
             return res.status(400).json({ message: 'Gold Rate not set for today' });
         }
 
-        // 2. Process Items and Photos
-        // req.files is array of files. We need to map files to items.
-        // This is tricky with multiple items and multiple photos per item.
-        // Client strategy: "item-0-photo-0", "item-0-photo-1" keys?
-        // Start simple: Global photos specific to items or just attach all to loan?
-        // Requirement: "Upload multiple jewellery photos". Let's assume per loan for now or mapping.
-        // Better: let's save items without photos first or map by index if client sends distinct fields.
 
-        // Calculation
         let totalWeight = 0;
         let totalValuation = 0;
 
         itemsData.forEach(item => {
             totalWeight += parseFloat(item.netWeight);
-            // Valuation logic: Weight * PurityFactor * Rate
-            // If purity is '22k', use 22k rate. If '24k', use 24k rate.
             const rate = item.purity === '24k' ? goldRateObj.ratePerGram24k : goldRateObj.ratePerGram22k;
             totalValuation += parseFloat(item.netWeight) * rate;
         });
@@ -90,23 +68,23 @@ const createLoan = async (req, res) => {
             return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
         }
 
-        // Date Calculation Logic (Calendar Months)
+
         const now = new Date();
 
         const dueDate = new Date(now);
         dueDate.setMonth(dueDate.getMonth() + scheme.tenureMonths);
 
         const nextPaymentDate = new Date(now);
-        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); // Exact 1 month form now
+        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
 
-        // 3. Create Loan
+
         const loan = new Loan({
             loanId: `LN-${Date.now()}`,
             customer: customerId,
             scheme: schemeId,
             totalWeight,
-            totalPurity: 'Mixed', // Simplified
-            goldRateAtPledge: goldRateObj.ratePerGram22k, // Storing base 22k as ref or average
+            totalPurity: 'Mixed',
+            goldRateAtPledge: goldRateObj.ratePerGram22k,
             valuation: totalValuation,
             loanAmount: requestedLoanAmount,
             preInterestAmount: preInterestAmount || 0,
@@ -114,18 +92,13 @@ const createLoan = async (req, res) => {
             dueDate: dueDate,
             nextPaymentDate: nextPaymentDate,
             createdBy: req.user._id,
-            branch: req.user.branch, // Assign Loan to User's Branch
+            branch: req.user.branch,
             currentBalance: requestedLoanAmount
         });
 
         const createdLoan = await loan.save();
 
-        // 4. Create Items
-        // Handling images: req.files is flat array.
-        // If we want specific item images, client needs to send them with specific fieldnames.
-        // For MVP, we'll assign ALL uploaded images to the first item or spread them.
-        // Or just "Group Photos".
-        // Let's attach all photos to the first item for now to keep it robust against complex form data parsing issues.
+
 
         const photoPaths = req.files ? req.files.map(f => f.path.replace(/\\/g, "/")) : [];
 
@@ -135,12 +108,12 @@ const createLoan = async (req, res) => {
             description: item.description,
             netWeight: item.netWeight,
             purity: item.purity,
-            photos: index === 0 ? photoPaths : [] // Assign all images to first item for now
+            photos: index === 0 ? photoPaths : []
         }));
 
         const createdItems = await Item.insertMany(itemDocs);
 
-        // Update loan with item refs
+
         createdLoan.items = createdItems.map(i => i._id);
         await createdLoan.save();
 
@@ -152,18 +125,16 @@ const createLoan = async (req, res) => {
     }
 };
 
-// @desc    Get all loans
-// @route   GET /api/loans
-// @access  Private
+
 const getLoans = async (req, res) => {
     try {
         let query = {};
 
-        // Branch Filtering
+
         if (req.user.role === 'staff' && req.user.branch) {
             query.branch = req.user.branch;
         } else if (req.query.branch) {
-            query.branch = req.query.branch; // Allow admin to filter
+            query.branch = req.query.branch;
         }
 
         const loans = await Loan.find(query)
@@ -176,15 +147,11 @@ const getLoans = async (req, res) => {
     }
 };
 
-// @desc    Get loan by ID (ObjectId or loanId)
-// @route   GET /api/loans/:id
-// @access  Private
 const getLoanById = async (req, res) => {
     try {
         const { id } = req.params;
         let query;
 
-        // Check if valid ObjectId
         if (id.match(/^[0-9a-fA-F]{24}$/)) {
             query = { _id: id };
         } else {
@@ -204,9 +171,6 @@ const getLoanById = async (req, res) => {
     }
 };
 
-// @desc    Get Dashboard Statistics
-// @route   GET /api/loans/stats/dashboard
-// @access  Private
 const getDashboardStats = async (req, res) => {
     try {
         let query = {};
@@ -231,7 +195,7 @@ const getDashboardStats = async (req, res) => {
         const activeLoans = await Loan.countDocuments({ ...query, status: { $ne: 'closed' } });
         const overdueLoans = await Loan.countDocuments({ ...query, status: 'overdue' });
 
-        // Aggregations
+
         const totals = await Loan.aggregate([
             { $match: query },
             {
@@ -243,7 +207,7 @@ const getDashboardStats = async (req, res) => {
             }
         ]);
 
-        // Interest Collected Today
+
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
         const todayEnd = new Date();
@@ -254,7 +218,7 @@ const getDashboardStats = async (req, res) => {
             type: 'interest'
         };
 
-        // Construct branch match for looked-up loan details
+
         let loanBranchMatch = {};
         if (query.$or) {
             loanBranchMatch.$or = query.$or.map(cond => ({
@@ -308,7 +272,6 @@ const getDashboardStats = async (req, res) => {
             }
         ]);
 
-        // Monthly Trend
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -356,9 +319,7 @@ const getDashboardStats = async (req, res) => {
     }
 };
 
-// @desc    Get Staff Dashboard Statistics (Daily Focus)
-// @route   GET /api/loans/stats/staff-dashboard
-// @access  Private
+
 const getStaffDashboardStats = async (req, res) => {
     try {
         const todayStart = new Date();
@@ -372,7 +333,6 @@ const getStaffDashboardStats = async (req, res) => {
             query.branch = req.user.branch;
         }
 
-        // 1. Today's Loans Issued
         const loansIssuedToday = await Loan.find({
             ...query,
             createdAt: { $gte: todayStart, $lte: todayEnd }
@@ -380,7 +340,7 @@ const getStaffDashboardStats = async (req, res) => {
         const loansIssuedCount = loansIssuedToday.length;
         const loansIssuedAmount = loansIssuedToday.reduce((acc, loan) => acc + loan.loanAmount, 0);
 
-        // 2. Payments Received Today (Needs to filter by Loan's Branch)
+
         const paymentsToday = await Payment.aggregate([
             {
                 $lookup: {
@@ -413,7 +373,7 @@ const getStaffDashboardStats = async (req, res) => {
         const totalReceivedToday = paymentsToday[0]?.totalAmount || 0;
         const interestCollectedToday = paymentsToday[0]?.interestAmount || 0;
 
-        // 3. Quick Stats (Active, Outstanding)
+
         const totalActive = await Loan.countDocuments({ ...query, status: { $ne: 'closed' } });
 
         const outstandingAgg = await Loan.aggregate([
@@ -422,9 +382,9 @@ const getStaffDashboardStats = async (req, res) => {
         ]);
         const totalOutstanding = outstandingAgg[0]?.total || 0;
 
-        // 4. Pending Redemptions (Loans due soon or overdue)
+
         const dueThreshold = new Date();
-        dueThreshold.setDate(dueThreshold.getDate() + 7); // Next 7 days
+        dueThreshold.setDate(dueThreshold.getDate() + 7);
 
         const pendingRedemptions = await Loan.countDocuments({
             ...query,

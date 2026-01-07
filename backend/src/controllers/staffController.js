@@ -1,8 +1,5 @@
 import User from '../models/User.js';
 
-// @desc    Get all staff
-// @route   GET /api/staff
-// @access  Private/Admin
 const getAllStaff = async (req, res) => {
     try {
         const query = { role: 'staff' };
@@ -17,9 +14,7 @@ const getAllStaff = async (req, res) => {
 };
 
 
-// @desc    Add new staff
-// @route   POST /api/staff
-// @access  Private/Admin
+
 const addStaff = async (req, res) => {
     const { fullName, address, phoneNumber, idProofNumber, branch, email, username, password } = req.body;
 
@@ -60,9 +55,7 @@ const addStaff = async (req, res) => {
     }
 };
 
-// @desc    Update staff
-// @route   PUT /api/staff/:id
-// @access  Private/Admin
+
 const updateStaff = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -78,7 +71,6 @@ const updateStaff = async (req, res) => {
         user.branch = req.body.branch || user.branch;
         user.email = req.body.email || user.email;
 
-        // Allow Admin to manually change username/password if needed
         if (req.body.username) user.username = req.body.username;
         if (req.body.password) user.password = req.body.password;
 
@@ -96,9 +88,7 @@ const updateStaff = async (req, res) => {
     }
 };
 
-// @desc    Delete staff
-// @route   DELETE /api/staff/:id
-// @access  Private/Admin
+
 const deleteStaff = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

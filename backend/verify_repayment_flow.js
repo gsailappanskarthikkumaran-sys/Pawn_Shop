@@ -14,12 +14,10 @@ const verifyFlow = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Connected to MongoDB');
 
-        // 1. Setup Data
+
         const admin = await User.findOne({ role: 'admin' });
         const branch = await Branch.findOne({});
         const customer = await Customer.findOne({});
-
-        // Create/Find a scheme with pre-interest
         let scheme = await Scheme.findOne({ schemeName: 'Test Pre-Interest Scheme' });
         if (!scheme) {
             scheme = await Scheme.create({
@@ -33,7 +31,6 @@ const verifyFlow = async () => {
             console.log('Created Test Scheme');
         }
 
-        // 2. Create Loan
         const loanAmount = 10000;
         const preInterest = (loanAmount * scheme.interestRate / 100) * scheme.preInterestMonths;
 
@@ -58,18 +55,16 @@ const verifyFlow = async () => {
 
         console.log(`Loan Created: ID=${loan._id}, Next Payment Date=${loan.nextPaymentDate.toISOString()}`);
 
-        // Verify Pre-interest logic (Manual check vs DB)
         if (loan.preInterestAmount !== 200) {
             console.error('ERROR: Pre-interest amount incorrect', loan.preInterestAmount);
         } else {
             console.log('SUCCESS: Pre-interest amount correct (200)');
         }
 
-        // 3. Make Payment
+
         console.log('Making Interest Payment...');
         const initialNextDate = new Date(loan.nextPaymentDate);
 
-        // Simulate Payment logic (simplified from controller)
         const payment = await Payment.create({
             loan: loan._id,
             amount: 200,
@@ -78,7 +73,7 @@ const verifyFlow = async () => {
             collectedBy: admin._id
         });
 
-        // Update Loan Logic (from controller)
+
         const nextDate = new Date(loan.nextPaymentDate);
         nextDate.setMonth(nextDate.getMonth() + 1);
         loan.nextPaymentDate = nextDate;
@@ -86,17 +81,18 @@ const verifyFlow = async () => {
 
         console.log(`Payment Made. New Next Payment Date=${loan.nextPaymentDate.toISOString()}`);
 
-        // 4. Verify Next Date Update
+
         if (loan.nextPaymentDate > initialNextDate) {
             console.log('SUCCESS: Next payment date updated forward.');
         } else {
             console.error('ERROR: Next payment date NOT updated.');
         }
 
-        // Cleanup
         await Loan.findByIdAndDelete(loan._id);
         await Payment.findByIdAndDelete(payment._id);
-        // Don't delete scheme/customer/branch as they might be used elsewhere or are persistent
+        await scheme.deleteOne();
+        await customer.deleteOne();
+        await branch.deleteOne();
 
         console.log('Verification Complete. Cleanup Done.');
 

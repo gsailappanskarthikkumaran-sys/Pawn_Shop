@@ -1,8 +1,5 @@
 import Voucher from '../models/Voucher.js';
 
-// @desc    Add a new voucher (Expense/Income)
-// @route   POST /api/vouchers
-// @access  Private (Admin/Staff)
 const addVoucher = async (req, res) => {
     const { type, category, amount, description, date } = req.body;
 
@@ -14,7 +11,7 @@ const addVoucher = async (req, res) => {
             description,
             date: date || new Date(),
             createdBy: req.user._id,
-            branch: req.user.branch // Auto-assign branch
+            branch: req.user.branch
         });
 
         res.status(201).json(voucher);
@@ -23,15 +20,13 @@ const addVoucher = async (req, res) => {
     }
 };
 
-// @desc    Get all vouchers (with optional date filtering)
-// @route   GET /api/vouchers
-// @access  Private
+
 const getVouchers = async (req, res) => {
     try {
         const { date } = req.query;
         let query = {};
 
-        // Branch Filtering
+
         if (req.user.role === 'staff' && req.user.branch) {
             query.branch = req.user.branch;
         }
@@ -54,9 +49,7 @@ const getVouchers = async (req, res) => {
     }
 };
 
-// @desc    Delete voucher
-// @route   DELETE /api/vouchers/:id
-// @access  Private (Admin only or Creator?) - Let's allow Admin only for now or strict ownership
+
 const deleteVoucher = async (req, res) => {
     try {
         const voucher = await Voucher.findById(req.params.id);
@@ -72,24 +65,18 @@ const deleteVoucher = async (req, res) => {
     }
 };
 
-// @desc    Update voucher
-// @route   PUT /api/vouchers/:id
-// @access  Private
 const updateVoucher = async (req, res) => {
     try {
         const { type, category, amount, description, date } = req.body;
         const voucher = await Voucher.findById(req.params.id);
 
         if (voucher) {
-            // Optional: Check ownership or permissions here
-            // if(req.user.role !== 'admin' && voucher.createdBy.toString() !== req.user._id.toString()) ...
 
             voucher.type = type || voucher.type;
             voucher.category = category || voucher.category;
             voucher.amount = amount || voucher.amount;
             voucher.description = description || voucher.description;
             voucher.date = date || voucher.date;
-            // branch usually doesn't change
 
             const updatedVoucher = await voucher.save();
             res.json(updatedVoucher);

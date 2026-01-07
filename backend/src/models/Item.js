@@ -7,22 +7,22 @@ const itemSchema = new mongoose.Schema({
         required: true,
     },
     name: {
-        type: String, // e.g., "Gold Ring", "Necklace"
+        type: String,
         required: true,
     },
     description: {
         type: String,
     },
     netWeight: {
-        type: Number, // in grams
+        type: Number,
         required: true,
     },
     purity: {
-        type: String, // e.g., "22k", "24k"
+        type: String,
         required: true,
     },
     photos: [{
-        type: String, // Paths to uploaded images
+        type: String,
     }]
 }, {
     timestamps: true,

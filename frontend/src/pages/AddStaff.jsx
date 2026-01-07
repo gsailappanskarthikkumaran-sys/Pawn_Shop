@@ -11,7 +11,7 @@ const AddStaff = () => {
     const location = useLocation();
     const isEditMode = !!id;
 
-    // Get returnUrl from query params
+
     const searchParams = new URLSearchParams(location.search);
     const returnUrl = searchParams.get('returnUrl');
 
@@ -28,7 +28,7 @@ const AddStaff = () => {
     const [branches, setBranches] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // State for showing generated credentials
+
     const [createdCredentials, setCreatedCredentials] = useState(null);
 
     useEffect(() => {
@@ -98,7 +98,7 @@ const AddStaff = () => {
             branch: formData.branch
         };
 
-        // Always include username/password
+
         if (formData.username) payload.username = formData.username;
         if (formData.password) payload.password = formData.password;
 
@@ -109,8 +109,8 @@ const AddStaff = () => {
                 handleNavigateBack();
             } else {
                 const { data } = await api.post('/staff', payload);
-                // Show generated credentials
-                setCreatedCredentials(null); // Ensure this is cleared
+
+                setCreatedCredentials(null);
                 alert('Staff Added Successfully!');
                 handleNavigateBack();
             }
@@ -145,7 +145,7 @@ const AddStaff = () => {
                         />
                     </div>
 
-                    {/* 1.5 Email Address (New) */}
+
                     <div className="form-group">
                         <label className="form-label"><Mail size={16} style={{ display: 'inline', marginRight: '6px' }} /> Email Address</label>
                         <input
@@ -158,7 +158,7 @@ const AddStaff = () => {
                         />
                     </div>
 
-                    {/* 2. Address */}
+
                     <div className="form-group">
                         <label className="form-label"><MapPin size={16} style={{ display: 'inline', marginRight: '6px' }} /> Address</label>
                         <textarea
@@ -170,7 +170,7 @@ const AddStaff = () => {
                         ></textarea>
                     </div>
 
-                    {/* 3. Phone Number */}
+
                     <div className="form-group">
                         <label className="form-label"><Phone size={16} style={{ display: 'inline', marginRight: '6px' }} /> Phone Number</label>
                         <input
@@ -182,7 +182,7 @@ const AddStaff = () => {
                         />
                     </div>
 
-                    {/* 4. Branch Selection */}
+
                     <div className="form-group">
                         <label className="form-label"><Building2 size={16} style={{ display: 'inline', marginRight: '6px' }} /> Branch</label>
                         <select
@@ -197,7 +197,7 @@ const AddStaff = () => {
                         </select>
                     </div>
 
-                    {/* 5. Aadhar Card Number */}
+
                     <div className="form-group">
                         <label className="form-label"><CreditCard size={16} style={{ display: 'inline', marginRight: '6px' }} /> Aadhar Card Number (ID Proof)</label>
                         <input
@@ -210,7 +210,7 @@ const AddStaff = () => {
                     </div>
 
 
-                    {/* Username Field */}
+
                     <div className="form-group">
                         <label className="form-label"><User size={16} style={{ display: 'inline', marginRight: '6px' }} /> Staff ID (Login Username)</label>
                         <input
@@ -223,7 +223,7 @@ const AddStaff = () => {
                         />
                     </div>
 
-                    {/* Password Field */}
+
                     <div className="form-group">
                         <label className="form-label"><Lock size={16} style={{ display: 'inline', marginRight: '6px' }} /> {isEditMode ? 'Reset Password' : 'Password'}</label>
                         <input
@@ -250,5 +250,4 @@ const AddStaff = () => {
         </div>
     );
 };
-
 export default AddStaff;

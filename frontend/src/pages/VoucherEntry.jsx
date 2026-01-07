@@ -8,14 +8,13 @@ const VoucherEntry = () => {
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        type: 'Payment', // Default
+        type: 'Payment',
         category: '',
         amount: '',
         description: '',
         date: new Date().toISOString().split('T')[0]
     });
 
-    // Simulated Vch No (Length + 1)
     const vchNo = editingId ? 'Update' : vouchers.length + 1;
 
     const categories = {
@@ -28,15 +27,14 @@ const VoucherEntry = () => {
         Memo: ['Reminder', 'Suspense', 'Provisional', 'Note']
     };
 
-    // Color Theme Map
+
     const typeColors = {
-        Payment: '#0ea5e9',   // Sky Blue
-        Receipt: '#ef4444',   // Red
-        Contra: '#10b981',    // Emerald Green
-        Journal: '#3b82f6',   // Royal Blue
-        Sales: '#475569',     // Slate
-        Purchase: '#f59e0b',  // Amber
-        Memo: '#8b5cf6'       // Violet
+        Payment: '#0ea5e9',
+        Receipt: '#ef4444',
+        Contra: '#10b981',
+        Journal: '#3b82f6',
+        Sales: '#475569',
+        Purchase: '#f59e0b',
     };
 
     const currentColor = typeColors[formData.type] || '#0ea5e9';
@@ -60,18 +58,18 @@ const VoucherEntry = () => {
         e.preventDefault();
         try {
             if (editingId) {
-                // UPDATE
+
                 const { data } = await api.put(`/vouchers/${editingId}`, formData);
                 setVouchers(vouchers.map(v => v._id === editingId ? data : v));
                 alert('Voucher Updated!');
                 setEditingId(null);
             } else {
-                // CREATE
+
                 const { data } = await api.post('/vouchers', formData);
                 setVouchers([data, ...vouchers]);
                 alert('Voucher Registered!');
             }
-            // Reset Form (Keep Type/Date, reset content)
+
             setFormData({ ...formData, amount: '', description: '', category: '' });
         } catch (error) {
             console.error("Failed to save voucher", error);
@@ -105,22 +103,13 @@ const VoucherEntry = () => {
         }
     };
 
-    // Helper to determine row labels based on type
-    const isPayment = formData.type === 'Payment' || formData.type === 'Purchase'; // Purchase acts like Payment (Money Out/Expense)
-    const isReceipt = formData.type === 'Receipt' || formData.type === 'Sales';    // Sales acts like Receipt (Money In/Income)
+    const isPayment = formData.type === 'Payment' || formData.type === 'Purchase';
+    const isReceipt = formData.type === 'Receipt' || formData.type === 'Sales';
     const isContra = formData.type === 'Contra';
     const isJournal = formData.type === 'Journal';
 
-    // Logic:
-    // Payment/Purchase: Dr Category, Cr Cash
-    // Receipt/Sales: Cr Category, Dr Cash
 
-    // Row 1 (The Variable Side)
-    // If Payment/Purchase -> We are Debiting the Category (Expense). Label = Dr.
-    // If Receipt/Sales   -> We are Crediting the Category (Income).  Label = Cr.
-    const row1Label = isPayment ? 'Dr' : 'Cr';
 
-    // Row 2 (The Cash Side)
     const row2Label = isPayment ? 'Cr' : 'Dr';
 
     return (
@@ -128,7 +117,7 @@ const VoucherEntry = () => {
             <h2 style={{ marginBottom: '16px', fontWeight: 'bold' }}>Voucher Entry</h2>
 
             <div className="tally-wrapper">
-                {/* --- Top Bar --- */}
+
                 <div className="tally-top-bar">
                     <div className="tally-field-group">
                         <span className="tally-label">Vch Type</span>
@@ -149,7 +138,6 @@ const VoucherEntry = () => {
                     </div>
                 </div>
 
-                {/* --- Main Colored Box --- */}
                 <form onSubmit={handleSubmit}>
                     <div className="tally-form-box" style={{ borderColor: currentColor, background: `${currentColor}15` }}>
                         <div className="form-header-row" style={{ background: currentColor }}>
@@ -160,7 +148,7 @@ const VoucherEntry = () => {
                         </div>
 
                         <div className="form-body">
-                            {/* ROW 1: The Account Selection (Expense/Income) */}
+
                             <div className="ledger-row">
                                 <span className="dr-cr-tag">{row1Label}</span>
                                 <select
@@ -174,19 +162,19 @@ const VoucherEntry = () => {
                                         <option key={cat} value={cat}>{cat}</option>
                                     ))}
                                 </select>
-                                {/* Credit Col */}
+
                                 <input
                                     className={`tally-input-l amount-field`}
-                                    disabled={isPayment} // Disabled for payment (Amount goes to Debit)
+                                    disabled={isPayment}
                                     value={!isPayment ? formData.amount : ''}
                                     onChange={e => setFormData({ ...formData, amount: e.target.value })}
                                     placeholder={!isPayment ? "0.00" : ""}
                                     type="number"
                                 />
-                                {/* Debit Col */}
+
                                 <input
                                     className={`tally-input-l amount-field`}
-                                    disabled={!isPayment} // Disabled for receipt (Amount goes to Credit)
+                                    disabled={!isPayment}
                                     value={isPayment ? formData.amount : ''}
                                     onChange={e => setFormData({ ...formData, amount: e.target.value })}
                                     placeholder={isPayment ? "0.00" : ""}
@@ -194,28 +182,27 @@ const VoucherEntry = () => {
                                 />
                             </div>
 
-                            {/* ROW 2: The Cash Side (Auto-filled) */}
+
                             <div className="ledger-row">
                                 <span className="dr-cr-tag">{row2Label}</span>
                                 <input className="tally-select" value="Cash Account" readOnly style={{ background: '#f8fafc' }} />
-                                {/* Credit Col */}
+
                                 <input
                                     className="tally-input-l amount-field"
-                                    value={isPayment ? formData.amount : ''} // Payment credits Cash
+                                    value={isPayment ? formData.amount : ''}
                                     readOnly
                                     style={{ background: '#e2e8f0' }}
                                 />
-                                {/* Debit Col */}
+
                                 <input
                                     className="tally-input-l amount-field"
-                                    value={!isPayment ? formData.amount : ''} // Receipt debits Cash
+                                    value={!isPayment ? formData.amount : ''}
                                     readOnly
                                     style={{ background: '#e2e8f0' }}
                                 />
                             </div>
                         </div>
 
-                        {/* Narration */}
                         <div className="narration-box" style={{ background: currentColor }}>
                             <label className="narration-label">Narration:</label>
                             <textarea
@@ -244,7 +231,7 @@ const VoucherEntry = () => {
                     </div>
                 </form>
 
-                {/* --- Bottom Toolbar --- */}
+
                 <div className="bottom-toolbar">
                     <button
                         type="button"
@@ -298,7 +285,7 @@ const VoucherEntry = () => {
                 </div>
             </div>
 
-            {/* Existing List Implementation below for reference - styled simpler */}
+
             <div className="voucher-list-section">
                 <h3 style={{ margin: '24px 0 16px', fontWeight: 'bold', color: '#334155' }}>Recent Vouchers</h3>
                 <div className="voucher-list">

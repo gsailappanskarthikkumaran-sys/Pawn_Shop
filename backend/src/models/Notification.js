@@ -4,7 +4,7 @@ const notificationSchema = mongoose.Schema({
     recipient: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: false // If null, could mean 'All Admins' or similar, but let's be specific for now
+        required: false
     },
     title: { type: String, required: true },
     message: { type: String, required: true },
@@ -13,8 +13,8 @@ const notificationSchema = mongoose.Schema({
         enum: ['info', 'warning', 'success', 'error'],
         default: 'info'
     },
-    referenceId: { type: String }, // e.g., Loan ID or Customer ID
-    referenceType: { type: String }, // 'Loan', 'Customer'
+    referenceId: { type: String },
+    referenceType: { type: String },
     read: { type: Boolean, default: false },
 }, {
     timestamps: true

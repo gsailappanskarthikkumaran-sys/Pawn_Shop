@@ -1,4 +1,3 @@
-/* Document Thumbnails */
 .doc-thumb {
     width: 100px;
     cursor: pointer;
@@ -169,7 +168,6 @@
     font-weight: 700;
 }
 
-/* Tabs */
 .tabs {
     display: flex;
     gap: 2px;
@@ -199,7 +197,7 @@
     border-bottom-color: #2563eb;
 }
 
-/* Tables */
+
 .detail-table {
     width: 100%;
     border-collapse: collapse;

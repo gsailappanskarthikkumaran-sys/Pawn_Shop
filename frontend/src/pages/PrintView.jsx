@@ -21,10 +21,10 @@ const PrintView = () => {
             else if (type === 'customer') endpoint = `/customers/${id}`;
             else if (type === 'payment') endpoint = `/payments/${id}`;
             else if (type === 'report-demand') {
-                // Fetch demand report from reports API
+
                 const { data } = await api.get('/reports/demand');
                 setData(data);
-                return; // Direct return as we set data differently
+                return;
             }
 
             if (endpoint) {
@@ -53,7 +53,7 @@ const PrintView = () => {
             </div>
 
             <div className="paper-sheet">
-                {/* Header */}
+
                 <div className="print-header">
                     <div className="company-name">PAWN BROKING SYSTEM</div>
                     <div className="company-details">
@@ -62,7 +62,7 @@ const PrintView = () => {
                     </div>
                 </div>
 
-                {/* Content based on Type */}
+
                 {type === 'loan' && <LoanReceipt loan={data} />}
                 {type === 'customer' && <CustomerProfile customer={data} />}
                 {type === 'payment' && <PaymentReceipt payment={data} />}
@@ -72,7 +72,7 @@ const PrintView = () => {
     );
 };
 
-// Sub-components for specific layouts
+
 const LoanReceipt = ({ loan }) => (
     <div>
         <h2 className="document-title">PLEDGE RECEIPT</h2>
@@ -87,7 +87,7 @@ const LoanReceipt = ({ loan }) => (
                     <label>Date</label>
                     <div>{new Date(loan.createdAt).toLocaleDateString()}</div>
                 </div>
-                {/* New: Customer Details here for better flow ? No, keep structure */}
+
             </div>
             <div className="text-right">
                 <div className="detail-group mb-4">
@@ -305,7 +305,7 @@ const PaymentReceipt = ({ payment }) => (
                     <div className="detail-group">
                         <label>Next Due Date</label>
                         <div className="font-bold text-lg">
-                            {/* Determine date based on current payment or loan next date */}
+
                             {new Date(payment.loan.nextPaymentDate).toLocaleDateString()}
                         </div>
                     </div>

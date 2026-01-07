@@ -1,9 +1,6 @@
 import GoldRate from '../models/GoldRate.js';
 import Scheme from '../models/Scheme.js';
 
-// @desc    Add Gold Rate
-// @route   POST /api/masters/gold-rate
-// @access  Admin
 const addGoldRate = async (req, res) => {
     const { ratePerGram22k, ratePerGram24k, date } = req.body;
 
@@ -20,16 +17,13 @@ const addGoldRate = async (req, res) => {
     }
 };
 
-// @desc    Get Latest Gold Rate
-// @route   GET /api/masters/gold-rate/latest
-// @access  Private
+
 const getLatestGoldRate = async (req, res) => {
     try {
         const rate = await GoldRate.findOne().sort({ rateDate: -1 });
         if (rate) {
             res.json(rate);
         } else {
-            // Return 200 with empty data instead of 404 to avoid console errors
             res.json(null);
         }
     } catch (error) {
@@ -37,9 +31,6 @@ const getLatestGoldRate = async (req, res) => {
     }
 };
 
-// @desc    Add Scheme
-// @route   POST /api/masters/schemes
-// @access  Admin
 const addScheme = async (req, res) => {
     try {
         const scheme = await Scheme.create(req.body);
@@ -49,9 +40,6 @@ const addScheme = async (req, res) => {
     }
 };
 
-// @desc    Get All Schemes
-// @route   GET /api/masters/schemes
-// @access  Private
 const getSchemes = async (req, res) => {
     try {
         const schemes = await Scheme.find({ isActive: true });
@@ -61,9 +49,7 @@ const getSchemes = async (req, res) => {
     }
 };
 
-// @desc    Delete Scheme (Soft Delete)
-// @route   DELETE /api/masters/schemes/:id
-// @access  Admin
+
 const deleteScheme = async (req, res) => {
     try {
         const scheme = await Scheme.findById(req.params.id);

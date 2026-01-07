@@ -11,7 +11,7 @@ const CustomerDetails = () => {
     const [loans, setLoans] = useState([]);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('loans'); // 'loans' or 'audit'
+    const [activeTab, setActiveTab] = useState('loans');
 
     useEffect(() => {
         fetchCustomerData();
@@ -19,26 +19,18 @@ const CustomerDetails = () => {
 
     const fetchCustomerData = async () => {
         try {
-            // Parallel fetch for speed
+
             const [custRes, loansRes] = await Promise.all([
                 api.get(`/customers/${id}`),
-                api.get('/loans') // Ideally we should have /loans/customer/:id but we'll filter for now if backend missing
+                api.get('/loans')
             ]);
 
             setCustomer(custRes.data);
 
-            // Filter loans for this customer (Temporary until backend supports direct query)
-            // Or better: check if /loans allows filtering by customerId query param
-            // Assuming we got all loans, filtering:
             const customerLoans = loansRes.data.filter(l =>
                 (l.customer?._id === id) || (l.customer === id)
             );
             setLoans(customerLoans);
-
-            // Fetch payments for these loans
-            // This might be heavy if many loans. For now, fetch on demand or simple loop.
-            // Let's just show loan history first.
-
         } catch (error) {
             console.error("Error fetching details", error);
         } finally {
@@ -54,7 +46,7 @@ const CustomerDetails = () => {
 
     return (
         <div className="detail-container">
-            {/* Header / Navigation */}
+
             <div className="detail-header">
                 <button onClick={() => navigate(-1)} className="back-btn">
                     <ArrowLeft size={20} /> Back
@@ -76,7 +68,7 @@ const CustomerDetails = () => {
                 </div>
             </div>
 
-            {/* Profile Card */}
+
             <div className="profile-card">
                 <div className="profile-main">
                     <div className="avatar-large">
@@ -125,7 +117,7 @@ const CustomerDetails = () => {
                 </div>
             </div>
 
-            {/* Tabs */}
+
             <div className="tabs">
                 <button
                     className={`tab ${activeTab === 'loans' ? 'active' : ''}`}
@@ -141,7 +133,7 @@ const CustomerDetails = () => {
                 </button>
             </div>
 
-            {/* Content */}
+
             <div className="tab-content">
                 {activeTab === 'loans' && (
                     <div className="loan-history-section">

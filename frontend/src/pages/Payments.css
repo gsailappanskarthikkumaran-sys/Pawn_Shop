@@ -1,4 +1,3 @@
-/* Payments Page Styles */
 .payments-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -44,7 +43,6 @@
     }
 }
 
-/* Loan Details Card */
 .details-card {
     background: white;
     padding: var(--spacing-lg);
@@ -114,7 +112,7 @@
     color: #991b1b;
 }
 
-/* Payment Form */
+
 .payment-form {
     margin-top: var(--spacing-lg);
     padding-top: var(--spacing-lg);
@@ -159,7 +157,7 @@
     cursor: not-allowed;
 }
 
-/* History Card */
+
 .history-card {
     background: white;
     border-radius: var(--radius-xl);

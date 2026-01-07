@@ -4,15 +4,11 @@ import { Book, TrendingUp, TrendingDown, DollarSign, Calendar, FileText, PieChar
 import './Accounts.css';
 
 const Accounts = () => {
-    // Tabs: 'daybook', 'financials'
+
     const [activeTab, setActiveTab] = useState('daybook');
     const [loading, setLoading] = useState(true);
-
-    // Day Book Data
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [dayBookData, setDayBookData] = useState({ transactions: [], summary: {} });
-
-    // Financial Data
     const [financials, setFinancials] = useState(null);
 
     useEffect(() => {
@@ -51,7 +47,7 @@ const Accounts = () => {
         }
     };
 
-    // Business & Demand Data
+
     const [businessData, setBusinessData] = useState(null);
     const [demandData, setDemandData] = useState([]);
 
@@ -79,7 +75,7 @@ const Accounts = () => {
         }
     };
 
-    // Ledger / Voucher Entry
+
     const [voucherForm, setVoucherForm] = useState({
         type: 'expense',
         category: '',
@@ -95,7 +91,7 @@ const Accounts = () => {
             await api.post('/vouchers', voucherForm);
             alert('Ledger Entry Added Successfully!');
             setVoucherForm(prev => ({ ...prev, amount: '', description: '', category: '' }));
-            fetchDayBook(); // Refresh table immediately
+            fetchDayBook();
         } catch (error) {
             console.error("Error adding voucher", error);
             alert('Failed to add ledger entry');
@@ -152,7 +148,7 @@ const Accounts = () => {
                 </div>
             </div>
 
-            {/* Tabs */}
+
             <div className="tabs-header">
                 <button
                     className={`tab-btn ${activeTab === 'daybook' ? 'active' : ''}`}
@@ -199,7 +195,6 @@ const Accounts = () => {
                             <button className="btn-refresh" onClick={fetchDayBook}>Load</button>
                         </div>
 
-                        {/* Day Summary Cards */}
                         <div className="summary-cards">
                             <div className="mini-card green">
                                 <span>Money In</span>
@@ -215,7 +210,7 @@ const Accounts = () => {
                             </div>
                         </div>
 
-                        {/* Transaction Table */}
+
                         {renderTransactionTable()}
                     </div>
                 )}
@@ -224,7 +219,7 @@ const Accounts = () => {
                     <div className="financials-view">
                         {loading ? <p>Loading Financials...</p> : (
                             <>
-                                {/* Cash Position */}
+
                                 <div className="balance-sheet-card main-cash-card">
                                     <div className="icon-circle"><DollarSign size={32} /></div>
                                     <div className="info">
@@ -235,7 +230,7 @@ const Accounts = () => {
                                 </div>
 
                                 <div className="reports-grid">
-                                    {/* ASSETS / BALANCE SHEET */}
+
                                     <div className="report-card">
                                         <div className="card-header-sm">
                                             <h3>Balance Sheet</h3>
@@ -255,7 +250,6 @@ const Accounts = () => {
                                         </div>
                                     </div>
 
-                                    {/* P&L / CASH FLOW */}
                                     <div className="report-card">
                                         <div className="card-header-sm">
                                             <h3>Cash Flow Statement</h3>
@@ -386,7 +380,7 @@ const Accounts = () => {
                 {activeTab === 'ledger' && (
                     <div className="daybook-view">
                         <div className="tally-container">
-                            {/* Tally Header */}
+
                             <div className="tally-header">
                                 <div className="tally-header-left">
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -424,7 +418,7 @@ const Accounts = () => {
                                 </div>
                             </div>
 
-                            {/* Tally Body */}
+
                             <div className="tally-body">
                                 <table className="tally-table">
                                     <thead>
@@ -436,7 +430,7 @@ const Accounts = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {/* Row 1: The Account/Category */}
+
                                         <tr>
                                             <td className="tally-dr-cr">
                                                 {['expense', 'Purchase'].includes(voucherForm.type) ? 'Dr' : 'Cr'}
@@ -452,7 +446,7 @@ const Accounts = () => {
                                                     autoFocus
                                                 />
                                             </td>
-                                            {/* Logic: Expenses are Dr, Incomes are Cr */}
+
                                             {['expense', 'Purchase'].includes(voucherForm.type) ? (
                                                 <>
                                                     <td style={{ textAlign: 'right' }}>
@@ -484,7 +478,7 @@ const Accounts = () => {
                                             )}
                                         </tr>
 
-                                        {/* Row 2: The Cash/Bank (Contra Entry) */}
+
                                         <tr>
                                             <td className="tally-dr-cr">
                                                 {['expense', 'Purchase'].includes(voucherForm.type) ? 'Cr' : 'Dr'}
@@ -518,7 +512,7 @@ const Accounts = () => {
                                 </table>
                             </div>
 
-                            {/* Tally Footer - Narration */}
+
                             <div className="tally-footer">
                                 <div className="narration-container">
                                     <label className="narration-label">Narration:</label>
@@ -538,7 +532,6 @@ const Accounts = () => {
                             </div>
                         </div>
 
-                        {/* Transactions Table Below */}
                         <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
                             <h3 style={{ marginBottom: '1rem', color: '#64748b' }}>Transactions for {new Date(selectedDate).toLocaleDateString()}</h3>
                             {renderTransactionTable()}

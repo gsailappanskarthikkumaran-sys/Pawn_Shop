@@ -4,7 +4,7 @@ const goldRateSchema = new mongoose.Schema({
     rateDate: {
         type: Date,
         required: true,
-        unique: true, // Only one rate per day usually
+        unique: true,
     },
     ratePerGram22k: {
         type: Number,

@@ -4,17 +4,17 @@ import { Settings, TrendingUp, Layers, Save, Trash2 } from 'lucide-react';
 import './Masters.css';
 
 const Masters = () => {
-    // Gold Rate State
+
     const [rate22k, setRate22k] = useState('');
     const [rate24k, setRate24k] = useState('');
     const [currentRate, setCurrentRate] = useState(null);
     const [loadingRate, setLoadingRate] = useState(false);
 
-    // Scheme State
+
     const [schemeName, setSchemeName] = useState('');
     const [interestRate, setInterestRate] = useState('');
     const [tenure, setTenure] = useState('');
-    const [preInterest, setPreInterest] = useState(''); // New State
+    const [preInterest, setPreInterest] = useState('');
     const [maxLoan, setMaxLoan] = useState('');
     const [schemes, setSchemes] = useState([]);
 
@@ -62,7 +62,7 @@ const Masters = () => {
                 interestRate: parseFloat(interestRate),
                 tenureMonths: parseInt(tenure),
                 maxLoanPercentage: parseFloat(maxLoan),
-                preInterestMonths: parseInt(preInterest) || 0 // Send to backend
+                preInterestMonths: parseInt(preInterest) || 0
             });
             setSchemes([...schemes, data]);
             alert('Scheme Added!');
@@ -100,7 +100,7 @@ const Masters = () => {
 
             <div className="masters-grid">
 
-                {/* Gold Rate Card */}
+
                 <div className="master-card">
                     <div className="card-header">
                         <div className="icon-box gold-icon">
@@ -166,7 +166,6 @@ const Masters = () => {
                     </div>
                 </div>
 
-                {/* Schemes Card */}
                 <div className="master-card">
                     <div className="card-header">
                         <div className="icon-box scheme-icon">

@@ -4,7 +4,7 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// All report routes protected
+
 router.get('/day-book', protect, getDayBook);
 router.get('/financials', protect, getFinancialStats);
 router.get('/business', protect, getBusinessReport);

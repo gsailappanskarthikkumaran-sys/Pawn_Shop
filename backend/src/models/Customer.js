@@ -24,11 +24,11 @@ const customerSchema = new mongoose.Schema({
     aadharNumber: { type: String },
     panNumber: { type: String },
     photo: {
-        type: String, // Path to stored image
+        type: String,
     },
-    aadharCard: { type: String }, // Path to Aadhar image
-    panCard: { type: String },    // Path to PAN image
-    // Deprecated generic idProof, keeping for backward config if needed or can remove
+    aadharCard: { type: String },
+    panCard: { type: String },
+
     idProof: {
         type: String,
     },

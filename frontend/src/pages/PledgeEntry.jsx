@@ -6,13 +6,13 @@ import './PledgeEntry.css';
 const PledgeEntry = () => {
     const [schemes, setSchemes] = useState([]);
     const [goldRate, setGoldRate] = useState(null);
-    const [customers, setCustomers] = useState([]); // Simplified: Fetch all for dropdown
+    const [customers, setCustomers] = useState([]);
     const [formData, setFormData] = useState({
         customerId: '',
         schemeId: '',
         requestedLoan: '',
     });
-    const [preInterestAmount, setPreInterestAmount] = useState(''); // New State
+    const [preInterestAmount, setPreInterestAmount] = useState('');
 
     useEffect(() => {
         if (formData.schemeId && formData.requestedLoan) {
@@ -32,7 +32,7 @@ const PledgeEntry = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch independent data
+
                 const [schemesRes, custRes] = await Promise.all([
                     api.get('/masters/schemes'),
                     api.get('/customers')
@@ -40,7 +40,7 @@ const PledgeEntry = () => {
                 setSchemes(schemesRes.data);
                 setCustomers(custRes.data);
 
-                // Fetch Gold Rate separately (might be 404)
+
                 try {
                     const rateRes = await api.get('/masters/gold-rate/latest');
                     setGoldRate(rateRes.data);
@@ -100,7 +100,7 @@ const PledgeEntry = () => {
         data.append('customerId', formData.customerId);
         data.append('schemeId', formData.schemeId);
         data.append('requestedLoanAmount', formData.requestedLoan);
-        data.append('preInterestAmount', preInterestAmount); // Send new field
+        data.append('preInterestAmount', preInterestAmount);
         data.append('items', JSON.stringify(items));
 
         for (let i = 0; i < files.length; i++) {
@@ -112,7 +112,7 @@ const PledgeEntry = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert('Pledge Created Successfully!');
-            // Reset form logic here
+
         } catch (error) {
             console.error('Submission failed', error);
             const serverMsg = error.response?.data?.message || 'Failed to create pledge';
@@ -120,7 +120,7 @@ const PledgeEntry = () => {
         }
     };
 
-    // Derived values for UI
+
     const totalValuation = calculateValuation();
     const maxEligibleLoan = calculateMaxLoan();
 
@@ -135,10 +135,7 @@ const PledgeEntry = () => {
 
             <form onSubmit={handleSubmit} className="pledge-layout">
 
-                {/* LEFT COLUMN - FORM INPUTS */}
                 <div className="form-column">
-
-                    {/* Customer & Scheme Section */}
                     <div className="form-section">
                         <div className="section-header">
                             <div className="section-icon icon-blue">
@@ -175,7 +172,6 @@ const PledgeEntry = () => {
                         </div>
                     </div>
 
-                    {/* Items Section */}
                     <div className="form-section">
                         <div className="section-header" style={{ justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -258,8 +254,6 @@ const PledgeEntry = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* RIGHT COLUMN - CALCULATOR */}
                 <div className="calc-column">
                     <div className="calculator-card">
                         <div className="section-header">

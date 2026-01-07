@@ -5,6 +5,5 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.post('/login', loginUser);
-router.post('/register', registerUser); // Open for initial setup, then can be protected
-
+router.post('/register', registerUser);
 export default router;

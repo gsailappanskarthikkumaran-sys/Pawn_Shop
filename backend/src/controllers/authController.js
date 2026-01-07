@@ -7,9 +7,7 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// @access  Public
+
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
@@ -32,9 +30,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc    Register a new user (admin only strictly speaking, but public for generic setup)
-// @route   POST /api/auth/register
-// @access  Public (should be Admin protected in prod, but open for setup)
 const registerUser = async (req, res) => {
     const { username, password, fullName, role } = req.body;
 

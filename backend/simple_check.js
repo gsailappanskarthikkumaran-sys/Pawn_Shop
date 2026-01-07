@@ -4,11 +4,9 @@ import mongoose from 'mongoose';
 const check = async () => {
     try {
         console.log('Connecting...');
-        // Set a 5s timeout
         await mongoose.connect('mongodb://127.0.0.1:27017/pawnbroker_db', { serverSelectionTimeoutMS: 5000 });
         console.log('Connected!');
 
-        // Define minimal schema to avoid model issues
         const User = mongoose.model('User', new mongoose.Schema({
             username: String,
             role: String,

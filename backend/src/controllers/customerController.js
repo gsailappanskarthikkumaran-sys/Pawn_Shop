@@ -46,25 +46,23 @@ const createCustomer = async (req, res) => {
             }
         }
 
-        // Determine Branch
-        let branchToAssign = req.user.branch; // Default to user's branch
+        let branchToAssign = req.user.branch;
 
         if (req.user.role === 'admin') {
-            branchToAssign = req.body.branch; // Admin must provide branch
+            branchToAssign = req.body.branch;
             if (!branchToAssign) {
                 cleanupFiles(req.files);
                 return res.status(400).json({ message: 'Admin must select a branch for the customer' });
             }
         }
 
-        // If Staff, user.branch must exist
         if (req.user.role === 'staff' && !branchToAssign) {
             cleanupFiles(req.files);
             return res.status(400).json({ message: 'Staff user is not assigned to any branch. Contact Admin.' });
         }
 
         if (!branchToAssign) {
-            // Catch-all
+
             cleanupFiles(req.files);
             return res.status(400).json({ message: 'Branch assignment failed' });
         }
@@ -88,7 +86,7 @@ const createCustomer = async (req, res) => {
 
     } catch (error) {
         cleanupFiles(req.files);
-        // Specialized error for generic cleanup, but preserving original message if possible
+
         res.status(400).json({ message: 'Invalid customer data', error: error.message });
     }
 };
@@ -116,9 +114,9 @@ const getCustomerById = async (req, res) => {
         const customer = await Customer.findById(req.params.id);
 
         if (customer) {
-            // Access Control
+
             if (req.user.role === 'staff' && req.user.branch) {
-                // strict check: if customer has no branch OR mismatch
+
                 if (!customer.branch || customer.branch.toString() !== req.user.branch.toString()) {
                     return res.status(403).json({ message: 'Not authorized to view this customer' });
                 }
@@ -132,9 +130,6 @@ const getCustomerById = async (req, res) => {
     }
 };
 
-// @desc    Update customer
-// @route   PUT /api/customers/:id
-// @access  Private
 const updateCustomer = async (req, res) => {
     try {
         const { name, phone, address, email, aadharNumber, panNumber } = req.body;
@@ -144,7 +139,6 @@ const updateCustomer = async (req, res) => {
             return res.status(404).json({ message: 'Customer not found' });
         }
 
-        // Update fields
         customer.name = name || customer.name;
         customer.phone = phone || customer.phone;
         customer.address = address || customer.address;
@@ -152,7 +146,6 @@ const updateCustomer = async (req, res) => {
         customer.aadharNumber = aadharNumber || customer.aadharNumber;
         customer.panNumber = panNumber || customer.panNumber;
 
-        // Update files if provided
         if (req.files) {
             if (req.files['photo']) customer.photo = req.files['photo'][0].path.replace(/\\/g, "/");
             if (req.files['aadharCard']) customer.aadharCard = req.files['aadharCard'][0].path.replace(/\\/g, "/");

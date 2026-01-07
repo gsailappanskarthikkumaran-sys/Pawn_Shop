@@ -21,16 +21,15 @@ const debug = async () => {
 
         console.log('Sample Loan ID:', loan._id);
         console.log('Loan Branch:', loan.branch);
-        console.log('Loan Branch Type in Doc:', typeof loan.branch); // If populated, it is Object. If not, ObjectId
+        console.log('Loan Branch Type in Doc:', typeof loan.branch);
 
-        // Check raw doc
+
         const rawLoan = await Loan.collection.findOne({ _id: loan._id });
         console.log('Raw Loan Branch:', rawLoan.branch);
         console.log('Raw Loan Branch Constructor:', rawLoan.branch ? rawLoan.branch.constructor.name : 'N/A');
         console.log('Raw CurrentBalance:', rawLoan.currentBalance, typeof rawLoan.currentBalance);
 
-        // Test Aggregation with ObjectId
-        const branchId = rawLoan.branch; // This is ObjectId from driver
+        const branchId = rawLoan.branch;
 
         console.log('Testing Aggregation with BranchId:', branchId);
 
@@ -45,7 +44,6 @@ const debug = async () => {
         ]);
         console.log('Aggregation (ObjectId) Result:', totals);
 
-        // Test Aggregation with String
         const totalsString = await Loan.aggregate([
             { $match: { branch: branchId.toString() } },
             {

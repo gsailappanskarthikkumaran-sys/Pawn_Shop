@@ -12,11 +12,8 @@ const Customers = () => {
 
     const [branches, setBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState('');
-    const { user } = useAuth(); // Assuming useAuth is available from context
+    const { user } = useAuth();
 
-    // Create a mock user if useAuth is not actually imported or available yet to prevent crash, 
-    // but ideally we should import useAuth. 
-    // Wait, useAuth is NOT imported in the original file. I need to import it.
 
     useEffect(() => {
         if (user?.role !== 'staff') {

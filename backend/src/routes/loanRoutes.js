@@ -7,7 +7,7 @@ import upload from '../middleware/uploadMiddleware.js';
 const router = express.Router();
 const paymentRouter = express.Router();
 
-// Loan Routes
+
 router.route('/stats/dashboard').get(protect, getDashboardStats);
 router.route('/stats/staff-dashboard').get(protect, getStaffDashboardStats);
 
@@ -17,7 +17,6 @@ router.route('/')
 
 router.route('/:id').get(protect, getLoanById);
 
-// Payment Routes
 paymentRouter.route('/').post(protect, addPayment);
 paymentRouter.route('/loan/:loanId').get(protect, getPaymentsByLoan);
 paymentRouter.route('/:id').get(protect, getPaymentById);

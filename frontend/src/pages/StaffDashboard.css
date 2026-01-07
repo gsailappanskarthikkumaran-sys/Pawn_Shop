@@ -91,7 +91,6 @@
     color: var(--text-muted);
 }
 
-/* Panel Cards */
 .staff-panel-card {
     background: white;
     border-radius: var(--radius-xl);
@@ -119,7 +118,7 @@
     letter-spacing: 0.05em;
 }
 
-/* Colors for icons in panel cards */
+
 .text-purple {
     color: #a855f7;
 }

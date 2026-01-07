@@ -7,9 +7,7 @@ const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
     destination(req, file, cb) {
-        // middleware is in src/middleware
-        // uploads is in src/uploads
-        // so we start from __dirname and go up one level
+
         const uploadPath = path.join(__dirname, '../uploads');
         cb(null, uploadPath);
     },

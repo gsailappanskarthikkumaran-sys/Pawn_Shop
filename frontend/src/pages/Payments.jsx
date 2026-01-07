@@ -9,9 +9,9 @@ const Payments = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Payment Form State
+
     const [amount, setAmount] = useState('');
-    const [type, setType] = useState('interest'); // interest, principal, full_settlement
+    const [type, setType] = useState('interest');
     const [paymentMode, setPaymentMode] = useState('cash');
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
     const [remarks, setRemarks] = useState('');
@@ -29,9 +29,7 @@ const Payments = () => {
         setLoading(true);
         setLoan(null);
         try {
-            // Adjust API call if your search endpoint is different
-            // Assuming we search by ID directly for now. 
-            // Ideally we'd have a search by customer name too, but sticking to basics.
+
             const { data } = await api.get(`/loans/${searchId}`);
             setLoan(data);
             fetchHistory(searchId);
@@ -68,7 +66,6 @@ const Payments = () => {
             alert('Payment Recorded Successfully!');
             setAmount('');
             setRemarks('');
-            // Refresh data
             const loanRes = await api.get(`/loans/${loan._id}`);
             setLoan(loanRes.data);
             fetchHistory(loan._id);
@@ -104,7 +101,7 @@ const Payments = () => {
 
             {loan && (
                 <div className="layout-grid">
-                    {/* Left: Loan Details & Pay Form */}
+
                     <div className="details-card">
                         <div className="card-header-row">
                             <h3 className="card-title">Loan Details</h3>
@@ -207,7 +204,7 @@ const Payments = () => {
                         )}
                     </div>
 
-                    {/* Right: History */}
+
                     <div className="history-card">
                         <div className="card-toolbar">
                             <h3 className="card-title" style={{ fontSize: '1rem' }}>Transaction History</h3>

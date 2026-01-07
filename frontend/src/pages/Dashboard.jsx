@@ -105,7 +105,6 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Overview Stats */}
             <div className="stats-grid">
                 <div className="stat-card">
                     <div className="stat-icon blue-icon"><FileText size={24} /></div>
@@ -181,7 +180,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Pie Chart */}
                 <div className="panel-card pie-panel">
                     <div className="panel-header">
                         <div className="panel-title">
@@ -216,7 +214,6 @@ const Dashboard = () => {
             </div>
 
             <div className="content-grid">
-                {/* Recent Activity Section */}
                 <div className="panel-card activity-section">
                     <div className="panel-header">
                         <div className="panel-title">
@@ -252,7 +249,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Quick Actions Section */}
                 <div className="panel-card quick-actions">
                     <div className="panel-header">
                         <h2 className="panel-title">Quick Actions</h2>

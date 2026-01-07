@@ -7,7 +7,7 @@ const voucherSchema = mongoose.Schema({
         required: true
     },
     category: {
-        type: String, // e.g., 'Tea/Coffee', 'Salary', 'Stationery', 'Rent'
+        type: String,
         required: true
     },
     amount: {

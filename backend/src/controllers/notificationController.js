@@ -1,13 +1,10 @@
 import Notification from '../models/Notification.js';
 
-// @desc    Get user notifications
-// @route   GET /api/notifications
-// @access  Private
 const getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ recipient: req.user._id })
             .sort({ createdAt: -1 })
-            .limit(50); // Limit to last 50
+            .limit(50);
 
         const unreadCount = await Notification.countDocuments({
             recipient: req.user._id,
@@ -20,15 +17,12 @@ const getNotifications = async (req, res) => {
     }
 };
 
-// @desc    Mark notification as read
-// @route   PUT /api/notifications/:id/read
-// @access  Private
 const markAsRead = async (req, res) => {
     try {
         const notification = await Notification.findById(req.params.id);
 
         if (notification) {
-            // Ensure ownership
+
             if (notification.recipient.toString() !== req.user._id.toString()) {
                 return res.status(401).json({ message: 'Not authorized' });
             }
@@ -44,9 +38,6 @@ const markAsRead = async (req, res) => {
     }
 };
 
-// @desc    Mark ALL as read
-// @route   PUT /api/notifications/read-all
-// @access  Private
 const markAllAsRead = async (req, res) => {
     try {
         await Notification.updateMany(

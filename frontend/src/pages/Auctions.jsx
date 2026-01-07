@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { Gavel, Search, AlertCircle, CheckCircle } from 'lucide-react';
-import './Auctions.css'; // Will create this next
+import './Auctions.css';
 
 const Auctions = () => {
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedLoan, setSelectedLoan] = useState(null);
 
-    // Form State
+
     const [amount, setAmount] = useState('');
     const [bidder, setBidder] = useState('');
     const [contact, setContact] = useState('');
@@ -42,7 +42,7 @@ const Auctions = () => {
             });
             alert("Auction Recorded Successfully!");
             setSelectedLoan(null);
-            fetchEligibleLoans(); // Refresh list
+            fetchEligibleLoans();
         } catch (error) {
             alert(error.response?.data?.message || "Auction failed");
         }
@@ -60,7 +60,7 @@ const Auctions = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* LIST OF OVERDUE ITEMS */}
+
                 <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                         <h3 className="font-semibold text-slate-700">Eligible for Auction (Overdue)</h3>
@@ -100,7 +100,7 @@ const Auctions = () => {
                     </div>
                 </div>
 
-                {/* AUCTION FORM */}
+
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-fit">
                     {!selectedLoan ? (
                         <div className="text-center py-10 text-slate-400">

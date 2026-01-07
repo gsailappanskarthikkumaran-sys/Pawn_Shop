@@ -1,9 +1,7 @@
 import Payment from '../models/Payment.js';
 import Loan from '../models/Loan.js';
 
-// @desc    Add Payment
-// @route   POST /api/payments
-// @access  Private
+
 const addPayment = async (req, res) => {
     const { loanId, amount, type, remarks, paymentMode, paymentDate } = req.body;
 
@@ -12,25 +10,15 @@ const addPayment = async (req, res) => {
         if (!loan) return res.status(404).json({ message: 'Loan not found' });
         if (loan.status === 'closed') return res.status(400).json({ message: 'Loan is already closed' });
 
-        // Create Payment
         const payment = await Payment.create({
             loan: loanId,
             amount,
             type,
-            paymentMode: paymentMode || 'cash', // Default to cash if not sent
+            paymentMode: paymentMode || 'cash',
             remarks,
             collectedBy: req.user._id,
             paymentDate: paymentDate || Date.now()
         });
-
-        // Update Loan Balance
-        // Logic: If 'interest', it pays off accrued interest (not tracked in balance explicitly in this simple model, 
-        // usually interest is calculated on fly or added).
-        // If 'principal' or 'full_settlement', it reduces requests.
-        // Simplified Logic: 
-        // If full_settlement, mark closed, balance 0.
-        // If principal, reduce balance.
-        // Interest payment is just logged, doesn't reduce principal balance usually.
 
         if (type === 'full_settlement') {
             loan.status = 'closed';
@@ -42,12 +30,11 @@ const addPayment = async (req, res) => {
                 loan.currentBalance = 0;
             }
         } else if (type === 'interest') {
-            // Advance next payment date by 1 month
+
             const nextDate = new Date(loan.nextPaymentDate);
             nextDate.setMonth(nextDate.getMonth() + 1);
             loan.nextPaymentDate = nextDate;
         }
-        // For interest, we assume it handles offline calc or separate field, but for now we just log it.
 
         await loan.save();
 
@@ -57,9 +44,7 @@ const addPayment = async (req, res) => {
     }
 };
 
-// @desc    Get Payments for a Loan
-// @route   GET /api/payments/loan/:loanId
-// @access  Private
+
 const getPaymentsByLoan = async (req, res) => {
     try {
         const payments = await Payment.find({ loan: req.params.loanId }).sort({ paymentDate: -1 });
@@ -69,9 +54,6 @@ const getPaymentsByLoan = async (req, res) => {
     }
 };
 
-// @desc    Get Single Payment by ID
-// @route   GET /api/payments/:id
-// @access  Private
 const getPaymentById = async (req, res) => {
     try {
         const payment = await Payment.findById(req.params.id).populate('loan');

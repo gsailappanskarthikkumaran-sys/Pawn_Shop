@@ -1,16 +1,12 @@
 import Branch from '../models/Branch.js';
-
-// @desc    Get all branches
-// @route   GET /api/branches
-// @access  Private/Admin
 const getBranches = async (req, res) => {
     try {
         let query = {};
-        // If staff, restrict to their own branch
+
         if (req.user.role === 'staff' && req.user.branch) {
             query._id = req.user.branch;
         } else if (req.user.role === 'staff' && !req.user.branch) {
-            // Staff with no branch sees nothing (or error)
+
             return res.json([]);
         }
 
@@ -21,12 +17,9 @@ const getBranches = async (req, res) => {
     }
 };
 
-// @desc    Get single branch
-// @route   GET /api/branches/:id
-// @access  Private/Admin
 const getBranchById = async (req, res) => {
     try {
-        // Access Control for Staff
+
         if (req.user.role === 'staff') {
             if (!req.user.branch || req.user.branch.toString() !== req.params.id) {
                 return res.status(403).json({ message: 'Not authorized to view this branch' });
@@ -44,9 +37,7 @@ const getBranchById = async (req, res) => {
     }
 };
 
-// @desc    Add new branch
-// @route   POST /api/branches
-// @access  Private/Admin
+
 const addBranch = async (req, res) => {
     const { name, address } = req.body;
 
@@ -68,9 +59,6 @@ const addBranch = async (req, res) => {
     }
 };
 
-// @desc    Delete branch
-// @route   DELETE /api/branches/:id
-// @access  Private/Admin
 const deleteBranch = async (req, res) => {
     try {
         const branch = await Branch.findById(req.params.id);

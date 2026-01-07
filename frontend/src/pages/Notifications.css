@@ -44,7 +44,7 @@
     border-left: 4px solid transparent;
 }
 
-/* Status Colors */
+
 .notification-card.warning {
     border-left-color: #f59e0b;
     background: #fffbeb;
@@ -65,10 +65,9 @@
     background: #eff6ff;
 }
 
-/* Read State */
+
 .notification-card.read {
     background: #f8fafc;
-    /* Grayish background for read */
     border-left-color: #cbd5e1;
     opacity: 0.8;
 }

@@ -9,7 +9,6 @@ router.route('/')
     .get(protect, getVouchers);
 
 router.route('/:id')
-    .put(protect, updateVoucher) // Allow update
-    .delete(protect, deleteVoucher); // Allow staff to delete (removed admin restriction for now to fix 403)
-
+    .put(protect, updateVoucher)
+    .delete(protect, deleteVoucher);
 export default router;
