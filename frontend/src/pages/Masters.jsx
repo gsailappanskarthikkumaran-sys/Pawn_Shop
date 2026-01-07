@@ -197,7 +197,7 @@ const Masters = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Tenure (Mos)</label>
+                                <label className="form-label">Number of months</label>
                                 <input
                                     type="number" className="input-field"
                                     value={tenure} onChange={e => setTenure(e.target.value)}

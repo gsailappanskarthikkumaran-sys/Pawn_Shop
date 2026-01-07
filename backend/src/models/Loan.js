@@ -33,13 +33,13 @@ const loanSchema = new mongoose.Schema({
     },
     valuation: {
         type: Number,
-        required: true, // Total value of pledged gold
+        required: true, 
     },
     loanAmount: {
         type: Number,
-        required: true, // Actual loan given
+        required: true, 
     },
-    interestRate: { // Snapshot of interest rate at time of loan
+    interestRate: { 
         type: Number,
         required: true,
     },
@@ -55,7 +55,7 @@ const loanSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    currentBalance: { // To track remaining principal/interest
+    currentBalance: { 
         type: Number,
         default: 0
     },
@@ -65,7 +65,7 @@ const loanSchema = new mongoose.Schema({
     },
     paymentFrequency: {
         type: String,
-        default: 'monthly', // monthly, quarterly, etc.
+        default: 'monthly', 
     },
     status: {
         type: String,
