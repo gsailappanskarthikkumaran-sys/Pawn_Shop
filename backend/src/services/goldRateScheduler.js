@@ -2,13 +2,13 @@ import cron from 'node-cron';
 import axios from 'axios';
 import GoldRate from '../models/GoldRate.js';
 
-// Configuration
-const BASE_RATE_22K = 12600; // Base rate for Current Location (approx)
+
+const BASE_RATE_22K = 12600;
 const VARIANCE = 50;
 
 const fetchMarketRate = async () => {
 
-    return null; // Force simulation for now
+    return null;
 };
 
 const updateDailyGoldRate = async () => {
@@ -27,14 +27,11 @@ const updateDailyGoldRate = async () => {
             rate24k = marketRate;
             rate22k = marketRate * 0.916;
         } else {
-            // SIMULATION: Use Chennai Base Rate with slight variance
             const fluctuation = (Math.random() * VARIANCE * 2) - VARIANCE;
             rate22k = Math.round(BASE_RATE_22K + fluctuation);
             rate24k = Math.round(rate22k * (24 / 22));
         }
 
-        // Upsert: Update if exists for today, else create
-        // Define day start and end
         const startOfDay = new Date(today);
         const endOfDay = new Date(today);
         endOfDay.setHours(23, 59, 59, 999);
@@ -58,12 +55,12 @@ const updateDailyGoldRate = async () => {
 };
 
 const initScheduler = () => {
-    // Run every day at 9:00 AM
+
     cron.schedule('0 9 * * *', () => {
         updateDailyGoldRate();
     });
 
-    // Also try to run immediately on server start (if missed)
+
     updateDailyGoldRate();
 };
 
