@@ -110,6 +110,7 @@ const VoucherEntry = () => {
 
 
 
+    const row1Label = isPayment ? 'Dr' : 'Cr';
     const row2Label = isPayment ? 'Cr' : 'Dr';
 
     return (
