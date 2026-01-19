@@ -157,6 +157,7 @@ const VoucherEntry = () => {
                                     value={formData.category}
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
                                     required
+                                    readOnly style={{ background: '#ffffffff' }}
                                 >
                                     <option value="">Select Account...</option>
                                     {(categories[formData.type] || []).map(cat => (
