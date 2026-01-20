@@ -173,8 +173,8 @@ const PledgeEntry = () => {
                     </div>
 
                     <div className="form-section">
-                        <div className="section-header" style={{ justifyContent: 'space-between' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="section-header space-between">
+                            <div className="flex-align-center-gap-12">
                                 <div className="section-icon icon-purple">
                                     <Gem size={20} />
                                 </div>
@@ -236,17 +236,17 @@ const PledgeEntry = () => {
                         </div>
 
                         <div className="upload-area">
-                            <label className="form-label-bold" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <label className="form-label-bold flex-align-center-gap-8">
                                 <Upload size={18} color="#94a3b8" /> Upload Item Photos
                             </label>
                             <div className="upload-box">
-                                <input type="file" multiple onChange={handleFileChange} className="hidden" id="photo-upload" style={{ display: 'none' }} />
-                                <label htmlFor="photo-upload" style={{ cursor: 'pointer' }}>
+                                <input type="file" multiple onChange={handleFileChange} className="hidden file-hidden" id="photo-upload" />
+                                <label htmlFor="photo-upload" className="upload-label">
                                     <div className="upload-icon-circle">
                                         <Upload size={24} />
                                     </div>
-                                    <p style={{ fontWeight: 500, color: '#334155' }}>Click to upload photos</p>
-                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>
+                                    <p className="upload-text">Click to upload photos</p>
+                                    <p className="upload-hint">
                                         {files.length > 0 ? `${files.length} files selected` : "SVG, PNG, JPG or GIF (max. 800x400px)"}
                                     </p>
                                 </label>
@@ -263,7 +263,7 @@ const PledgeEntry = () => {
                             <h2>Valuation Details</h2>
                         </div>
 
-                        <div style={{ marginBottom: '24px' }}>
+                        <div className="calc-section-spacing">
                             <div className="calc-row">
                                 <span className="calc-label">Gold Rate (22k)</span>
                                 <span className="calc-val">{goldRate ? `₹${goldRate.ratePerGram22k}/g` : 'N/A'}</span>
@@ -276,17 +276,17 @@ const PledgeEntry = () => {
                             <div className="divider"></div>
 
                             <div className="total-row">
-                                <span style={{ color: '#64748b' }}>Gross Valuation</span>
+                                <span className="muted-small">Gross Valuation</span>
                                 <span className="total-val">₹{totalValuation.toFixed(2)}</span>
                             </div>
                             <div className="total-row">
-                                <span style={{ color: '#64748b' }}>Max Loan Limit</span>
+                                <span className="muted-small">Max Loan Limit</span>
                                 <span className="total-val green-text">₹{maxEligibleLoan.toFixed(2)}</span>
                             </div>
                         </div>
 
                         <div className="loan-input-box">
-                            <label className="input-label-sm" style={{ color: '#a16207', marginBottom: '8px' }}>Enter Required Loan Amount</label>
+                            <label className="input-label-sm warning-label">Enter Required Loan Amount</label>
                             <div className="loan-input-wrapper">
                                 <span className="currency-symbol">₹</span>
                                 <input
@@ -300,7 +300,7 @@ const PledgeEntry = () => {
                                 />
                             </div>
                             {formData.requestedLoan > maxEligibleLoan && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', color: '#ef4444', fontSize: '0.75rem', fontWeight: 500 }}>
+                                <div className="alert-inline">
                                     <AlertCircle size={12} /> Exceeds eligible limit
                                 </div>
                             )}
@@ -309,19 +309,18 @@ const PledgeEntry = () => {
                         <div className="divider"></div>
 
                         {formData.schemeId && (
-                            <div style={{ marginBottom: '16px' }}>
+                            <div className="scheme-info">
                                 <div className="calc-row">
                                     <span className="calc-label">Loan Tenure</span>
                                     <span className="calc-val">{schemes.find(s => s._id === formData.schemeId)?.tenureMonths || 0} Months</span>
                                 </div>
                                 <div className="calc-row">
-                                    <span className="calc-label" style={{ color: '#ea580c' }}>Pre-Interest Deduction</span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span className="calc-label calc-label-orange">Pre-Interest Deduction</span>
+                                    <div className="flex-align-center-gap-4">
                                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>₹</span>
                                         <input
                                             type="number"
-                                            className="input-sm"
-                                            style={{ width: '80px', textAlign: 'right', padding: '2px 4px' }}
+                                            className="input-sm input-small-narrow"
                                             value={preInterestAmount}
                                             onChange={e => setPreInterestAmount(e.target.value)}
                                             placeholder="0"
@@ -331,9 +330,9 @@ const PledgeEntry = () => {
                             </div>
                         )}
 
-                        <div className="total-row" style={{ marginTop: '12px', borderTop: '2px solid #e2e8f0', paddingTop: '12px' }}>
-                            <span style={{ color: '#0f172a', fontWeight: 700 }}>Net Cash to Customer</span>
-                            <span className="total-val" style={{ color: '#0f172a' }}>
+                        <div className="total-row net-cash-row">
+                            <span className="dark-strong">Net Cash to Customer</span>
+                            <span className="total-val dark-text">
                                 ₹{((parseFloat(formData.requestedLoan) || 0) - (parseFloat(preInterestAmount) || 0)).toFixed(2)}
                             </span>
                         </div>

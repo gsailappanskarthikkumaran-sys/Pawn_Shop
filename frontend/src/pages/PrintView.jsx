@@ -140,7 +140,7 @@ const LoanReceipt = ({ loan }) => (
         </div>
 
         <div className="mb-6">
-            <h3 className="text-sm font-bold border-b border-black mb-2 uppercase">Customer Details</h3>
+            <h3 className="S1">Customer Details</h3>
             <div className="grid-2">
                 <div className="detail-group">
                     <label>Name</label>
@@ -151,18 +151,18 @@ const LoanReceipt = ({ loan }) => (
                     <div>{loan.customer?.phone}</div>
                 </div>
             </div>
-            <div className="detail-group mt-2">
+            <div className="detail-group">
                 <label>Address</label>
                 <div>{loan.customer?.address}</div>
             </div>
         </div>
 
         <div className="mb-6">
-            <h3 className="text-sm font-bold border-b border-black mb-2 uppercase">Item Details</h3>
+            <h3 className="Item">Item Details</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>S.No</th>
                         <th>Item Name</th>
                         <th>Description</th>
                         <th>Purity</th>
