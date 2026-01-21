@@ -1,28 +1,32 @@
 .sidebar {
-    height: 100vh;
+    height: calc(100vh - 80px);
     width: 280px;
     background-color: var(--bg-dark);
 
- 
+
 
     color: #fff;
     display: flex;
     flex-direction: column;
     position: fixed;
     left: 0;
-    top: 0;
+    top: 80px;
     z-index: 50;
     overflow-y: auto;
     scrollbar-width: none;
 
     -ms-overflow-style: none;
- 
+    transition: transform 0.3s ease, left 0.3s ease;
+}
+
+.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
 }
 
 .sidebar::after {
     content: '';
     position: absolute;
-    top: 64px;
+    top: 0;
     bottom: 0;
     right: 0;
     width: 1px;
@@ -35,49 +39,9 @@
     display: none;
 }
 
-.sidebar-header {
-    height: 64px;
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    /* Matches Navbar border */
-    margin-bottom: 0;
-    /* Remove gap */
-    flex-shrink: 0;
-}
-
-.brand-icon {
-    background: linear-gradient(135deg, var(--primary), #eab308);
-    padding: 0.4rem;
-    border-radius: var(--radius-md);
-    box-shadow: 0 0 10px rgba(202, 138, 4, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.brand-info h1 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.025em;
-    margin: 0;
-}
-
-.brand-info p {
-    color: #64748b;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 2px;
-}
-
 .nav-menu {
     flex: 1;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;

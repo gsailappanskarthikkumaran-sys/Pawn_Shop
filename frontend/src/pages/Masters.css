@@ -1,4 +1,5 @@
 .masters-container {
+    padding: var(--spacing-lg);
     max-width: 1200px;
     margin: 0 auto;
     padding-bottom: var(--spacing-xl);

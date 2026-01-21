@@ -1,35 +1,36 @@
 /* Layout Styles */
 .app-layout {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
-    position: relative;
 }
 
-/* 
+.layout-body {
+    display: flex;
+    flex: 1;
+    position: relative;
+    padding-top: 0;
+}
+
+/*
    Since Sidebar is fixed with width 280px (defined in Sidebar.css),
    we need to push the main content to the right.
 */
-.main-content-wrapper {
-    flex: 1;
-    margin-left: 280px;
-    width: calc(100% - 280px);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    transition: margin-left 0.3s;
-}
-
 .main-content {
     flex: 1;
+    margin-left: 280px;
     background-color: var(--bg-light);
-    position: relative;
-    /* Remove margin-left from here as it's on wrapper */
+    min-height: calc(100vh - 80px);
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar-collapsed .main-content {
+    margin-left: 0;
 }
 
 @media (max-width: 768px) {
-    .main-content-wrapper {
+    .main-content {
         margin-left: 0;
         width: 100%;
-        padding-top: 60px;
     }
 }

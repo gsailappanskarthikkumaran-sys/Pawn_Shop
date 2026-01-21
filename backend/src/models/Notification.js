@@ -6,6 +6,16 @@ const notificationSchema = mongoose.Schema({
         ref: 'User',
         required: false
     },
+    branch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch',
+        required: false
+    },
+    targetRole: {
+        type: String,
+        enum: ['admin', 'staff', 'all'],
+        required: false
+    },
     title: { type: String, required: true },
     message: { type: String, required: true },
     type: {

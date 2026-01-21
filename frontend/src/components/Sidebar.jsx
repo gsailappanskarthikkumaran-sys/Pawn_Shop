@@ -43,15 +43,6 @@ const Sidebar = () => {
 
     return (
         <div className="sidebar">
-            <div className="sidebar-header">
-                <div className="brand-icon">
-                    <Banknote size={22} color="#0f172a" strokeWidth={2.5} />
-                </div>
-                <div className="brand-info">
-                    <h1>Pawn broking</h1>
-                    <p>Management System</p>
-                </div>
-            </div>
 
             <div className="nav-menu">
                 {menuItems.map((item) => {

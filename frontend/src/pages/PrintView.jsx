@@ -69,10 +69,10 @@ const PrintView = () => {
             <div className="paper-sheet">
 
                 <div className="print-header">
-                    <div className="company-name">PAWN BROKING SYSTEM</div>
+                    <div className="company-name">MAHES BANKERS</div>
                     <div className="company-details">
-                        123 Gold Street, Finance District, City - 560001<br />
-                        Phone: +91 98765 43210 | Email: support@pawnshop.com
+                        2005/1, P.K.N. Road, Srinivasa Mess, SIVAKASI - 626 123
+                        SIVAKASI - 626 189 | Phone No.8838543387 | Email: support@pawnshop.com
                     </div>
                 </div>
 

@@ -1,5 +1,6 @@
 import Payment from '../models/Payment.js';
 import Loan from '../models/Loan.js';
+import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
 
 const addPayment = async (req, res) => {
@@ -37,6 +38,16 @@ const addPayment = async (req, res) => {
         }
 
         await loan.save();
+
+        // Send Notifications
+        await notifyAdminsAndStaff({
+            title: 'Payment Received',
+            message: `Payment of ₹${amount} received for Loan ${loan.loanId}. Type: ${type.replace('_', ' ')}`,
+            type: 'success',
+            branch: loan.branch,
+            referenceId: loan.loanId,
+            referenceType: 'Loan'
+        });
 
         res.status(201).json(payment);
     } catch (error) {

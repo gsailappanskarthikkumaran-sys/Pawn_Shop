@@ -6,6 +6,7 @@ import Item from '../models/Item.js';
 import Scheme from '../models/Scheme.js';
 import GoldRate from '../models/GoldRate.js';
 import Payment from '../models/Payment.js';
+import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
 const cleanupFiles = (files) => {
     if (!files) return;
@@ -117,6 +118,16 @@ const createLoan = async (req, res) => {
 
         createdLoan.items = createdItems.map(i => i._id);
         await createdLoan.save();
+
+        // Send Notifications
+        await notifyAdminsAndStaff({
+            title: 'New Loan Created',
+            message: `A new loan ${createdLoan.loanId} of ₹${createdLoan.loanAmount} has been issued.`,
+            type: 'success',
+            branch: createdLoan.branch,
+            referenceId: createdLoan.loanId,
+            referenceType: 'Loan'
+        });
 
         res.status(201).json(createdLoan);
 
