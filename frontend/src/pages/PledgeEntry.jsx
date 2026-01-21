@@ -18,8 +18,9 @@ const PledgeEntry = () => {
         if (formData.schemeId && formData.requestedLoan) {
             const scheme = schemes.find(s => s._id === formData.schemeId);
             if (scheme && scheme.preInterestMonths > 0) {
-                const interest = (parseFloat(formData.requestedLoan) * scheme.interestRate) / 100;
-                const preInterest = interest * scheme.preInterestMonths;
+                const totalInterest = (parseFloat(formData.requestedLoan) * scheme.interestRate) / 100;
+                const monthlyInterest = totalInterest / scheme.tenureMonths;
+                const preInterest = monthlyInterest * scheme.preInterestMonths;
                 setPreInterestAmount(preInterest.toFixed(2));
             } else {
                 setPreInterestAmount('');

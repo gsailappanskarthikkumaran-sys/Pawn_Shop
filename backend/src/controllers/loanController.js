@@ -89,6 +89,7 @@ const createLoan = async (req, res) => {
             loanAmount: requestedLoanAmount,
             preInterestAmount: preInterestAmount || 0,
             interestRate: scheme.interestRate,
+            monthlyInterest: ((requestedLoanAmount * scheme.interestRate) / 100) / scheme.tenureMonths,
             dueDate: dueDate,
             nextPaymentDate: nextPaymentDate,
             createdBy: req.user._id,

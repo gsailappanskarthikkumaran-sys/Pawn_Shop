@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Printer, ArrowLeft, X } from 'lucide-react';
@@ -10,8 +10,12 @@ const PrintView = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const hasPrinted = useRef(false);
+
     useEffect(() => {
         fetchData();
+        // Reset hasPrinted when id/type changes
+        return () => { hasPrinted.current = false; };
     }, [type, id]);
 
     const fetchData = async () => {
@@ -21,15 +25,25 @@ const PrintView = () => {
             else if (type === 'customer') endpoint = `/customers/${id}`;
             else if (type === 'payment') endpoint = `/payments/${id}`;
             else if (type === 'report-demand') {
-
                 const { data } = await api.get('/reports/demand');
                 setData(data);
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
                 return;
             }
 
             if (endpoint) {
                 const { data } = await api.get(endpoint);
                 setData(data);
+
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                }
             }
         } catch (error) {
             console.error("Print fetch error", error);
@@ -75,7 +89,7 @@ const PrintView = () => {
 
 const LoanReceipt = ({ loan }) => (
     <div>
-        <h2 className="document-title">PLEDGE RECEIPT</h2>
+        <h2 className="document-title">RECEIPT</h2>
 
         <div className="grid-2">
             <div>
@@ -133,7 +147,7 @@ const LoanReceipt = ({ loan }) => (
                 <div className="detail-group mb-4">
                     <label>Next Due Amount (Interest)</label>
                     <div className="font-bold">
-                        ₹{((loan.loanAmount * (loan.interestRate || 2)) / 100).toFixed(2)}
+                        ₹{loan.monthlyInterest ? loan.monthlyInterest.toFixed(2) : ((loan.loanAmount * (loan.interestRate || 2)) / 100).toFixed(2)}
                     </div>
                 </div>
             </div>
@@ -312,7 +326,7 @@ const PaymentReceipt = ({ payment }) => (
                     <div className="detail-group text-right">
                         <label>Next Interest Amount</label>
                         <div className="font-bold">
-                            ₹{((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
+                            ₹{payment.loan.monthlyInterest ? payment.loan.monthlyInterest.toFixed(2) : ((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
                         </div>
                     </div>
                 </div>

@@ -33,13 +33,17 @@ const loanSchema = new mongoose.Schema({
     },
     valuation: {
         type: Number,
-        required: true, 
+        required: true,
     },
     loanAmount: {
         type: Number,
-        required: true, 
+        required: true,
     },
-    interestRate: { 
+    interestRate: {
+        type: Number,
+        required: true,
+    },
+    monthlyInterest: {
         type: Number,
         required: true,
     },
@@ -55,7 +59,7 @@ const loanSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
-    currentBalance: { 
+    currentBalance: {
         type: Number,
         default: 0
     },
@@ -65,7 +69,7 @@ const loanSchema = new mongoose.Schema({
     },
     paymentFrequency: {
         type: String,
-        default: 'monthly', 
+        default: 'monthly',
     },
     status: {
         type: String,
