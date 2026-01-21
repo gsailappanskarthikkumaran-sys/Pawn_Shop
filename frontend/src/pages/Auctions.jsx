@@ -92,7 +92,7 @@ const Auctions = () => {
                                         {loan.customer?.name} • {loan.customer?.phone}
                                     </div>
                                     <div className="text-xs text-slate-400">
-                                        Pledged: {new Date(loan.loanDate).toLocaleDateString()}
+                                        Pledged: {new Date(loan.loanDate).toLocaleDateString('en-IN')}
                                     </div>
                                 </div>
                             ))

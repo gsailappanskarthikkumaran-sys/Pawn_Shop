@@ -144,14 +144,14 @@ const Masters = () => {
                         <h4 className="history-title">
                             Current Active Rate
                             {currentRate && <span style={{ fontSize: '0.75rem', fontWeight: 400, float: 'right', color: '#64748b' }}>
-                                Updated: {new Date(currentRate.rateDate).toLocaleString()}
+                                Updated: {new Date(currentRate.rateDate).toLocaleString('en-IN')}
                             </span>}
                         </h4>
                         {currentRate ? (
                             <>
                                 <div className="history-item">
                                     <span>Rate Date</span>
-                                    <span>{new Date(currentRate.rateDate).toLocaleDateString()}</span>
+                                    <span>{new Date(currentRate.rateDate).toLocaleDateString('en-IN')}</span>
                                 </div>
                                 <div className="history-item">
                                     <span>22k Standard</span>

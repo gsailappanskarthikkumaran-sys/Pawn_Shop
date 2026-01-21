@@ -82,8 +82,8 @@ const Loans = () => {
                                         </td>
                                         <td>{loan.scheme?.schemeName}</td>
                                         <td>{loan.interestRate}%</td>
-                                        <td>{new Date(loan.createdAt).toLocaleDateString()}</td>
-                                        <td>{new Date(loan.dueDate).toLocaleDateString()}</td>
+                                        <td>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
+                                        <td>{new Date(loan.dueDate).toLocaleDateString('en-IN')}</td>
                                         <td className="amount-cell">₹{loan.loanAmount}</td>
                                         <td style={{ color: '#64748b' }}>₹{loan.valuation}</td>
                                         <td>

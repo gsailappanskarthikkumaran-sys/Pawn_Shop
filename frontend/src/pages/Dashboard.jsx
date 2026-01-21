@@ -100,7 +100,7 @@ const Dashboard = () => {
                     )}
                     <div className="date-badge">
                         <Calendar size={14} />
-                        {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
                 </div>
             </div>
@@ -236,7 +236,7 @@ const Dashboard = () => {
                                         <p>{loan.customer?.name}</p>
                                         <p className="activity-time">
                                             <span className={`status - dot ${loan.status === 'closed' ? 'bg-slate-400' : 'bg-green-500'} `}></span>
-                                            {new Date(loan.createdAt).toLocaleDateString()}
+                                            {new Date(loan.createdAt).toLocaleDateString('en-IN')}
                                         </p>
                                     </div>
                                 </div>

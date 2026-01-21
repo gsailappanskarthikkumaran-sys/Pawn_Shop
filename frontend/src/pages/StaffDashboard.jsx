@@ -38,7 +38,7 @@ const StaffDashboard = () => {
                 </div>
                 <div className="date-badge">
                     <Calendar size={14} />
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
             </div>
 

@@ -99,7 +99,7 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div className="detail-group mb-4">
                     <label>Date</label>
-                    <div>{new Date(loan.createdAt).toLocaleDateString()}</div>
+                    <div>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</div>
                 </div>
 
             </div>
@@ -134,14 +134,14 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div className="detail-group mb-4">
                     <label>Maturity Date</label>
-                    <div>{new Date(loan.dueDate).toLocaleDateString()}</div>
+                    <div>{new Date(loan.dueDate).toLocaleDateString('en-IN')}</div>
                 </div>
             </div>
             <div className="text-right">
                 <div className="detail-group mb-4">
                     <label>Next Payment Due Date</label>
                     <div className="font-bold text-lg">
-                        {new Date(loan.nextPaymentDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)).toLocaleDateString()}
+                        {new Date(loan.nextPaymentDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)).toLocaleDateString('en-IN')}
                     </div>
                 </div>
                 <div className="detail-group mb-4">
@@ -234,7 +234,7 @@ const CustomerProfile = ({ customer }) => (
             </div>
             <div className="detail-group mb-4">
                 <label>Join Date</label>
-                <div>{new Date(customer.createdAt).toLocaleDateString()}</div>
+                <div>{new Date(customer.createdAt).toLocaleDateString('en-IN')}</div>
             </div>
         </div>
 
@@ -266,7 +266,7 @@ const CustomerProfile = ({ customer }) => (
 
         <div className="footer">
             <div style={{ width: '100%', textAlign: 'center', fontSize: '10px', color: '#666' }}>
-                Report Generated on {new Date().toLocaleString()}
+                Report Generated on {new Date().toLocaleString('en-IN')}
             </div>
         </div>
     </div>
@@ -282,7 +282,7 @@ const PaymentReceipt = ({ payment }) => (
             </div>
             <div className="detail-group mb-4">
                 <label>Date</label>
-                <div>{new Date(payment.paymentDate).toLocaleDateString()}</div>
+                <div>{new Date(payment.paymentDate).toLocaleDateString('en-IN')}</div>
             </div>
         </div>
 
@@ -320,7 +320,7 @@ const PaymentReceipt = ({ payment }) => (
                         <label>Next Due Date</label>
                         <div className="font-bold text-lg">
 
-                            {new Date(payment.loan.nextPaymentDate).toLocaleDateString()}
+                            {new Date(payment.loan.nextPaymentDate).toLocaleDateString('en-IN')}
                         </div>
                     </div>
                     <div className="detail-group text-right">
@@ -363,9 +363,9 @@ const DemandReport = ({ report }) => (
                     <tr key={loan._id} className="border-b border-gray-200">
                         <td className="py-2">{loan.loanId}</td>
                         <td className="py-2">{loan.customer?.name} <br /><span className="text-gray-400">{loan.customer?.phone}</span></td>
-                        <td className="py-2">{new Date(loan.createdAt).toLocaleDateString()}</td>
+                        <td className="py-2">{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
                         <td className="py-2">₹{loan.loanAmount}</td>
-                        <td className="py-2 text-red-600 font-bold">{new Date(loan.dueDate || Date.now()).toLocaleDateString()}</td>
+                        <td className="py-2 text-red-600 font-bold">{new Date(loan.dueDate || Date.now()).toLocaleDateString('en-IN')}</td>
                         <td className="py-2 text-right font-bold">₹{loan.currentBalance}</td>
                     </tr>
                 ))}

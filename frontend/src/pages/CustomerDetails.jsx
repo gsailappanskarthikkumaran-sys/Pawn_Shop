@@ -88,7 +88,7 @@ const CustomerDetails = () => {
                                 <MapPin size={16} /> {customer.city}, {customer.address}
                             </div>
                             <div className="info-item">
-                                <Calendar size={16} /> Joined: {new Date(customer.createdAt).toLocaleDateString()}
+                                <Calendar size={16} /> Joined: {new Date(customer.createdAt).toLocaleDateString('en-IN')}
                             </div>
                             {customer.aadharNumber && (
                                 <div className="info-item">
@@ -153,7 +153,7 @@ const CustomerDetails = () => {
                                     {activeLoans.map(l => (
                                         <tr key={l._id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate('/loans')}>
                                             <td className="font-mono">{l.loanId}</td>
-                                            <td>{new Date(l.createdAt).toLocaleDateString()}</td>
+                                            <td>{new Date(l.createdAt).toLocaleDateString('en-IN')}</td>
                                             <td className="font-bold">₹{l.loanAmount}</td>
                                             <td><span className={`status-pill status-${l.status}`}>{l.status}</span></td>
                                             <td className="text-sm text-gray-500">{l.totalWeight}g</td>
@@ -178,9 +178,9 @@ const CustomerDetails = () => {
                                     {closedLoans.map(l => (
                                         <tr key={l._id}>
                                             <td className="font-mono">{l.loanId}</td>
-                                            <td>{new Date(l.createdAt).toLocaleDateString()}</td>
+                                            <td>{new Date(l.createdAt).toLocaleDateString('en-IN')}</td>
                                             <td>₹{l.loanAmount}</td>
-                                            <td>{new Date(l.updatedAt).toLocaleDateString()}</td>
+                                            <td>{new Date(l.updatedAt).toLocaleDateString('en-IN')}</td>
                                         </tr>
                                     ))}
                                 </tbody>

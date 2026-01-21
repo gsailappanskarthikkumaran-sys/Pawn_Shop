@@ -223,7 +223,7 @@ const Payments = () => {
                                                 <h4>{p.type.replace('_', ' ')}</h4>
                                                 <div className="payment-date">
                                                     <Calendar size={10} style={{ display: 'inline', marginRight: '4px' }} />
-                                                    {new Date(p.paymentDate).toLocaleDateString()}
+                                                    {new Date(p.paymentDate).toLocaleDateString('en-IN')}
                                                     <span style={{ marginLeft: '8px', fontSize: '11px', color: '#94a3b8' }}>
                                                         ({p.paymentMode || 'cash'})
                                                     </span>
