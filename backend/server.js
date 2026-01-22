@@ -14,7 +14,7 @@ import reportRoutes from './src/routes/reportRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import auctionRoutes from './src/routes/auctionRoutes.js';
 import branchRoutes from './src/routes/branchRoutes.js';
-import initScheduler from './src/services/goldRateScheduler.js';
+
 import startOverdueJob from './src/jobs/overdueJob.js';
 
 dotenv.config();
@@ -22,7 +22,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 console.log('Starting Server...');
 const app = express();
-initScheduler();
+
 const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -44,7 +44,11 @@ const PledgeEntry = () => {
 
                 try {
                     const rateRes = await api.get('/masters/gold-rate/latest');
-                    setGoldRate(rateRes.data);
+                    if (rateRes.data && (rateRes.data.ratePerGram22k > 0 || rateRes.data.ratePerGram20k > 0 || rateRes.data.ratePerGram18k > 0)) {
+                        setGoldRate(rateRes.data);
+                    } else {
+                        setGoldRate(null);
+                    }
                 } catch (err) {
                     console.log("No gold rate set yet.");
                     setGoldRate(null);
@@ -81,12 +85,22 @@ const PledgeEntry = () => {
     const calculateValuation = () => {
         if (!goldRate) return 0;
         let total = 0;
+        let missingRate = false;
+
         items.forEach(item => {
             const weight = parseFloat(item.netWeight) || 0;
-            const rate = item.purity === '24k' ? goldRate.ratePerGram24k : goldRate.ratePerGram22k;
-            total += weight * rate;
+            let rate = 0;
+            if (item.purity === '22k') rate = goldRate.ratePerGram22k;
+            else if (item.purity === '20k') rate = goldRate.ratePerGram20k;
+            else if (item.purity === '18k') rate = goldRate.ratePerGram18k;
+
+            if (!rate || rate <= 0) {
+                missingRate = true;
+            }
+            total += weight * (rate || 0);
         });
-        return total;
+
+        return missingRate ? 0 : total;
     };
 
     const calculateMaxLoan = () => {
@@ -124,6 +138,29 @@ const PledgeEntry = () => {
 
     const totalValuation = calculateValuation();
     const maxEligibleLoan = calculateMaxLoan();
+
+    // Helper to check if any item has an unset gold rate
+    const hasUnsetRates = () => {
+        if (!goldRate) return true;
+        return items.some(item => {
+            let rate = 0;
+            if (item.purity === '22k') rate = goldRate.ratePerGram22k;
+            else if (item.purity === '20k') rate = goldRate.ratePerGram20k;
+            else if (item.purity === '18k') rate = goldRate.ratePerGram18k;
+            return !rate || rate <= 0;
+        });
+    };
+
+    const missingRatePurities = [...new Set(items
+        .filter(item => {
+            let rate = 0;
+            if (item.purity === '22k') rate = goldRate?.ratePerGram22k;
+            else if (item.purity === '20k') rate = goldRate?.ratePerGram20k;
+            else if (item.purity === '18k') rate = goldRate?.ratePerGram18k;
+            return !rate || rate <= 0;
+        })
+        .map(item => item.purity)
+    )];
 
     return (
         <div className="pledge-container">
@@ -214,7 +251,8 @@ const PledgeEntry = () => {
                                                 value={item.purity} onChange={e => handleItemChange(index, 'purity', e.target.value)}
                                             >
                                                 <option value="22k">22 Karat (Standard)</option>
-                                                <option value="24k">24 Karat (Fine)</option>
+                                                <option value="20k">20 Karat</option>
+                                                <option value="18k">18 Karat</option>
                                             </select>
                                         </div>
                                         <div>
@@ -265,14 +303,41 @@ const PledgeEntry = () => {
                         </div>
 
                         <div className="calc-section-spacing">
-                            <div className="calc-row">
-                                <span className="calc-label">Gold Rate (22k)</span>
-                                <span className="calc-val">{goldRate ? `₹${goldRate.ratePerGram22k}/g` : 'N/A'}</span>
-                            </div>
+                            {missingRatePurities.length > 0 ? (
+                                <div className="alert-inline" style={{ color: '#ef4444', marginBottom: '1rem', padding: '8px', background: '#fef2f2', borderRadius: '4px' }}>
+                                    <AlertCircle size={14} />
+                                    <span>
+                                        {missingRatePurities.includes('22k')
+                                            ? `Today's 22k gold rate not set by admin${missingRatePurities.length > 1 ? ` (also ${missingRatePurities.filter(p => p !== '22k').join(' & ')})` : ''}`
+                                            : `Gold rate for ${missingRatePurities.join(' & ')} not set by admin`
+                                        }
+                                    </span>
+                                </div>
+                            ) : null}
+
                             <div className="calc-row">
                                 <span className="calc-label">Total Weight</span>
                                 <span className="calc-val">{items.reduce((acc, i) => acc + (parseFloat(i.netWeight) || 0), 0).toFixed(2)} g</span>
                             </div>
+
+                            {goldRate?.ratePerGram22k > 0 && items.some(i => i.purity === '22k') && (
+                                <div className="calc-row">
+                                    <span className="calc-label">Rate (22k)</span>
+                                    <span className="calc-val">₹{goldRate.ratePerGram22k}/g</span>
+                                </div>
+                            )}
+                            {goldRate?.ratePerGram20k > 0 && items.some(i => i.purity === '20k') && (
+                                <div className="calc-row">
+                                    <span className="calc-label">Rate (20k)</span>
+                                    <span className="calc-val">₹{goldRate.ratePerGram20k}/g</span>
+                                </div>
+                            )}
+                            {goldRate?.ratePerGram18k > 0 && items.some(i => i.purity === '18k') && (
+                                <div className="calc-row">
+                                    <span className="calc-label">Rate (18k)</span>
+                                    <span className="calc-val">₹{goldRate.ratePerGram18k}/g</span>
+                                </div>
+                            )}
 
                             <div className="divider"></div>
 
@@ -340,7 +405,7 @@ const PledgeEntry = () => {
 
                         <button
                             type="submit"
-                            disabled={formData.requestedLoan > maxEligibleLoan || maxEligibleLoan === 0}
+                            disabled={formData.requestedLoan > maxEligibleLoan || maxEligibleLoan === 0 || hasUnsetRates()}
                             className="btn-submit"
                         >
                             Approve & Create Pledge
