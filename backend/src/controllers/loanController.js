@@ -6,6 +6,7 @@ import Item from '../models/Item.js';
 import Scheme from '../models/Scheme.js';
 import GoldRate from '../models/GoldRate.js';
 import Payment from '../models/Payment.js';
+import SchemeRequest from '../models/SchemeRequest.js';
 import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
 const cleanupFiles = (files) => {
@@ -22,7 +23,7 @@ const cleanupFiles = (files) => {
 };
 
 const createLoan = async (req, res) => {
-    const { customerId, schemeId, items, requestedLoanAmount, preInterestAmount } = req.body;
+    const { customerId, schemeId, items, requestedLoanAmount, preInterestAmount, isCustomScheme, customSchemeValues } = req.body;
 
     try {
         let itemsData;
@@ -43,6 +44,33 @@ const createLoan = async (req, res) => {
             return res.status(404).json({ message: 'Scheme not found' });
         }
 
+        let appliedInterestRate = scheme.interestRate;
+        let appliedTenure = scheme.tenureMonths;
+        let appliedMaxLoanPercent = scheme.maxLoanPercentage;
+
+        if (isCustomScheme && isCustomScheme !== 'false') {
+            const approvedRequest = await SchemeRequest.findOne({
+                customerId,
+                originalSchemeId: schemeId,
+                status: 'approved'
+            }).sort({ createdAt: -1 });
+
+            if (!approvedRequest) {
+                cleanupFiles(req.files);
+                return res.status(400).json({ message: 'No approved custom scheme request found for this customer.' });
+            }
+
+            // Optional: verify the values match exactly what was approved, to prevent tampering
+            // strictly enforced: use the values solely from the approved request, ensuring trust
+            if (approvedRequest.proposedValues) {
+                appliedInterestRate = approvedRequest.proposedValues.interestRate;
+                appliedTenure = approvedRequest.proposedValues.tenureMonths;
+                if (approvedRequest.proposedValues.maxLoanPercentage) {
+                    appliedMaxLoanPercent = approvedRequest.proposedValues.maxLoanPercentage;
+                }
+            }
+        }
+
         const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
         if (!goldRateObj) {
             console.log("Error: Gold Rate not set for today");
@@ -60,7 +88,7 @@ const createLoan = async (req, res) => {
             totalValuation += parseFloat(item.netWeight) * rate;
         });
 
-        const maxLoan = totalValuation * (scheme.maxLoanPercentage / 100);
+        const maxLoan = totalValuation * (appliedMaxLoanPercent / 100);
         console.log("Valuation debug:", { totalValuation, maxLoan, requestedLoanAmount });
 
         if (requestedLoanAmount > maxLoan) {
@@ -73,7 +101,7 @@ const createLoan = async (req, res) => {
         const now = new Date();
 
         const dueDate = new Date(now);
-        dueDate.setMonth(dueDate.getMonth() + scheme.tenureMonths);
+        dueDate.setMonth(dueDate.getMonth() + appliedTenure);
 
         const nextPaymentDate = new Date(now);
         nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
@@ -89,8 +117,8 @@ const createLoan = async (req, res) => {
             valuation: totalValuation,
             loanAmount: requestedLoanAmount,
             preInterestAmount: preInterestAmount || 0,
-            interestRate: scheme.interestRate,
-            monthlyInterest: ((requestedLoanAmount * scheme.interestRate) / 100) / scheme.tenureMonths,
+            interestRate: appliedInterestRate,
+            monthlyInterest: ((requestedLoanAmount * appliedInterestRate) / 100) / appliedTenure,
             dueDate: dueDate,
             nextPaymentDate: nextPaymentDate,
             createdBy: req.user._id,

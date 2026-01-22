@@ -41,7 +41,15 @@ const customerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Branch',
         required: true
-    }
+    },
+    fatherName: { type: String },
+    dob: { type: Date },
+    gender: { type: String, enum: ['male', 'female', 'trans', 'other'] },
+    maritalStatus: { type: String, enum: ['single', 'married', 'divorced', 'widowed'] },
+    nominee: { type: String },
+    city: { type: String },
+    pincode: { type: String },
+    state: { type: String, default: 'Tamil Nadu' }
 }, {
     timestamps: true,
 });

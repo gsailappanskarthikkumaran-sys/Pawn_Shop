@@ -14,19 +14,83 @@ const PledgeEntry = () => {
     });
     const [preInterestAmount, setPreInterestAmount] = useState('');
 
+    // Customization State
+    const [customRequest, setCustomRequest] = useState(null); // Stores approved request if any
+    const [isCustomMode, setIsCustomMode] = useState(false);
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [requestReason, setRequestReason] = useState('');
+    const [proposedValues, setProposedValues] = useState({
+        interestRate: '',
+        tenureMonths: '',
+        maxLoanPercentage: ''
+    });
+
     useEffect(() => {
         if (formData.schemeId && formData.requestedLoan) {
             const scheme = schemes.find(s => s._id === formData.schemeId);
-            if (scheme && scheme.preInterestMonths > 0) {
-                const totalInterest = (parseFloat(formData.requestedLoan) * scheme.interestRate) / 100;
-                const monthlyInterest = totalInterest / scheme.tenureMonths;
-                const preInterest = monthlyInterest * scheme.preInterestMonths;
+
+            // Use custom values if in custom mode
+            const currentInterestRate = isCustomMode && customRequest ? customRequest.proposedValues.interestRate : (scheme?.interestRate || 0);
+            const currentTenure = isCustomMode && customRequest ? customRequest.proposedValues.tenureMonths : (scheme?.tenureMonths || 12);
+            const currentPreInterestMonths = scheme?.preInterestMonths || 0;
+
+            if (currentPreInterestMonths > 0) {
+                const totalInterest = (parseFloat(formData.requestedLoan) * currentInterestRate) / 100;
+                const monthlyInterest = totalInterest / currentTenure;
+                const preInterest = monthlyInterest * currentPreInterestMonths;
                 setPreInterestAmount(preInterest.toFixed(2));
             } else {
                 setPreInterestAmount('');
             }
         }
-    }, [formData.schemeId, formData.requestedLoan, schemes]);
+    }, [formData.schemeId, formData.requestedLoan, schemes, isCustomMode, customRequest]);
+
+    // Check for approved requests when customer/scheme changes
+    useEffect(() => {
+        if (formData.customerId && formData.schemeId) {
+            checkCustomStatus();
+        } else {
+            setCustomRequest(null);
+            setIsCustomMode(false);
+        }
+    }, [formData.customerId, formData.schemeId]);
+
+    const checkCustomStatus = async () => {
+        try {
+            const { data } = await api.get('/scheme-requests/check', {
+                params: { customerId: formData.customerId, schemeId: formData.schemeId }
+            });
+            if (data) {
+                setCustomRequest(data);
+                setIsCustomMode(true); // Auto-enable if approved request exists
+                alert("Custom Scheme Approved! Values updated.");
+            } else {
+                setCustomRequest(null);
+                setIsCustomMode(false);
+            }
+        } catch (error) {
+            console.error("Failed to check custom status", error);
+        }
+    };
+
+    const handleRequestSubmit = async () => {
+        try {
+            await api.post('/scheme-requests', {
+                customerId: formData.customerId,
+                originalSchemeId: formData.schemeId,
+                proposedValues: {
+                    interestRate: parseFloat(proposedValues.interestRate),
+                    tenureMonths: parseInt(proposedValues.tenureMonths),
+                    maxLoanPercentage: parseFloat(proposedValues.maxLoanPercentage)
+                },
+                reason: requestReason
+            });
+            alert("Request sent to Admin successfully!");
+            setShowRequestModal(false);
+        } catch (error) {
+            alert("Failed to send request");
+        }
+    };
     const [items, setItems] = useState([{ name: '', netWeight: '', purity: '22k', description: '' }]);
     const [files, setFiles] = useState([]);
 
@@ -92,7 +156,12 @@ const PledgeEntry = () => {
     const calculateMaxLoan = () => {
         const valuation = calculateValuation();
         const scheme = schemes.find(s => s._id === formData.schemeId);
-        return scheme ? valuation * (scheme.maxLoanPercentage / 100) : 0;
+
+        const maxPercent = (isCustomMode && customRequest?.proposedValues?.maxLoanPercentage)
+            ? customRequest.proposedValues.maxLoanPercentage
+            : (scheme?.maxLoanPercentage || 0);
+
+        return scheme ? valuation * (maxPercent / 100) : 0;
     };
 
     const handleSubmit = async (e) => {
@@ -102,6 +171,12 @@ const PledgeEntry = () => {
         data.append('schemeId', formData.schemeId);
         data.append('requestedLoanAmount', formData.requestedLoan);
         data.append('preInterestAmount', preInterestAmount);
+
+        if (isCustomMode && customRequest) {
+            data.append('isCustomScheme', true);
+            data.append('customSchemeValues', JSON.stringify(customRequest.proposedValues));
+        }
+
         data.append('items', JSON.stringify(items));
 
         for (let i = 0; i < files.length; i++) {
@@ -171,6 +246,33 @@ const PledgeEntry = () => {
                                 </select>
                             </div>
                         </div>
+
+                        {/* Customization Request Button */}
+                        {formData.schemeId && formData.customerId && (
+                            <div className="customization-wrapper">
+                                {isCustomMode ? (
+                                    <div className="custom-scheme-badge">
+                                        Active Custom Scheme: {customRequest.proposedValues.interestRate}% Interest, {customRequest.proposedValues.tenureMonths} Months
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const s = schemes.find(x => x._id === formData.schemeId);
+                                            setProposedValues({
+                                                interestRate: s.interestRate,
+                                                tenureMonths: s.tenureMonths,
+                                                maxLoanPercentage: s.maxLoanPercentage
+                                            });
+                                            setShowRequestModal(true);
+                                        }}
+                                        className="btn-request-link"
+                                    >
+                                        Request Scheme Customization (for this customer)
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-section">
@@ -313,7 +415,7 @@ const PledgeEntry = () => {
                             <div className="scheme-info">
                                 <div className="calc-row">
                                     <span className="calc-label">Loan Tenure</span>
-                                    <span className="calc-val">{schemes.find(s => s._id === formData.schemeId)?.tenureMonths || 0} Months</span>
+                                    <span className="calc-val">{(isCustomMode && customRequest ? customRequest.proposedValues.tenureMonths : schemes.find(s => s._id === formData.schemeId)?.tenureMonths) || 0} Months</span>
                                 </div>
                                 <div className="calc-row">
                                     <span className="calc-label calc-label-orange">Pre-Interest Deduction</span>
@@ -348,8 +450,40 @@ const PledgeEntry = () => {
                     </div>
                 </div>
             </form>
+
+            {/* Simple Modal for Request */}
+            {showRequestModal && (
+                <div className="modal-overlay">
+                    <div className="modal-box">
+                        <h3 className="modal-title">Request Custom Scheme</h3>
+                        <div className="modal-content-stack">
+                            <div>
+                                <label className="input-label-sm">Interest Rate (%)</label>
+                                <input type="number" className="input-field" value={proposedValues.interestRate} onChange={e => setProposedValues({ ...proposedValues, interestRate: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="input-label-sm">Tenure (Months)</label>
+                                <input type="number" className="input-field" value={proposedValues.tenureMonths} onChange={e => setProposedValues({ ...proposedValues, tenureMonths: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="input-label-sm">Max Loan % (LTV)</label>
+                                <input type="number" className="input-field" value={proposedValues.maxLoanPercentage} onChange={e => setProposedValues({ ...proposedValues, maxLoanPercentage: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="input-label-sm">Reason</label>
+                                <textarea className="input-field" rows="2" value={requestReason} onChange={e => setRequestReason(e.target.value)} placeholder="Why is this change needed?" />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setShowRequestModal(false)} className="btn-cancel">Cancel</button>
+                                <button type="button" onClick={handleRequestSubmit} className="btn-confirm">Send Request</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
+
 
 export default PledgeEntry;

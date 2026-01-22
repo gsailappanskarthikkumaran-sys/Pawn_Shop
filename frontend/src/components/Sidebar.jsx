@@ -9,7 +9,8 @@ import {
     Receipt,
     Book,
     Gavel,
-    GitBranch
+    GitBranch,
+    ClipboardList
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
@@ -31,6 +32,7 @@ const Sidebar = () => {
         { name: 'Vouchers', path: '/vouchers', icon: <Receipt size={20} /> },
 
         ...(isAdmin ? [
+            { name: 'Requests', path: '/admin/requests', icon: <ClipboardList size={20} /> },
             { name: 'Masters', path: '/masters', icon: <Settings size={20} /> },
             { name: 'Branches', path: '/branches', icon: <GitBranch size={20} /> },
         ] : []),

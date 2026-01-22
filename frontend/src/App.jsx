@@ -18,6 +18,7 @@ import Notifications from './pages/Notifications';
 import PrintView from './pages/PrintView';
 import CustomerDetails from './pages/CustomerDetails';
 import Auctions from './pages/Auctions';
+import AdminRequests from './pages/AdminRequests';
 
 
 import Contact from './pages/Contact';
@@ -58,6 +59,8 @@ const App = () => {
         <Route path="/staff/edit/:id" element={<AddStaff />} />
         <Route path="/branches" element={<Branches />} />
         <Route path="/branches/:id" element={<BranchDetails />} />
+        <Route path="/admin/requests" element={<AdminRequests />} />
+
       </Route>
     </Routes>
   );

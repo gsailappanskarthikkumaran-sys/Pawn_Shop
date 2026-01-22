@@ -14,6 +14,7 @@ import reportRoutes from './src/routes/reportRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import auctionRoutes from './src/routes/auctionRoutes.js';
 import branchRoutes from './src/routes/branchRoutes.js';
+import schemeRequestRoutes from './src/routes/schemeRequestRoutes.js';
 import initScheduler from './src/services/goldRateScheduler.js';
 import startOverdueJob from './src/jobs/overdueJob.js';
 
@@ -39,6 +40,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/auctions', auctionRoutes);
 app.use('/api/branches', branchRoutes);
+app.use('/api/scheme-requests', schemeRequestRoutes);
 
 app.get('/', (req, res) => {
     res.send('Pawn Broking API is running');

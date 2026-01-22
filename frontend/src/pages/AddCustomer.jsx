@@ -16,7 +16,15 @@ const AddCustomer = () => {
         address: '',
         aadharNumber: '',
         panNumber: '',
-        branch: ''
+        branch: '',
+        fatherName: '',
+        dob: '',
+        gender: '',
+        maritalStatus: '',
+        nominee: '',
+        city: '',
+        pincode: '',
+        state: 'Tamil Nadu'
     });
     const [branches, setBranches] = useState([]);
     const [photo, setPhoto] = useState(null);
@@ -51,7 +59,15 @@ const AddCustomer = () => {
                 address: data.address || '',
                 aadharNumber: data.aadharNumber || '',
                 panNumber: data.panNumber || '',
-                branch: data.branch || ''
+                branch: data.branch || '',
+                fatherName: data.fatherName || '',
+                dob: data.dob ? data.dob.split('T')[0] : '',
+                gender: data.gender || '',
+                maritalStatus: data.maritalStatus || '',
+                nominee: data.nominee || '',
+                city: data.city || '',
+                pincode: data.pincode || '',
+                state: data.state || 'Tamil Nadu'
             });
             if (data.photo) {
                 setPreview(`http://localhost:5000/${data.photo}`);
@@ -96,6 +112,14 @@ const AddCustomer = () => {
         data.append('aadharNumber', formData.aadharNumber);
         data.append('panNumber', formData.panNumber);
         if (formData.branch) data.append('branch', formData.branch);
+        data.append('fatherName', formData.fatherName);
+        data.append('dob', formData.dob);
+        data.append('gender', formData.gender);
+        data.append('maritalStatus', formData.maritalStatus);
+        data.append('nominee', formData.nominee);
+        data.append('city', formData.city);
+        data.append('pincode', formData.pincode);
+        data.append('state', formData.state);
 
         if (photo) data.append('photo', photo);
         if (idFiles.aadharCard) data.append('aadharCard', idFiles.aadharCard);
@@ -162,6 +186,63 @@ const AddCustomer = () => {
                             />
                         </div>
 
+                        <div className="form-group">
+                            <label className="form-label">Father / Spouse Name</label>
+                            <input
+                                type="text"
+                                name="fatherName"
+                                className="input-field"
+                                value={formData.fatherName}
+                                onChange={handleChange}
+                                placeholder="Father or Spouse Name"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Date of Birth</label>
+                            <input
+                                type="date"
+                                name="dob"
+                                className="input-field"
+                                value={formData.dob}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Gender</label>
+                            <select name="gender" className="input-field" value={formData.gender} onChange={handleChange}>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="trans">Transgender</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Marital Status</label>
+                            <select name="maritalStatus" className="input-field" value={formData.maritalStatus} onChange={handleChange}>
+                                <option value="">Select Status</option>
+                                <option value="single">Single</option>
+                                <option value="married">Married</option>
+                                <option value="divorced">Divorced</option>
+                                <option value="widowed">Widowed</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Nominee Name</label>
+                            <input
+                                type="text"
+                                name="nominee"
+                                className="input-field"
+                                value={formData.nominee}
+                                onChange={handleChange}
+                                placeholder="Nominee Name"
+                            />
+                        </div>
+
 
                         {branches.length > 0 && (
                             <div className="form-group">
@@ -204,6 +285,42 @@ const AddCustomer = () => {
                                 required
                                 placeholder="Full residential address"
                             ></textarea>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">City / Town / Village</label>
+                            <input
+                                type="text"
+                                name="city"
+                                className="input-field"
+                                value={formData.city}
+                                onChange={handleChange}
+                                placeholder="City"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Postal Code</label>
+                            <input
+                                type="text"
+                                name="pincode"
+                                className="input-field"
+                                value={formData.pincode}
+                                onChange={handleChange}
+                                placeholder="626123"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">State</label>
+                            <input
+                                type="text"
+                                name="state"
+                                className="input-field"
+                                value={formData.state}
+                                onChange={handleChange}
+                                placeholder="State"
+                            />
                         </div>
 
                         <div className="form-group">

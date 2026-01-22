@@ -24,6 +24,15 @@ const PrintView = () => {
             if (type === 'loan') endpoint = `/loans/${id}`;
             else if (type === 'customer') endpoint = `/customers/${id}`;
             else if (type === 'payment') endpoint = `/payments/${id}`;
+            else if (type === 'day-book') {
+                const { data } = await api.get(`/reports/day-book?date=${id}`);
+                setData(data);
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
+                return;
+            }
             else if (type === 'report-demand') {
                 const { data } = await api.get('/reports/demand');
                 setData(data);
@@ -80,6 +89,7 @@ const PrintView = () => {
                 {type === 'loan' && <LoanReceipt loan={data} />}
                 {type === 'customer' && <CustomerProfile customer={data} />}
                 {type === 'payment' && <PaymentReceipt payment={data} />}
+                {type === 'day-book' && <DayBookReport data={data} date={id} />}
                 {type === 'report-demand' && <DemandReport report={data} />}
             </div>
         </div>
@@ -99,7 +109,7 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div className="detail-group mb-4">
                     <label>Date</label>
-                    <div>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</div>
+                    <div>{new Date(loan.createdAt).toLocaleDateString()}</div>
                 </div>
 
             </div>
@@ -134,14 +144,14 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div className="detail-group mb-4">
                     <label>Maturity Date</label>
-                    <div>{new Date(loan.dueDate).toLocaleDateString('en-IN')}</div>
+                    <div>{new Date(loan.dueDate).toLocaleDateString()}</div>
                 </div>
             </div>
             <div className="text-right">
                 <div className="detail-group mb-4">
                     <label>Next Payment Due Date</label>
                     <div className="font-bold text-lg">
-                        {new Date(loan.nextPaymentDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)).toLocaleDateString('en-IN')}
+                        {new Date(loan.nextPaymentDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)).toLocaleDateString()}
                     </div>
                 </div>
                 <div className="detail-group mb-4">
@@ -380,6 +390,61 @@ const DemandReport = ({ report }) => (
                 <strong>Total Outstanding:</strong> ₹{report.reduce((sum, l) => sum + l.currentBalance, 0).toFixed(2)}
             </div>
         </div>
+    </div>
+);
+
+const DayBookReport = ({ data, date }) => (
+    <div>
+        <h2 className="document-title">DAY BOOK REPORT</h2>
+        <div className="mb-4 text-sm text-gray-500">
+            Date: {new Date(date).toLocaleDateString('en-IN')}
+        </div>
+
+        <div className="summary-section mb-6 border p-4">
+            <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <div className="text-gray-500 text-xs uppercase">Money In</div>
+                    <div className="font-bold text-green-600">₹{data.summary?.totalIn?.toLocaleString() || 0}</div>
+                </div>
+                <div>
+                    <div className="text-gray-500 text-xs uppercase">Money Out</div>
+                    <div className="font-bold text-red-600">₹{data.summary?.totalOut?.toLocaleString() || 0}</div>
+                </div>
+                <div>
+                    <div className="text-gray-500 text-xs uppercase">Net Change</div>
+                    <div className="font-bold">₹{data.summary?.netChange?.toLocaleString() || 0}</div>
+                </div>
+            </div>
+        </div>
+
+        <table className="w-full text-xs text-left border-collapse">
+            <thead>
+                <tr className="border-b-2 border-black">
+                    <th className="py-2">Time</th>
+                    <th className="py-2">Type</th>
+                    <th className="py-2">Category</th>
+                    <th className="py-2">Description</th>
+                    <th className="py-2 text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {data.transactions?.map((t, idx) => (
+                    <tr key={idx} className="border-b border-gray-200">
+                        <td className="py-2">{new Date(t.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td className="py-2">
+                            <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold ${t.type === 'CREDIT' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {t.type}
+                            </span>
+                        </td>
+                        <td className="py-2">{t.category}</td>
+                        <td className="py-2">{t.description}</td>
+                        <td className={`py-2 text-right font-bold ${t.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'}`}>
+                            {t.type === 'CREDIT' ? '+' : '-'}₹{t.amount.toLocaleString('en-IN')}
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     </div>
 );
 

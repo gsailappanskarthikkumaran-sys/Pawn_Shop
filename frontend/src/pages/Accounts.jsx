@@ -193,6 +193,13 @@ const Accounts = () => {
                                 onChange={(e) => setSelectedDate(e.target.value)}
                             />
                             <button className="btn-refresh" onClick={fetchDayBook}>Load</button>
+                            <button
+                                className="btn-refresh"
+                                style={{ backgroundColor: '#475569', marginLeft: '10px' }}
+                                onClick={() => window.open(`/print/day-book/${selectedDate}`, '_blank')}
+                            >
+                                <Printer size={16} /> Print
+                            </button>
                         </div>
 
                         <div className="summary-cards">

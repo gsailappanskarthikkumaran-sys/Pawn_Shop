@@ -17,7 +17,7 @@ const cleanupFiles = (files) => {
 
 const createCustomer = async (req, res) => {
     try {
-        const { name, email, phone, address, aadharNumber, panNumber } = req.body;
+        const { name, email, phone, address, aadharNumber, panNumber, fatherName, dob, gender, maritalStatus, nominee, city, pincode, state } = req.body;
 
         const orConditions = [{ phone }];
         if (email) {
@@ -79,7 +79,15 @@ const createCustomer = async (req, res) => {
             aadharCard: aadharCardPath,
             panCard: panCardPath,
             createdBy: req.user._id,
-            branch: branchToAssign
+            branch: branchToAssign,
+            fatherName,
+            dob,
+            gender,
+            maritalStatus,
+            nominee,
+            city,
+            pincode,
+            state
         });
 
         res.status(201).json(customer);
@@ -132,7 +140,7 @@ const getCustomerById = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
     try {
-        const { name, phone, address, email, aadharNumber, panNumber } = req.body;
+        const { name, phone, address, email, aadharNumber, panNumber, fatherName, dob, gender, maritalStatus, nominee, city, pincode, state } = req.body;
         const customer = await Customer.findById(req.params.id);
 
         if (!customer) {
@@ -144,7 +152,16 @@ const updateCustomer = async (req, res) => {
         customer.address = address || customer.address;
         customer.email = email || customer.email;
         customer.aadharNumber = aadharNumber || customer.aadharNumber;
+        customer.aadharNumber = aadharNumber || customer.aadharNumber;
         customer.panNumber = panNumber || customer.panNumber;
+        customer.fatherName = fatherName || customer.fatherName;
+        customer.dob = dob || customer.dob;
+        customer.gender = gender || customer.gender;
+        customer.maritalStatus = maritalStatus || customer.maritalStatus;
+        customer.nominee = nominee || customer.nominee;
+        customer.city = city || customer.city;
+        customer.pincode = pincode || customer.pincode;
+        customer.state = state || customer.state;
 
         if (req.files) {
             if (req.files['photo']) customer.photo = req.files['photo'][0].path.replace(/\\/g, "/");
