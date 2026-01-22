@@ -8,11 +8,12 @@ const goldRateSchema = new mongoose.Schema({
     },
     ratePerGram22k: {
         type: Number,
-        required: true,
     },
-    ratePerGram24k: {
+    ratePerGram20k: {
         type: Number,
-        required: true,
+    },
+    ratePerGram18k: {
+        type: Number,
     },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,

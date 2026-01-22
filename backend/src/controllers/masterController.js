@@ -2,13 +2,14 @@ import GoldRate from '../models/GoldRate.js';
 import Scheme from '../models/Scheme.js';
 
 const addGoldRate = async (req, res) => {
-    const { ratePerGram22k, ratePerGram24k, date } = req.body;
+    const { ratePerGram22k, ratePerGram20k, ratePerGram18k, date } = req.body;
 
     try {
         const rate = await GoldRate.create({
             rateDate: date || new Date(),
             ratePerGram22k,
-            ratePerGram24k,
+            ratePerGram20k,
+            ratePerGram18k,
             updatedBy: req.user._id,
         });
         res.status(201).json(rate);
@@ -20,8 +21,16 @@ const addGoldRate = async (req, res) => {
 
 const getLatestGoldRate = async (req, res) => {
     try {
-        const rate = await GoldRate.findOne().sort({ rateDate: -1 });
-        if (rate) {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+        // Find the record for exactly today
+        const rate = await GoldRate.findOne({
+            rateDate: { $gte: startOfDay, $lte: endOfDay }
+        });
+
+        if (rate && (rate.ratePerGram22k > 0 || rate.ratePerGram20k > 0 || rate.ratePerGram18k > 0)) {
             res.json(rate);
         } else {
             res.json(null);
@@ -66,4 +75,14 @@ const deleteScheme = async (req, res) => {
     }
 };
 
-export { addGoldRate, getLatestGoldRate, addScheme, getSchemes, deleteScheme };
+const deleteGoldRate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await GoldRate.findByIdAndDelete(id);
+        res.json({ message: 'Gold rate deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+export { addGoldRate, getLatestGoldRate, addScheme, getSchemes, deleteScheme, deleteGoldRate };

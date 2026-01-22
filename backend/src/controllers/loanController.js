@@ -44,6 +44,7 @@ const createLoan = async (req, res) => {
             return res.status(404).json({ message: 'Scheme not found' });
         }
 
+<<<<<<< HEAD
         let appliedInterestRate = scheme.interestRate;
         let appliedTenure = scheme.tenureMonths;
         let appliedMaxLoanPercent = scheme.maxLoanPercentage;
@@ -73,20 +74,40 @@ const createLoan = async (req, res) => {
 
         const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
         if (!goldRateObj) {
+=======
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+        const goldRateObj = await GoldRate.findOne({
+            rateDate: { $gte: startOfDay, $lte: endOfDay }
+        });
+
+        if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
+>>>>>>> 21643fcd9a77163e3ae1dafa587342ee7bfffdac
             console.log("Error: Gold Rate not set for today");
             cleanupFiles(req.files);
-            return res.status(400).json({ message: 'Gold Rate not set for today' });
+            return res.status(400).json({ message: "Today's gold rate not set by admin" });
         }
 
 
         let totalWeight = 0;
         let totalValuation = 0;
 
-        itemsData.forEach(item => {
+        for (const item of itemsData) {
             totalWeight += parseFloat(item.netWeight);
-            const rate = item.purity === '24k' ? goldRateObj.ratePerGram24k : goldRateObj.ratePerGram22k;
+            let rate = 0;
+            if (item.purity === '22k') rate = goldRateObj.ratePerGram22k;
+            else if (item.purity === '20k') rate = goldRateObj.ratePerGram20k;
+            else if (item.purity === '18k') rate = goldRateObj.ratePerGram18k;
+
+            if (!rate || rate <= 0) {
+                cleanupFiles(req.files);
+                return res.status(400).json({ message: `Gold rate for ${item.purity} is not set by admin` });
+            }
+
             totalValuation += parseFloat(item.netWeight) * rate;
-        });
+        }
 
         const maxLoan = totalValuation * (appliedMaxLoanPercent / 100);
         console.log("Valuation debug:", { totalValuation, maxLoan, requestedLoanAmount });
@@ -98,12 +119,18 @@ const createLoan = async (req, res) => {
         }
 
 
-        const now = new Date();
+        // Use the current timestamp for due date calculations
+        const loanNow = new Date();
 
+<<<<<<< HEAD
         const dueDate = new Date(now);
         dueDate.setMonth(dueDate.getMonth() + appliedTenure);
+=======
+        const dueDate = new Date(loanNow);
+        dueDate.setMonth(dueDate.getMonth() + scheme.tenureMonths);
+>>>>>>> 21643fcd9a77163e3ae1dafa587342ee7bfffdac
 
-        const nextPaymentDate = new Date(now);
+        const nextPaymentDate = new Date(loanNow);
         nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
 
 
@@ -113,7 +140,7 @@ const createLoan = async (req, res) => {
             scheme: schemeId,
             totalWeight,
             totalPurity: 'Mixed',
-            goldRateAtPledge: goldRateObj.ratePerGram22k,
+            goldRateAtPledge: goldRateObj.ratePerGram22k || goldRateObj.ratePerGram20k || goldRateObj.ratePerGram18k || 0,
             valuation: totalValuation,
             loanAmount: requestedLoanAmount,
             preInterestAmount: preInterestAmount || 0,

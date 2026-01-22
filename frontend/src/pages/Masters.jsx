@@ -6,7 +6,8 @@ import './Masters.css';
 const Masters = () => {
 
     const [rate22k, setRate22k] = useState('');
-    const [rate24k, setRate24k] = useState('');
+    const [rate20k, setRate20k] = useState('');
+    const [rate18k, setRate18k] = useState('');
     const [currentRate, setCurrentRate] = useState(null);
     const [loadingRate, setLoadingRate] = useState(false);
 
@@ -41,16 +42,30 @@ const Masters = () => {
         try {
             const { data } = await api.post('/masters/gold-rate', {
                 ratePerGram22k: parseFloat(rate22k),
-                ratePerGram24k: parseFloat(rate24k)
+                ratePerGram20k: parseFloat(rate20k),
+                ratePerGram18k: parseFloat(rate18k)
             });
             setCurrentRate(data);
             alert('Gold Rate Updated!');
             setRate22k('');
-            setRate24k('');
+            setRate20k('');
+            setRate18k('');
         } catch (error) {
             alert('Failed to update rate');
         } finally {
             setLoadingRate(false);
+        }
+    };
+
+    const handleDeleteGoldRate = async () => {
+        if (window.confirm('Clear today\'s gold rates? Valuation will be disabled.')) {
+            try {
+                await api.delete(`/masters/gold-rate/${currentRate._id}`);
+                setCurrentRate(null);
+                alert('Today\'s rates cleared');
+            } catch (error) {
+                alert('Failed to clear rates');
+            }
         }
     };
 
@@ -108,7 +123,7 @@ const Masters = () => {
                         </div>
                         <div>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Daily Gold Rates</h3>
-                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Set today's market rate</p>
+                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Set today's market rate manually</p>
                         </div>
                     </div>
 
@@ -125,30 +140,73 @@ const Masters = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">24k Rate (per gram) (₹)</label>
+                            <label className="form-label">20k Rate (per gram) (₹)</label>
                             <input
                                 type="number"
                                 className="input-field"
-                                value={rate24k}
-                                onChange={e => setRate24k(e.target.value)}
-                                placeholder={currentRate ? currentRate.ratePerGram24k : "0.00"}
+                                value={rate20k}
+                                onChange={e => setRate20k(e.target.value)}
+                                placeholder={currentRate ? currentRate.ratePerGram20k : "0.00"}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">18k Rate (per gram) (₹)</label>
+                            <input
+                                type="number"
+                                className="input-field"
+                                value={rate18k}
+                                onChange={e => setRate18k(e.target.value)}
+                                placeholder={currentRate ? currentRate.ratePerGram18k : "0.00"}
                                 required
                             />
                         </div>
                         <button type="submit" className="btn-primary" disabled={loadingRate}>
-                            <Save size={16} /> Update Rate
+                            <Save size={16} /> Save Daily Rate
                         </button>
+
                     </form>
 
                     <div className="history-list">
                         <h4 className="history-title">
-                            Current Active Rate
+                            Currently Set Rates
                             {currentRate && <span style={{ fontSize: '0.75rem', fontWeight: 400, float: 'right', color: '#64748b' }}>
+
+                                Last Update: {new Date(currentRate.rateDate).toLocaleDateString()}
+                                <button
+                                    onClick={handleDeleteGoldRate}
+                                    style={{ marginLeft: '10px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    title="Delete today's rates"
+                                >
+                                    <Trash2 size={12} />
+                                </button>
                                 Updated: {new Date(currentRate.rateDate).toLocaleString('en-IN')}
                             </span>}
                         </h4>
                         {currentRate ? (
                             <>
+                                {currentRate.ratePerGram22k > 0 && (
+                                    <div className="history-item">
+                                        <span>22k Standard</span>
+                                        <span className="rate-val">₹{currentRate.ratePerGram22k}</span>
+                                    </div>
+                                )}
+                                {currentRate.ratePerGram20k > 0 && (
+                                    <div className="history-item">
+                                        <span>20k Gold</span>
+                                        <span className="rate-val">₹{currentRate.ratePerGram20k}</span>
+                                    </div>
+                                )}
+                                {currentRate.ratePerGram18k > 0 && (
+                                    <div className="history-item">
+                                        <span>18k Gold</span>
+                                        <span className="rate-val">₹{currentRate.ratePerGram18k}</span>
+                                    </div>
+                                )}
+                                {!(currentRate.ratePerGram22k > 0 || currentRate.ratePerGram20k > 0 || currentRate.ratePerGram18k > 0) && (
+                                    <p className="text-muted text-sm">No rates have been set yet.</p>
+                                )}
+
                                 <div className="history-item">
                                     <span>Rate Date</span>
                                     <span>{new Date(currentRate.rateDate).toLocaleDateString('en-IN')}</span>
@@ -162,9 +220,10 @@ const Masters = () => {
                                     <span className="rate-val">₹{currentRate.ratePerGram24k}</span>
                                 </div>
                             </>
-                        ) : <p className="text-muted text-sm">No rate set for today.</p>}
+                        ) : <p className="text-muted text-sm">No rate records found.</p>}
                     </div>
                 </div>
+
 
                 <div className="master-card">
                     <div className="card-header">
