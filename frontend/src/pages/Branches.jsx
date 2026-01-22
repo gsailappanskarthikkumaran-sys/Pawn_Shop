@@ -92,7 +92,7 @@ const Branches = () => {
                                 required
                             />
                         </div>
-                        <button type="submit" className="btn-primary" disabled={loading} style={{ height: '42px' }} alignItems='center'>
+                        <button type="submit" className="btn-primary" disabled={loading} style={{ height: '42px' }}>
                             <Plus size={18} /> Add Branch
                         </button>
                     </form>

@@ -127,6 +127,17 @@ const Payments = () => {
                             <span className="detail-value">{loan.scheme?.schemeName} ({loan.scheme?.interestRate}%)</span>
                         </div>
 
+                        {/* Penalty Display in User Interface */}
+                        {loan.penalty && loan.penalty.amount > 0 && (
+                            <div className="detail-row" style={{ background: '#fef2f2', padding: '8px', borderRadius: '4px', margin: '4px 0' }}>
+                                <span className="detail-label text-red-600">Penalty / Overdue</span>
+                                <span className="detail-value text-red-600">₹{loan.penalty.amount}</span>
+                                <div style={{ width: '100%', fontSize: '0.75rem', color: '#ef4444' }}>
+                                    {loan.penalty.details}
+                                </div>
+                            </div>
+                        )}
+
                         {loan.status !== 'closed' && (
                             <form onSubmit={handlePayment} className="payment-form">
                                 <h4 className="form-label mb-4" style={{ marginBottom: '12px', display: 'block' }}>New Payment</h4>
@@ -139,7 +150,10 @@ const Payments = () => {
                                         onChange={(e) => {
                                             setType(e.target.value);
                                             if (e.target.value === 'full_settlement') {
-                                                setAmount(loan.currentBalance);
+                                                // Automatic Full Settlement Calculation
+                                                // Use payableAmount from backend if available (includes penalties), else fallback to currentBalance
+                                                const totalPayable = loan.payableAmount !== undefined ? loan.payableAmount : loan.currentBalance;
+                                                setAmount(totalPayable);
                                             }
                                         }}
                                     >

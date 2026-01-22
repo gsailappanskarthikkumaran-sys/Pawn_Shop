@@ -219,12 +219,55 @@ const getLoanById = async (req, res) => {
             query = { loanId: id };
         }
 
-        const loan = await Loan.findOne(query)
+        let loan = await Loan.findOne(query)
             .populate('customer')
             .populate('scheme')
-            .populate('items');
+            .populate('items')
+            .lean(); // Use lean to allow modifying the object
 
-        if (loan) res.json(loan);
+        if (loan) {
+            // Dynamic Penalty Calculation
+            const today = new Date();
+            const dueDate = new Date(loan.dueDate);
+
+            let penalty = {
+                details: 'No penalty',
+                amount: 0,
+                daysOverdue: 0
+            };
+
+            // Only calculate if loan is NOT closed and is OVERDUE
+            if (loan.status !== 'closed' && today > dueDate) {
+                const diffTime = Math.abs(today - dueDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                penalty.daysOverdue = diffDays;
+
+                let penalInterestAmount = 0;
+                let flatFine = 0;
+
+                // 1. Penal Interest (on default principal balance)
+                // If scheme has penalInterestRate (e.g. 6% p.a extra)
+                if (loan.scheme && loan.scheme.penalInterestRate > 0) {
+                    // Calculate extra interest for the overdue period
+                    // Formula: (Balance * PenalRate * (OverdueDays/365)) / 100
+                    const annualPenalRate = loan.scheme.penalInterestRate;
+                    penalInterestAmount = (loan.currentBalance * annualPenalRate * (diffDays / 365)) / 100;
+                }
+
+                // 2. Flat Overdue Fine
+                if (loan.scheme && loan.scheme.overdueFine > 0) {
+                    flatFine = loan.scheme.overdueFine;
+                }
+
+                penalty.amount = Math.ceil(penalInterestAmount + flatFine);
+                penalty.details = `Overdue by ${diffDays} days. Fine: ₹${flatFine}, Penal Interest: ₹${penalInterestAmount.toFixed(2)}`;
+            }
+
+            loan.penalty = penalty;
+            loan.payableAmount = loan.currentBalance + penalty.amount; // Note: This is simplified. Ideally should include accrued normal interest too.
+
+            res.json(loan);
+        }
         else res.status(404).json({ message: 'Loan not found' });
     } catch (error) {
         console.error(error);

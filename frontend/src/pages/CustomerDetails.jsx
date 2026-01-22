@@ -147,16 +147,28 @@ const CustomerDetails = () => {
                                         <th>Amount</th>
                                         <th>Status</th>
                                         <th>Items</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {activeLoans.map(l => (
-                                        <tr key={l._id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate('/loans')}>
-                                            <td className="font-mono">{l.loanId}</td>
-                                            <td>{new Date(l.createdAt).toLocaleDateString('en-IN')}</td>
-                                            <td className="font-bold">₹{l.loanAmount}</td>
-                                            <td><span className={`status-pill status-${l.status}`}>{l.status}</span></td>
-                                            <td className="text-sm text-gray-500">{l.totalWeight}g</td>
+                                        <tr key={l._id} className="cursor-pointer hover:bg-gray-50">
+                                            <td className="font-mono" onClick={() => navigate('/loans')}>{l.loanId}</td>
+                                            <td onClick={() => navigate('/loans')}>{new Date(l.createdAt).toLocaleDateString('en-IN')}</td>
+                                            <td className="font-bold" onClick={() => navigate('/loans')}>₹{l.loanAmount}</td>
+                                            <td onClick={() => navigate('/loans')}><span className={`status-pill status-${l.status}`}>{l.status}</span></td>
+                                            <td className="text-sm text-gray-500" onClick={() => navigate('/loans')}>{l.totalWeight}g</td>
+                                            <td>
+                                                <button
+                                                    className="p-1 px-2 bg-gray-200 hover:bg-gray-300 rounded text-xs flex items-center gap-1"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(`/print/mini-statement/${l._id}`, '_blank');
+                                                    }}
+                                                >
+                                                    <FileText size={14} /> Mini Stmt
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const location = useLocation();
 
     const isAdmin = user?.role === 'admin';

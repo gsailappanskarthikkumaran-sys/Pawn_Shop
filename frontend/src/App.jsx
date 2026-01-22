@@ -19,8 +19,6 @@ import PrintView from './pages/PrintView';
 import CustomerDetails from './pages/CustomerDetails';
 import Auctions from './pages/Auctions';
 import AdminRequests from './pages/AdminRequests';
-
-
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Branches from './pages/Branches';

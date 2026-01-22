@@ -17,6 +17,8 @@ const Masters = () => {
     const [tenure, setTenure] = useState('');
     const [preInterest, setPreInterest] = useState('');
     const [maxLoan, setMaxLoan] = useState('');
+    const [penalInterest, setPenalInterest] = useState('');
+    const [overdueFine, setOverdueFine] = useState('');
     const [schemes, setSchemes] = useState([]);
 
     useEffect(() => {
@@ -77,7 +79,9 @@ const Masters = () => {
                 interestRate: parseFloat(interestRate),
                 tenureMonths: parseInt(tenure),
                 maxLoanPercentage: parseFloat(maxLoan),
-                preInterestMonths: parseInt(preInterest) || 0
+                preInterestMonths: parseInt(preInterest) || 0,
+                penalInterestRate: parseFloat(penalInterest) || 0,
+                overdueFine: parseFloat(overdueFine) || 0
             });
             setSchemes([...schemes, data]);
             alert('Scheme Added!');
@@ -86,6 +90,8 @@ const Masters = () => {
             setTenure('');
             setPreInterest('');
             setMaxLoan('');
+            setPenalInterest('');
+            setOverdueFine('');
         } catch (error) {
             alert('Failed to add scheme');
         }
@@ -258,6 +264,24 @@ const Masters = () => {
                                 placeholder="75" max="100" required
                             />
                         </div>
+                        <div className="form-row-grid">
+                            <div className="form-group">
+                                <label className="form-label">Penal Interest (% p.a)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={penalInterest} onChange={e => setPenalInterest(e.target.value)}
+                                    placeholder="e.g. 5" step="0.1"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Overdue Fine (Flat ₹)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={overdueFine} onChange={e => setOverdueFine(e.target.value)}
+                                    placeholder="e.g. 500"
+                                />
+                            </div>
+                        </div>
                         <button type="submit" className="btn-primary">
                             <Save size={16} /> Add Scheme
                         </button>
@@ -272,6 +296,12 @@ const Masters = () => {
                                     <div className="scheme-details-right">
                                         <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
                                         {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
+                                        {(s.penalInterestRate > 0 || s.overdueFine > 0) && (
+                                            <span style={{ fontSize: '0.75rem', color: '#ef4444', display: 'block' }}>
+                                                {s.penalInterestRate > 0 && `Penal: +${s.penalInterestRate}% `}
+                                                {s.overdueFine > 0 && `Fine: ₹${s.overdueFine}`}
+                                            </span>
+                                        )}
                                     </div>
                                     <button
                                         onClick={() => handleDeleteScheme(s._id)}
