@@ -94,3 +94,64 @@
     font-weight: 700;
     color: var(--text-main);
 }
+
+/* Extracted from Masters.jsx */
+.card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.card-header p {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.history-meta {
+    font-size: 0.75rem;
+    font-weight: 400;
+    float: right;
+    color: #64748b;
+}
+
+.btn-clear-rate {
+    margin-left: 10px;
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.schemes-scroll-area {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.scheme-details-right {
+    text-align: right;
+}
+
+.scheme-rate-text {
+    font-weight: 600;
+    display: block;
+}
+
+.scheme-pre-interest {
+    font-size: 0.7rem;
+    color: #ea580c;
+}
+
+.btn-delete-scheme {
+    margin-left: 12px;
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ef4444;
+}
