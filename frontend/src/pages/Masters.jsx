@@ -122,8 +122,8 @@ const Masters = () => {
                             <TrendingUp size={20} />
                         </div>
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Daily Gold Rates</h3>
-                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Set today's market rate manually</p>
+                            <h3>Daily Gold Rates</h3>
+                            <p>Set today's market rate manually</p>
                         </div>
                     </div>
 
@@ -170,12 +170,12 @@ const Masters = () => {
                     <div className="history-list">
                         <h4 className="history-title">
                             Currently Set Rates
-                            {currentRate && <span style={{ fontSize: '0.75rem', fontWeight: 400, float: 'right', color: '#64748b' }}>
+                            {currentRate && <span className="history-meta">
 
                                 Last Update: {new Date(currentRate.rateDate).toLocaleDateString()}
                                 <button
                                     onClick={handleDeleteGoldRate}
-                                    style={{ marginLeft: '10px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    className="btn-clear-rate"
                                     title="Delete today's rates"
                                 >
                                     <Trash2 size={12} />
@@ -231,8 +231,8 @@ const Masters = () => {
                             <Layers size={20} />
                         </div>
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Loan Schemes</h3>
-                            <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Define interest & limits</p>
+                            <h3>Loan Schemes</h3>
+                            <p>Define interest & limits</p>
                         </div>
                     </div>
 
@@ -245,7 +245,7 @@ const Masters = () => {
                                 placeholder="e.g. Standard Gold Loan" required
                             />
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div className="form-row-grid">
                             <div className="form-group">
                                 <label className="form-label">Interest (%)</label>
                                 <input
@@ -279,18 +279,17 @@ const Masters = () => {
 
                     <div className="history-list">
                         <h4 className="history-title">Active Schemes</h4>
-                        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        <div className="schemes-scroll-area">
                             {schemes.map(s => (
                                 <div key={s._id} className="history-item">
                                     <span>{s.schemeName}</span>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <span style={{ fontWeight: 600, display: 'block' }}>{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
-                                        {s.preInterestMonths > 0 && <span style={{ fontSize: '0.7rem', color: '#ea580c' }}>Pre: {s.preInterestMonths} Mos</span>}
+                                    <div className="scheme-details-right">
+                                        <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
+                                        {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
                                     </div>
                                     <button
                                         onClick={() => handleDeleteScheme(s._id)}
-                                        className="btn-icon-danger"
-                                        style={{ marginLeft: '12px', padding: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
+                                        className="btn-delete-scheme"
                                         title="Delete Scheme"
                                     >
                                         <Trash2 size={18} />

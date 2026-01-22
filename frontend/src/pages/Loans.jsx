@@ -62,16 +62,15 @@ const Loans = () => {
                                 <th>Date</th>
                                 <th>Due Date</th>
                                 <th>Amount</th>
-                                <th>Result</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>Loading loans...</td></tr>
+                                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>Loading loans...</td></tr>
                             ) : filteredLoans.length === 0 ? (
-                                <tr><td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>No loans found.</td></tr>
+                                <tr><td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>No loans found.</td></tr>
                             ) : (
                                 filteredLoans.map((loan) => (
                                     <tr key={loan._id}>
@@ -85,7 +84,6 @@ const Loans = () => {
                                         <td>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
                                         <td>{new Date(loan.dueDate).toLocaleDateString('en-IN')}</td>
                                         <td className="amount-cell">₹{loan.loanAmount}</td>
-                                        <td style={{ color: '#64748b' }}>₹{loan.valuation}</td>
                                         <td>
                                             <span className={`status-badge status-${loan.status}`}>
                                                 {loan.status}

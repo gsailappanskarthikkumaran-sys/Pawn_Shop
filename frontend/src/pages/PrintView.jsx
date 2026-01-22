@@ -106,6 +106,7 @@ const LoanReceipt = ({ loan }) => (
                 <div className="detail-group mb-4">
                     <label>Loan ID</label>
                     <div className="text-xl">{loan.loanId}</div>
+                    <div className="text-xs text-gray-500">Branch: {loan.branch || 'N/A'}</div>
                 </div>
                 <div className="detail-group mb-4">
                     <label>Date</label>
@@ -272,6 +273,11 @@ const CustomerProfile = ({ customer }) => (
                 <label>Full Address</label>
                 <div>{customer.address}</div>
             </div>
+            <div className="detail-group mt-4">
+                <label>Branch ID</label>
+                <div>{customer.branch || 'N/A'}</div>
+            </div>
+
         </div>
 
         <div className="footer">
