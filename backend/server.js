@@ -14,12 +14,7 @@ import reportRoutes from './src/routes/reportRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import auctionRoutes from './src/routes/auctionRoutes.js';
 import branchRoutes from './src/routes/branchRoutes.js';
-<<<<<<< HEAD
 import schemeRequestRoutes from './src/routes/schemeRequestRoutes.js';
-import initScheduler from './src/services/goldRateScheduler.js';
-=======
-
->>>>>>> 21643fcd9a77163e3ae1dafa587342ee7bfffdac
 import startOverdueJob from './src/jobs/overdueJob.js';
 
 dotenv.config();

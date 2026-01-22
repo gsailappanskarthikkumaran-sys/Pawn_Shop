@@ -9,6 +9,7 @@ import Payment from '../models/Payment.js';
 import SchemeRequest from '../models/SchemeRequest.js';
 import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
+
 const cleanupFiles = (files) => {
     if (!files) return;
     if (Array.isArray(files)) {
@@ -44,7 +45,6 @@ const createLoan = async (req, res) => {
             return res.status(404).json({ message: 'Scheme not found' });
         }
 
-<<<<<<< HEAD
         let appliedInterestRate = scheme.interestRate;
         let appliedTenure = scheme.tenureMonths;
         let appliedMaxLoanPercent = scheme.maxLoanPercentage;
@@ -72,22 +72,21 @@ const createLoan = async (req, res) => {
             }
         }
 
-        const goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
+        let goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
         if (!goldRateObj) {
-=======
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-        const goldRateObj = await GoldRate.findOne({
-            rateDate: { $gte: startOfDay, $lte: endOfDay }
-        });
+            goldRateObj = await GoldRate.findOne({
+                rateDate: { $gte: startOfDay, $lte: endOfDay }
+            });
 
-        if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
->>>>>>> 21643fcd9a77163e3ae1dafa587342ee7bfffdac
-            console.log("Error: Gold Rate not set for today");
-            cleanupFiles(req.files);
-            return res.status(400).json({ message: "Today's gold rate not set by admin" });
+            if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
+                console.log("Error: Gold Rate not set for today");
+                cleanupFiles(req.files);
+                return res.status(400).json({ message: "Today's gold rate not set by admin" });
+            }
         }
 
 
@@ -122,13 +121,8 @@ const createLoan = async (req, res) => {
         // Use the current timestamp for due date calculations
         const loanNow = new Date();
 
-<<<<<<< HEAD
-        const dueDate = new Date(now);
-        dueDate.setMonth(dueDate.getMonth() + appliedTenure);
-=======
         const dueDate = new Date(loanNow);
-        dueDate.setMonth(dueDate.getMonth() + scheme.tenureMonths);
->>>>>>> 21643fcd9a77163e3ae1dafa587342ee7bfffdac
+        dueDate.setMonth(dueDate.getMonth() + appliedTenure);
 
         const nextPaymentDate = new Date(loanNow);
         nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
@@ -480,4 +474,3 @@ const getStaffDashboardStats = async (req, res) => {
 };
 
 export { createLoan, getLoans, getLoanById, getDashboardStats, getStaffDashboardStats };
-
