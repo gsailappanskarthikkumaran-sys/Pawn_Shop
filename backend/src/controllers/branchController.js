@@ -39,16 +39,17 @@ const getBranchById = async (req, res) => {
 
 
 const addBranch = async (req, res) => {
-    const { name, address } = req.body;
+    const { branchId, name, address } = req.body;
 
     try {
-        const branchExists = await Branch.findOne({ name });
+        const branchExists = await Branch.find({ name, branchId });
 
         if (branchExists) {
             return res.status(400).json({ message: 'Branch already exists' });
         }
 
         const branch = await Branch.create({
+            branchId,
             name,
             address,
         });

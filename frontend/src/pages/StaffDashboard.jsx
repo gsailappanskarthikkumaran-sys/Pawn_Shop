@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import {
-    DollarSign, FileText, CheckCircle, Clock, Calendar,
-    ArrowUpRight, ArrowDownLeft, Wallet
+    IndianRupee, FileText, CheckCircle, Clock, Calendar,
+    ArrowDownLeft, Wallet, TrendingUp
 } from 'lucide-react';
 import './StaffDashboard.css';
 
@@ -99,7 +99,7 @@ const StaffDashboard = () => {
                     </div>
 
                     <div className="staff-panel-card">
-                        <DollarSign size={32} className="text-amber" />
+                        <TrendingUp size={32} className="text-amber" />
                         <h3>₹{stats?.today?.interestCollected || 0}</h3>
                         <p className="staff-panel-label">Interest Today</p>
                     </div>
@@ -118,7 +118,7 @@ const StaffDashboard = () => {
                     </div>
                     <div className="action-card green-action" onClick={() => window.location.href = '/payments'}>
                         <span>Collect Payment</span>
-                        <DollarSign size={18} />
+                        <IndianRupee size={18} />
                     </div>
                     <div className="action-card blue-action" onClick={() => window.location.href = '/customers'}>
                         <span>Manage Customers</span>
@@ -126,7 +126,7 @@ const StaffDashboard = () => {
                     </div>
                     <div className="action-card" onClick={() => window.location.href = '/vouchers'}>
                         <span>Expense/Voucher</span>
-                        <DollarSign size={18} />
+                        <IndianRupee size={18} />
                     </div>
                 </div> 
             </div>*/}

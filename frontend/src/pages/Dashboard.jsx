@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import StaffDashboard from './StaffDashboard';
 import api from '../api/axios';
 import {
-    DollarSign, FileText, Users, AlertTriangle, TrendingUp, Calendar, ArrowRight,
+    IndianRupee, FileText, Users, AlertTriangle, TrendingUp, Calendar, ArrowRight,
     PieChart as PieIcon
 } from 'lucide-react';
 import {
@@ -114,7 +114,7 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon green-icon"><DollarSign size={24} /></div>
+                    <div className="stat-icon green-icon"><IndianRupee size={24} /></div>
                     <div className="stat-info">
                         <p>Outstanding</p>
                         <h3>₹{stats?.financials?.outstanding?.toLocaleString() || 0}</h3>
@@ -264,7 +264,7 @@ const Dashboard = () => {
                         </div>
                         <div className="action-card green-action" onClick={() => window.location.href = '/payments'}>
                             <span>Record Payment</span>
-                            <DollarSign size={18} />
+                            <IndianRupee size={18} />
                         </div>
                         <div className="action-card" onClick={() => window.location.href = '/masters'}>
                             <span>Check Gold Rates</span>
