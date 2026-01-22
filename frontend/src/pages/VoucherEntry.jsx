@@ -306,7 +306,7 @@ const VoucherEntry = () => {
                                     <h4>{v.category} <span className="text-xs text-gray-400">({v.type})</span></h4>
                                     <p className="voucher-desc">{v.description || 'No description'}</p>
                                     <div className="voucher-meta">
-                                        <span className="voucher-date"><Calendar size={12} /> {new Date(v.date).toLocaleDateString()}</span>
+                                        <span className="voucher-date"><Calendar size={12} /> {new Date(v.date).toLocaleDateString('en-IN')}</span>
                                         <span className="voucher-user">By: {v.createdBy?.fullName || 'Unknown'}</span>
                                     </div>
                                 </div>

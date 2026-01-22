@@ -171,6 +171,7 @@ const Masters = () => {
                         <h4 className="history-title">
                             Currently Set Rates
                             {currentRate && <span style={{ fontSize: '0.75rem', fontWeight: 400, float: 'right', color: '#64748b' }}>
+<<<<<<< HEAD
                                 Last Update: {new Date(currentRate.rateDate).toLocaleDateString()}
                                 <button
                                     onClick={handleDeleteGoldRate}
@@ -179,10 +180,14 @@ const Masters = () => {
                                 >
                                     <Trash2 size={12} />
                                 </button>
+=======
+                                Updated: {new Date(currentRate.rateDate).toLocaleString('en-IN')}
+>>>>>>> 493994d406e779da211316552a720ddc74cd869e
                             </span>}
                         </h4>
                         {currentRate ? (
                             <>
+<<<<<<< HEAD
                                 {currentRate.ratePerGram22k > 0 && (
                                     <div className="history-item">
                                         <span>22k Standard</span>
@@ -204,6 +209,20 @@ const Masters = () => {
                                 {!(currentRate.ratePerGram22k > 0 || currentRate.ratePerGram20k > 0 || currentRate.ratePerGram18k > 0) && (
                                     <p className="text-muted text-sm">No rates have been set yet.</p>
                                 )}
+=======
+                                <div className="history-item">
+                                    <span>Rate Date</span>
+                                    <span>{new Date(currentRate.rateDate).toLocaleDateString('en-IN')}</span>
+                                </div>
+                                <div className="history-item">
+                                    <span>22k Standard</span>
+                                    <span className="rate-val">₹{currentRate.ratePerGram22k}</span>
+                                </div>
+                                <div className="history-item">
+                                    <span>24k Fine</span>
+                                    <span className="rate-val">₹{currentRate.ratePerGram24k}</span>
+                                </div>
+>>>>>>> 493994d406e779da211316552a720ddc74cd869e
                             </>
                         ) : <p className="text-muted text-sm">No rate records found.</p>}
                     </div>

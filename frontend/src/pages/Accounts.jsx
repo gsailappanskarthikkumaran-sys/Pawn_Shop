@@ -129,7 +129,7 @@ const Accounts = () => {
                                 <td>{t.category}</td>
                                 <td>{t.description}</td>
                                 <td className={`text-right font-bold ${t.type === 'CREDIT' ? 'text-green' : 'text-red'}`}>
-                                    {t.type === 'CREDIT' ? '+' : '-'}₹{t.amount.toLocaleString()}
+                                    {t.type === 'CREDIT' ? '+' : '-'}₹{t.amount.toLocaleString('en-IN')}
                                 </td>
                             </tr>
                         ))
@@ -356,7 +356,7 @@ const Accounts = () => {
                                                     <div className="text-xs text-gray-500">{loan.customer?.phone}</div>
                                                 </td>
                                                 <td>
-                                                    {new Date(loan.maturityDate).toLocaleDateString()}
+                                                    {new Date(loan.maturityDate).toLocaleDateString('en-IN')}
                                                     {new Date(loan.maturityDate) < new Date() &&
                                                         <span className="ml-2 text-xs text-red-600 font-bold">(EXPIRED)</span>
                                                     }
@@ -533,7 +533,7 @@ const Accounts = () => {
                         </div>
 
                         <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-                            <h3 style={{ marginBottom: '1rem', color: '#64748b' }}>Transactions for {new Date(selectedDate).toLocaleDateString()}</h3>
+                            <h3 style={{ marginBottom: '1rem', color: '#64748b' }}>Transactions for {new Date(selectedDate).toLocaleDateString('en-IN')}</h3>
                             {renderTransactionTable()}
                         </div>
                     </div>

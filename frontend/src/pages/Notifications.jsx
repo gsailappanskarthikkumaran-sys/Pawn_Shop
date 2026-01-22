@@ -83,7 +83,7 @@ const Notifications = () => {
                                 <h3>{note.title}</h3>
                                 <p>{note.message}</p>
                                 <span className="note-time">
-                                    {new Date(note.createdAt).toLocaleString()}
+                                    {new Date(note.createdAt).toLocaleString('en-IN')}
                                 </span>
                             </div>
                             {!note.read && (
