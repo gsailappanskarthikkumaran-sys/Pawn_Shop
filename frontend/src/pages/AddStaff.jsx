@@ -167,6 +167,7 @@ const AddStaff = () => {
                             value={formData.address}
                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                             placeholder="Full residential address"
+                            required
                         ></textarea>
                     </div>
 
@@ -179,6 +180,7 @@ const AddStaff = () => {
                             value={formData.phoneNumber}
                             onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                             placeholder="e.g. 9876543210"
+                            required
                         />
                     </div>
 
@@ -190,7 +192,8 @@ const AddStaff = () => {
                             value={formData.branch}
                             onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                         >
-                            <option value="">Select Branch (Optional)</option>
+                            <option value="" required>Select Branch</option>
+
                             {branches.map(b => (
                                 <option key={b._id} value={b._id}>{b.name}</option>
                             ))}
@@ -206,6 +209,7 @@ const AddStaff = () => {
                             value={formData.idProofNumber}
                             onChange={(e) => setFormData({ ...formData, idProofNumber: e.target.value })}
                             placeholder="Enter 12-digit Aadhar Number"
+                            required
                         />
                     </div>
 

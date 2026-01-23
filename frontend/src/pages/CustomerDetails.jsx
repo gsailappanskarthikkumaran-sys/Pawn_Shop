@@ -166,7 +166,7 @@ const CustomerDetails = () => {
                                                         window.open(`/print/mini-statement/${l._id}`, '_blank');
                                                     }}
                                                 >
-                                                    <FileText size={14} /> Mini Stmt
+                                                    <FileText size={14} /> Print
                                                 </button>
                                             </td>
                                         </tr>

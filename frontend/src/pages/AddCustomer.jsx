@@ -194,6 +194,7 @@ const AddCustomer = () => {
                                 className="input-field"
                                 value={formData.fatherName}
                                 onChange={handleChange}
+                                required
                                 placeholder="Father or Spouse Name"
                             />
                         </div>
@@ -206,6 +207,7 @@ const AddCustomer = () => {
                                 className="input-field"
                                 value={formData.dob}
                                 onChange={handleChange}
+                                required
                             />
                         </div>
 
@@ -240,6 +242,7 @@ const AddCustomer = () => {
                                 value={formData.nominee}
                                 onChange={handleChange}
                                 placeholder="Nominee Name"
+                                required
                             />
                         </div>
 
@@ -296,6 +299,7 @@ const AddCustomer = () => {
                                 value={formData.city}
                                 onChange={handleChange}
                                 placeholder="City"
+                                required
                             />
                         </div>
 
@@ -308,6 +312,7 @@ const AddCustomer = () => {
                                 value={formData.pincode}
                                 onChange={handleChange}
                                 placeholder="626123"
+                                required
                             />
                         </div>
 
@@ -332,6 +337,7 @@ const AddCustomer = () => {
                                 value={formData.aadharNumber}
                                 onChange={handleChange}
                                 placeholder="xxxx-xxxx-xxxx"
+                                required
                             />
                         </div>
                         <div className="form-group">
@@ -343,6 +349,7 @@ const AddCustomer = () => {
                                 value={formData.panNumber}
                                 onChange={handleChange}
                                 placeholder="ABCDE1234F"
+                                required
                             />
                         </div>
 
@@ -354,6 +361,7 @@ const AddCustomer = () => {
                                 className="input-field"
                                 onChange={handleFileChange}
                                 accept="image/*"
+                                required
                             />
                         </div>
                         <div className="form-group">
@@ -364,6 +372,7 @@ const AddCustomer = () => {
                                 className="input-field"
                                 onChange={handleFileChange}
                                 accept="image/*"
+                                required
                             />
                         </div>
                     </div>
@@ -382,7 +391,7 @@ const AddCustomer = () => {
 
                             <label className="btn-secondary" style={{ display: 'inline-block', marginTop: '16px' }}>
                                 Choose Photo
-                                <input type="file" onChange={handlePhotoChange} hidden accept="image/*" />
+                                <input type="file" required onChange={handlePhotoChange} hidden accept="image/*" />
                             </label>
                         </div>
                     </div>
