@@ -23,7 +23,7 @@ const Navbar = ({ toggleSidebar }) => {
         };
 
         fetchUnreadCount();
-        const interval = setInterval(fetchUnreadCount, 60000); // Check every minute
+        const interval = setInterval(fetchUnreadCount, 1000); // Check every minute
         return () => clearInterval(interval);
     }, [user]);
 

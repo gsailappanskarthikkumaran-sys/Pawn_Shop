@@ -42,6 +42,18 @@ const PrintView = () => {
                 }
                 return;
             }
+            else if (type === 'mini-statement') {
+                const [loanRes, paymentsRes] = await Promise.all([
+                    api.get(`/loans/${id}`),
+                    api.get(`/payments/loan/${id}`)
+                ]);
+                setData({ loan: loanRes.data, payments: paymentsRes.data });
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
+                return;
+            }
 
             if (endpoint) {
                 const { data } = await api.get(endpoint);
@@ -91,6 +103,7 @@ const PrintView = () => {
                 {type === 'payment' && <PaymentReceipt payment={data} />}
                 {type === 'day-book' && <DayBookReport data={data} date={id} />}
                 {type === 'report-demand' && <DemandReport report={data} />}
+                {type === 'mini-statement' && <MiniStatement data={data} />}
             </div>
         </div>
     );
@@ -453,5 +466,121 @@ const DayBookReport = ({ data, date }) => (
         </table>
     </div>
 );
+
+const MiniStatement = ({ data }) => {
+    const { loan, payments } = data;
+    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+
+    return (
+        <div>
+            <h2 className="document-title">LOAN MINI STATEMENT</h2>
+            <div className="mb-4 text-xs text-gray-500 text-center">
+                Generated on: {new Date().toLocaleString()}
+            </div>
+
+            <div className="grid-2 mb-6">
+                <div>
+                    <div className="detail-group mb-2">
+                        <label>Loan ID</label>
+                        <div className="font-bold">{loan.loanId}</div>
+                    </div>
+                    <div className="detail-group mb-2">
+                        <label>Customer</label>
+                        <div>{loan.customer?.name}</div>
+                        <div className="text-xs text-gray-500">{loan.customer?.phone}</div>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <div className="detail-group mb-2">
+                        <label>Loan Amount</label>
+                        <div className="font-bold">₹{loan.loanAmount}</div>
+                    </div>
+                    <div className="detail-group mb-2">
+                        <label>Date</label>
+                        <div>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-6 p-2 bg-gray-50 border border-dashed border-gray-300 rounded">
+                <div className="grid grid-cols-4 gap-2 text-xs">
+                    <div>
+                        <span className="text-gray-500 block">Scheme</span>
+                        <span className="font-bold">{loan.scheme?.schemeName}</span>
+                    </div>
+                    <div>
+                        <span className="text-gray-500 block">Interest Rate</span>
+                        <span className="font-bold">{loan.interestRate}%</span>
+                    </div>
+                    <div>
+                        <span className="text-gray-500 block">Weight</span>
+                        <span className="font-bold">{loan.totalWeight}g</span>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-gray-500 block">Current Balance</span>
+                        <span className="font-bold text-red-600">₹{loan.currentBalance}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 className="text-sm font-bold border-b border-black mb-3 uppercase">Transaction History</h3>
+            <table className="w-full text-xs text-left border-collapse mb-6">
+                <thead>
+                    <tr className="border-b border-gray-400">
+                        <th className="py-2">Date</th>
+                        <th className="py-2">Type</th>
+                        <th className="py-2">Mode</th>
+                        <th className="py-2 text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {/* Initial Loan */}
+                    <tr className="border-b border-gray-100 bg-gray-50">
+                        <td className="py-2">{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
+                        <td className="py-2">LOAN DISBURSED</td>
+                        <td className="py-2">CASH</td>
+                        <td className="py-2 text-right font-bold">₹{loan.loanAmount}</td>
+                    </tr>
+                    {payments.map(p => (
+                        <tr key={p._id} className="border-b border-gray-100">
+                            <td className="py-2">{new Date(p.paymentDate).toLocaleDateString('en-IN')}</td>
+                            <td className="py-2 capitalize">{p.type.replace('_', ' ')}</td>
+                            <td className="py-2 capitalize">{p.paymentMode || 'Cash'}</td>
+                            <td className="py-2 text-right font-bold text-green-600">-₹{p.amount}</td>
+                        </tr>
+                    ))}
+                    {payments.length === 0 && (
+                        <tr>
+                            <td colSpan="4" className="py-4 text-center text-gray-500 italic">No payments made yet.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+
+            <div className="flex justify-end border-t border-black pt-4">
+                <div className="w-1/2">
+                    <div className="flex justify-between mb-2 text-sm">
+                        <span>Total Principal Received:</span>
+                        <span className="font-bold">₹{payments.filter(p => p.type !== 'interest').reduce((s, p) => s + p.amount, 0)}</span>
+                    </div>
+                    <div className="flex justify-between mb-2 text-sm">
+                        <span>Total Interest Received:</span>
+                        <span className="font-bold">₹{payments.filter(p => p.type === 'interest').reduce((s, p) => s + p.amount, 0)}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold border-t border-dashed border-gray-400 pt-2 mt-2">
+                        <span>Outstanding Balance:</span>
+                        <span>₹{loan.currentBalance}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="footer">
+                <div style={{ width: '100%', textAlign: 'center', fontSize: '10px', color: '#666' }}>
+                    This is a computer generated statement.
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default PrintView;

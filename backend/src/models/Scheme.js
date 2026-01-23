@@ -22,6 +22,14 @@ const schemeSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    penalInterestRate: {
+        type: Number,
+        default: 0, // Extra interest % per annum (e.g. 3%)
+    },
+    overdueFine: {
+        type: Number,
+        default: 0, // Flat fine amount (e.g. 500)
+    },
     description: {
         type: String,
     },
