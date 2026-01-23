@@ -1,20 +1,41 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Search, Filter, FileText, ChevronRight, Printer } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Search, Filter, FileText, ChevronRight, Printer, Plus } from 'lucide-react';
 import './Loans.css';
 
 const Loans = () => {
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [branches, setBranches] = useState([]);
+    const [selectedBranch, setSelectedBranch] = useState('');
+    const { user } = useAuth();
+
+    useEffect(() => {
+        if (user?.role !== 'staff') {
+            fetchBranches();
+        }
+    }, [user]);
 
     useEffect(() => {
         fetchLoans();
-    }, []);
+    }, [selectedBranch]);
+
+    const fetchBranches = async () => {
+        try {
+            const { data } = await api.get('/branches');
+            setBranches(data);
+        } catch (error) {
+            console.error("Failed to load branches", error);
+        }
+    };
 
     const fetchLoans = async () => {
         try {
-            const { data } = await api.get('/loans');
+            const { data } = await api.get('/loans', {
+                params: { branch: selectedBranch }
+            });
             setLoans(data);
         } catch (error) {
             console.error(error);
@@ -34,6 +55,20 @@ const Loans = () => {
                 <div className="page-title">
                     <h1>Loan Accounts</h1>
                     <p>View and manage all active pledges</p>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {user?.role !== 'staff' && (
+                        <select
+                            className="branch-select"
+                            value={selectedBranch}
+                            onChange={(e) => setSelectedBranch(e.target.value)}
+                        >
+                            <option value="">All Branches</option>
+                            {branches.map(branch => (
+                                <option key={branch._id} value={branch._id}>{branch.name}</option>
+                            ))}
+                        </select>
+                    )}
                 </div>
             </div>
 
@@ -97,12 +132,6 @@ const Loans = () => {
                                                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b' }}
                                             >
                                                 <Printer size={18} />
-                                            </button>
-                                            <button
-                                                className="action-arrow-btn"
-                                                onClick={() => window.open(`/print/loan/${loan._id}`, '_blank')}
-                                            >
-                                                <ChevronRight size={18} />
                                             </button>
                                         </td>
                                     </tr>

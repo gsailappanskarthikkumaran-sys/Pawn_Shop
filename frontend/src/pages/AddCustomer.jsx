@@ -216,7 +216,6 @@ const AddCustomer = () => {
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="trans">Transgender</option>
-                                <option value="other">Other</option>
                             </select>
                         </div>
 
@@ -226,8 +225,6 @@ const AddCustomer = () => {
                                 <option value="">Select Status</option>
                                 <option value="single">Single</option>
                                 <option value="married">Married</option>
-                                <option value="divorced">Divorced</option>
-                                <option value="widowed">Widowed</option>
                             </select>
                         </div>
 
