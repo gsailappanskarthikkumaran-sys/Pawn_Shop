@@ -39,7 +39,7 @@ const Navbar = ({ toggleSidebar }) => {
                 </button>
             </div>
 
-            <div className="navbar-links-container">
+            <div className="n-lnks">
                 <div className="navbar-links">
                     <Link to="/" className="nav-link">
                         <Home size={18} />

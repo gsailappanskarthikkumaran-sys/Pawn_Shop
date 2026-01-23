@@ -286,7 +286,7 @@ const PledgeEntry = () => {
 
                         {/* Customization Request Button */}
                         {formData.schemeId && formData.customerId && (
-                            <div className="customization-wrapper">
+                            <div className="c-wrp">
                                 {isCustomMode ? (
                                     <div className="custom-scheme-badge">
                                         Active Custom Scheme: {customRequest.proposedValues.interestRate}% Interest, {customRequest.proposedValues.tenureMonths} Months
@@ -314,7 +314,7 @@ const PledgeEntry = () => {
 
                     <div className="form-section">
                         <div className="section-header space-between">
-                            <div className="flex-align-center-gap-12">
+                            <div className="f-c-12">
                                 <div className="section-icon icon-purple">
                                     <Gem size={20} />
                                 </div>
@@ -377,7 +377,7 @@ const PledgeEntry = () => {
                         </div>
 
                         <div className="upload-area">
-                            <label className="form-label-bold flex-align-center-gap-8">
+                            <label className="form-label-bold f-c-8">
                                 <Upload size={18} color="#94a3b8" /> Upload Item Photos
                             </label>
                             <div className="upload-box">
@@ -404,7 +404,7 @@ const PledgeEntry = () => {
                             <h2>Valuation Details</h2>
                         </div>
 
-                        <div className="calc-section-spacing">
+                        <div className="c-spc">
                             {missingRatePurities.length > 0 ? (
                                 <div className="alert-inline" style={{ color: '#ef4444', marginBottom: '1rem', padding: '8px', background: '#fef2f2', borderRadius: '4px' }}>
                                     <AlertCircle size={14} />
@@ -484,7 +484,7 @@ const PledgeEntry = () => {
                                 </div>
                                 <div className="calc-row">
                                     <span className="calc-label calc-label-orange">Pre-Interest Deduction</span>
-                                    <div className="flex-align-center-gap-4">
+                                    <div className="f-c-4">
                                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>₹</span>
                                         <input
                                             type="number"

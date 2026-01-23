@@ -44,7 +44,7 @@ const AdminRequests = () => {
     if (loading) return <div className="p-8">Loading Requests...</div>;
 
     return (
-        <div className="admin-requests-container">
+        <div className="a-req">
             <div className="page-header">
                 <div>
                     <h1 className="text-2xl font-bold">{user?.role === 'admin' ? 'Scheme Customization Requests' : 'My Scheme Requests'}</h1>
@@ -56,7 +56,7 @@ const AdminRequests = () => {
                 </div>
             </div>
 
-            <div className="requests-table-wrapper">
+            <div className="r-tbl">
                 <table className="requests-table">
                     <thead>
                         <tr>

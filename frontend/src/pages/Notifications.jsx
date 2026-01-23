@@ -54,7 +54,7 @@ const Notifications = () => {
     if (loading) return <div className="p-8">Loading Notifications...</div>;
 
     return (
-        <div className="notifications-container">
+        <div className="n-cnt">
             <div className="page-header">
                 <div className="page-title">
                     <h1>Notifications</h1>

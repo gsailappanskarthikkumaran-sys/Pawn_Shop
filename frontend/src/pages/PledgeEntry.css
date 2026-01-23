@@ -339,19 +339,19 @@
     justify-content: space-between;
 }
 
-.flex-align-center-gap-12 {
+.f-c-12 {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.flex-align-center-gap-8 {
+.f-c-8 {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.flex-align-center-gap-4 {
+.f-c-4 {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -376,7 +376,7 @@
     margin-top: 4px;
 }
 
-.calc-section-spacing {
+.c-spc {
     margin-bottom: 24px;
 }
 
@@ -429,7 +429,7 @@
 }
 
 /* Customization Request UI */
-.customization-wrapper {
+.c-wrp {
     margin-top: 12px;
 }
 

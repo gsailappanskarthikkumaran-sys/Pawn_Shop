@@ -27,10 +27,10 @@ const StaffDashboard = () => {
         }
     };
 
-    if (loading) return <div className="staff-dashboard-container">Loading Dashboard...</div>;
+    if (loading) return <div className="staff-dash">Loading Dashboard...</div>;
 
     return (
-        <div className="staff-dashboard-container">
+        <div className="s-dash">
             <div className="dashboard-header">
                 <div className="dashboard-title">
                     <h1>Staff Dashboard</h1>

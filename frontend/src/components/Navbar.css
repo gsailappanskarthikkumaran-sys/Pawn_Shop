@@ -51,7 +51,7 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.navbar-links-container {
+.n-lnks {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
