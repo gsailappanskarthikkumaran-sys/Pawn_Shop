@@ -64,7 +64,7 @@ const Dashboard = () => {
 
     if (loading) {
         return (
-            <div className="dashboard-container">
+            <div className="d-cnt">
                 <div className="loading-state">Loading Analytics...</div>
             </div>
         );
@@ -77,7 +77,7 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="dashboard-container">
+        <div className="d-cnt">
             <div className="dashboard-header">
                 <div className="dashboard-title">
                     <h1>Dashboard</h1>
@@ -85,7 +85,7 @@ const Dashboard = () => {
                 </div>
                 <div className="dashboard-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     {user?.role !== 'staff' && (
-                        <div className="branch-select-container">
+                        <div className="b-sel">
                             <select
                                 className="branch-select"
                                 value={selectedBranch}

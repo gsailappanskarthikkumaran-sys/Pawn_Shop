@@ -1,4 +1,4 @@
-.dashboard-container {
+.d-cnt {
     padding: 2rem;
     max-width: 1600px;
     margin: 0 auto;
@@ -6,7 +6,7 @@
 }
 
 @media (max-width: 768px) {
-    .dashboard-container {
+    .d-cnt {
         padding: 1rem;
     }
 }
@@ -32,7 +32,7 @@
     }
 
     /* Ensure child elements like date badge take full width or stack nicely */
-    .branch-select-container,
+    .b-sel,
     .date-badge,
     .branch-select {
         width: 100%;
@@ -147,7 +147,7 @@
 }
 
 /* Branch Select */
-.branch-select-container {
+.b-sel {
     position: relative;
 }
 

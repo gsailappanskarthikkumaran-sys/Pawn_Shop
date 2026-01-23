@@ -7,7 +7,7 @@ const Contact = () => {
         <div className="contact-page">
             <h1 className="contact-title">Contact Us</h1>
             <div className="card contact-card">
-                <p className="contact-description">
+                <p className="c-desc">
                     Have questions or need assistance? Reach out to our support team.
                 </p>
 
@@ -18,7 +18,7 @@ const Contact = () => {
                         </div>
                         <h3>Phone</h3>
                         <p>+91 12345 67890</p>
-                        <p className="contact-subtext">Mon-Sat, 10AM to 8PM</p>
+                        <p className="c-sub">Mon-Sat, 10AM to 8PM</p>
                     </div>
 
                     <div className="contact-item">
@@ -27,15 +27,15 @@ const Contact = () => {
                         </div>
                         <h3>Email</h3>
                         <p>support@gmail.com</p>
-                        <p className="contact-subtext">24/7 Support</p>
+                        <p className="c-sub">24/7 Support</p>
                     </div>
 
                     <div className="contact-item">
-                        <div className="contact-icon-wrapper icon-yellow">
+                        <div className="icon-wrp icon-yellow">
                             <MapPin size={24} />
                         </div>
                         <h3>Office</h3>
-                        <p className="contact-subtext">123, North Street, West side,East Mambalam </p>
+                        <p className="c-sub">123, North Street, West side,East Mambalam </p>
                     </div>
                 </div>
             </div>

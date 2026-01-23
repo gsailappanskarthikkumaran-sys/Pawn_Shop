@@ -118,7 +118,7 @@
 }
 
 
-.transactions-table-container {
+.t-tbl {
     background: white;
     border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);

@@ -25,7 +25,6 @@ const getLatestGoldRate = async (req, res) => {
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-        // Find the record for exactly today
         const rate = await GoldRate.findOne({
             rateDate: { $gte: startOfDay, $lte: endOfDay }
         });

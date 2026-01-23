@@ -288,7 +288,7 @@ const VoucherEntry = () => {
             </div>
 
 
-            <div className="voucher-list-section">
+            <div className="v-lst">
                 <h3 style={{ margin: '24px 0 16px', fontWeight: 'bold', color: '#334155' }}>Recent Vouchers</h3>
                 <div className="voucher-list">
                     {loading ? <p>Loading...</p> : vouchers.length === 0 ? (

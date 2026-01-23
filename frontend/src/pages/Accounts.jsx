@@ -101,7 +101,7 @@ const Accounts = () => {
     };
 
     const renderTransactionTable = () => (
-        <div className="transactions-table-container">
+        <div className="t-tbl">
             <table className="data-table">
                 <thead>
                     <tr>
@@ -340,7 +340,7 @@ const Accounts = () => {
                             </button>
                         </div>
                         {loading ? <p>Loading Demand List...</p> : (
-                            <div className="transactions-table-container">
+                            <div className="t-tbl">
                                 <table className="data-table">
                                     <thead>
                                         <tr>

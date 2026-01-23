@@ -49,50 +49,50 @@ const Auctions = () => {
     };
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <Gavel className="text-orange-600" /> Auction Management
+        <div className="auctions-container">
+            <div className="page-header">
+                <div className="page-title">
+                    <h1>
+                        <Gavel className="primary-icon" /> Auction Management
                     </h1>
-                    <p className="text-slate-500">Manage overdue items and record auction sales</p>
+                    <p>Manage overdue items and record auction sales</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="auctions-grid">
 
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                        <h3 className="font-semibold text-slate-700">Eligible for Auction (Overdue)</h3>
-                        <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-bold">
+                <div className="eligible-card">
+                    <div className="card-header-bar">
+                        <h3>Eligible for Auction (Overdue)</h3>
+                        <span className="count-badge">
                             {loans.length} Items
                         </span>
                     </div>
 
-                    <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+                    <div className="eligible-list">
                         {loading ? (
-                            <div className="p-8 text-center text-slate-400">Loading loans...</div>
+                            <div className="loading-placeholder">Loading loans...</div>
                         ) : loans.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500">
-                                <CheckCircle className="mx-auto mb-2 text-green-500" />
-                                No overdue loans eligible for auction.
+                            <div className="empty-placeholder">
+                                <CheckCircle size={48} className="success-icon" />
+                                <p>No overdue loans eligible for auction.</p>
                             </div>
                         ) : (
                             loans.map(loan => (
                                 <div
                                     key={loan._id}
-                                    className={`p-4 hover:bg-slate-50 cursor-pointer transition-colors ${selectedLoan?._id === loan._id ? 'bg-orange-50 border-l-4 border-orange-500' : ''}`}
+                                    className={`loan-item ${selectedLoan?._id === loan._id ? 'active' : ''}`}
                                     onClick={() => setSelectedLoan(loan)}
                                 >
-                                    <div className="flex justify-between mb-1">
-                                        <span className="font-mono font-bold text-slate-700">{loan.loanId}</span>
-                                        <span className="text-red-600 font-bold">₹{loan.currentBalance} Due</span>
+                                    <div className="loan-header">
+                                        <span className="loan-id">{loan.loanId}</span>
+                                        <span className="due-amount">₹{loan.currentBalance} Due</span>
                                     </div>
-                                    <div className="text-sm text-slate-600 mb-1">
-                                        {loan.customer?.name} • {loan.customer?.phone}
+                                    <div className="customer-info">
+                                        <p>{loan.customer?.name} • {loan.customer?.phone}</p>
                                     </div>
-                                    <div className="text-xs text-slate-400">
-                                        Pledged: {new Date(loan.loanDate).toLocaleDateString('en-IN')}
+                                    <div className="loan-meta">
+                                        <span>Pledged: {new Date(loan.loanDate).toLocaleDateString('en-IN')}</span>
                                     </div>
                                 </div>
                             ))
@@ -100,71 +100,75 @@ const Auctions = () => {
                     </div>
                 </div>
 
-
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-fit">
+                {/* Right Panel: Auction Action */}
+                <div className="action-card">
                     {!selectedLoan ? (
-                        <div className="text-center py-10 text-slate-400">
-                            <Gavel size={48} className="mx-auto mb-4 opacity-20" />
+                        <div className="selection-tip">
+                            <Gavel size={64} className="tip-icon" />
                             <p>Select a loan from the list to initiate auction</p>
                         </div>
                     ) : (
-                        <form onSubmit={handleAuction}>
-                            <h3 className="font-bold text-slate-800 mb-4 border-b pb-2">
-                                Auctioning: {selectedLoan.loanId}
-                            </h3>
+                        <form onSubmit={handleAuction} className="auction-form">
+                            <div className="form-header">
+                                <h3>Auctioning: {selectedLoan.loanId}</h3>
+                            </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-1">Sale Amount (₹)</label>
+                            <div className="form-sections">
+                                <div className="form-group">
+                                    <label>Sale Amount (₹)</label>
                                     <input
                                         type="number"
                                         required
-                                        className="w-full p-2 border rounded focus:ring-2 focus:ring-orange-500 outline-none"
+                                        className="input-field"
                                         value={amount}
                                         onChange={e => setAmount(e.target.value)}
+                                        placeholder="0.00"
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-1">Bidder Name</label>
+                                <div className="form-group">
+                                    <label>Bidder Name</label>
                                     <input
                                         type="text"
                                         required
-                                        className="w-full p-2 border rounded focus:ring-2 focus:ring-orange-500 outline-none"
+                                        className="input-field"
                                         value={bidder}
                                         onChange={e => setBidder(e.target.value)}
+                                        placeholder="Full Name"
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-1">Bidder Contact</label>
+                                <div className="form-group">
+                                    <label>Bidder Contact</label>
                                     <input
                                         type="text"
-                                        className="w-full p-2 border rounded focus:ring-2 focus:ring-orange-500 outline-none"
+                                        className="input-field"
                                         value={contact}
                                         onChange={e => setContact(e.target.value)}
+                                        placeholder="Phone Number"
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-1">Remarks</label>
+                                <div className="form-group">
+                                    <label>Remarks</label>
                                     <textarea
-                                        className="w-full p-2 border rounded focus:ring-2 focus:ring-orange-500 outline-none h-20"
+                                        className="input-field text-area"
                                         value={notes}
                                         onChange={e => setNotes(e.target.value)}
+                                        placeholder="Add any additional notes here..."
                                     ></textarea>
                                 </div>
 
-                                <div className="bg-orange-50 text-orange-800 text-xs p-3 rounded flex gap-2">
-                                    <AlertCircle size={16} className="shrink-0" />
+                                <div className="alert-box warning">
+                                    <AlertCircle size={20} className="alert-icon" />
                                     <p>This action will mark the loan as Closed (Auctioned) and record the amount as income.</p>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-orange-600 text-white font-bold py-3 rounded hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                                    className="btn-primary-auction"
                                 >
-                                    <Gavel size={18} /> Confirm Auction Sale
+                                    <Gavel size={20} /> Confirm Auction Sale
                                 </button>
                             </div>
                         </form>

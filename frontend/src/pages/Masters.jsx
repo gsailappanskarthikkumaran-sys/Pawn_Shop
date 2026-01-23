@@ -293,7 +293,7 @@ const Masters = () => {
                             {schemes.map(s => (
                                 <div key={s._id} className="history-item">
                                     <span>{s.schemeName}</span>
-                                    <div className="scheme-details-right">
+                                    <div className="s-det-r">
                                         <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
                                         {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
                                         {(s.penalInterestRate > 0 || s.overdueFine > 0) && (
