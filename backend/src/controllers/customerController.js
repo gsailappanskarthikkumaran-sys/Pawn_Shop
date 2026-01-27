@@ -15,6 +15,20 @@ const cleanupFiles = (files) => {
     });
 };
 
+const normalizeCustomerPaths = (customer) => {
+    if (!customer) return customer;
+    const fields = ['photo', 'aadharCard', 'panCard'];
+    fields.forEach(field => {
+        if (customer[field] && typeof customer[field] === 'string') {
+            const filename = customer[field].split(/[/\\]/).pop();
+            if (filename) {
+                customer[field] = `src/uploads/${filename}`;
+            }
+        }
+    });
+    return customer;
+};
+
 const createCustomer = async (req, res) => {
     try {
         const { name, email, phone, address, aadharNumber, panNumber, fatherName, dob, gender, maritalStatus, nominee, city, pincode, state } = req.body;
@@ -36,13 +50,13 @@ const createCustomer = async (req, res) => {
 
         if (req.files) {
             if (req.files['photo']) {
-                photoPath = req.files['photo'][0].path.replace(/\\/g, "/");
+                photoPath = `src/uploads/${req.files['photo'][0].filename}`;
             }
             if (req.files['aadharCard']) {
-                aadharCardPath = req.files['aadharCard'][0].path.replace(/\\/g, "/");
+                aadharCardPath = `src/uploads/${req.files['aadharCard'][0].filename}`;
             }
             if (req.files['panCard']) {
-                panCardPath = req.files['panCard'][0].path.replace(/\\/g, "/");
+                panCardPath = `src/uploads/${req.files['panCard'][0].filename}`;
             }
         }
 
@@ -109,8 +123,9 @@ const getCustomers = async (req, res) => {
             query.branch = req.query.branch;
         }
 
-        const customers = await Customer.find(query).sort({ createdAt: -1 });
-        res.json(customers);
+        const customers = await Customer.find(query).sort({ createdAt: -1 }).lean();
+        const normalizedCustomers = customers.map(normalizeCustomerPaths);
+        res.json(normalizedCustomers);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
@@ -119,7 +134,7 @@ const getCustomers = async (req, res) => {
 
 const getCustomerById = async (req, res) => {
     try {
-        const customer = await Customer.findById(req.params.id);
+        const customer = await Customer.findById(req.params.id).lean();
 
         if (customer) {
 
@@ -129,6 +144,7 @@ const getCustomerById = async (req, res) => {
                     return res.status(403).json({ message: 'Not authorized to view this customer' });
                 }
             }
+            normalizeCustomerPaths(customer);
             res.json(customer);
         } else {
             res.status(404).json({ message: 'Customer not found' });
@@ -164,9 +180,9 @@ const updateCustomer = async (req, res) => {
         customer.state = state || customer.state;
 
         if (req.files) {
-            if (req.files['photo']) customer.photo = req.files['photo'][0].path.replace(/\\/g, "/");
-            if (req.files['aadharCard']) customer.aadharCard = req.files['aadharCard'][0].path.replace(/\\/g, "/");
-            if (req.files['panCard']) customer.panCard = req.files['panCard'][0].path.replace(/\\/g, "/");
+            if (req.files['photo']) customer.photo = `src/uploads/${req.files['photo'][0].filename}`;
+            if (req.files['aadharCard']) customer.aadharCard = `src/uploads/${req.files['aadharCard'][0].filename}`;
+            if (req.files['panCard']) customer.panCard = `src/uploads/${req.files['panCard'][0].filename}`;
         }
 
         const updatedCustomer = await customer.save();

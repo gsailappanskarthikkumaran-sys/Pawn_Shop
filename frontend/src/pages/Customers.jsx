@@ -5,6 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { Search, Plus, User, Phone, Mail, MapPin, ChevronRight, Filter } from 'lucide-react';
 import './Customers.css';
 
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const filename = path.split(/[/\\]/).pop();
+    return `http://localhost:5000/src/uploads/${filename}`;
+};
+
 const Customers = () => {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -118,7 +125,7 @@ const Customers = () => {
                                         <td>
                                             <div className="customer-cell">
                                                 <div className="customer-avatar">
-                                                    {customer.photo ? <img src={`http://localhost:5000/${customer.photo}`} alt={customer.name} /> : <User size={24} color="#94a3b8" />}
+                                                    {customer.photo ? <img src={getImageUrl(customer.photo)} alt={customer.name} /> : <User size={24} color="#94a3b8" />}
                                                 </div>
                                                 <div className="customer-info">
                                                     <h3>{customer.name}</h3>

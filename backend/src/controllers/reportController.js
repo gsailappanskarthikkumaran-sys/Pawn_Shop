@@ -2,6 +2,20 @@ import Loan from '../models/Loan.js';
 import Payment from '../models/Payment.js';
 import Voucher from '../models/Voucher.js';
 
+const normalizeCustomerPaths = (customer) => {
+    if (!customer) return customer;
+    const fields = ['photo', 'aadharCard', 'panCard'];
+    fields.forEach(field => {
+        if (customer[field] && typeof customer[field] === 'string') {
+            const filename = customer[field].split(/[/\\]/).pop();
+            if (filename) {
+                customer[field] = `src/uploads/${filename}`;
+            }
+        }
+    });
+    return customer;
+};
+
 
 const getDayBook = async (req, res) => {
     try {
@@ -251,14 +265,19 @@ const getDemandReport = async (req, res) => {
             const tenureMonths = l.scheme?.tenureMonths || 12;
             const maturityDate = new Date(startDate.setMonth(startDate.getMonth() + tenureMonths));
 
+            const loan = l.toObject ? l.toObject() : l;
+            if (loan.customer) {
+                normalizeCustomerPaths(loan.customer);
+            }
+
             return {
-                _id: l._id,
-                loanId: l.loanId,
-                customer: l.customer,
-                amount: l.loanAmount,
-                balance: l.currentBalance,
+                _id: loan._id,
+                loanId: loan.loanId,
+                customer: loan.customer,
+                amount: loan.loanAmount,
+                balance: loan.currentBalance,
                 maturityDate,
-                status: l.status
+                status: loan.status
             };
         });
 

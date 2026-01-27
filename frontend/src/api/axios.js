@@ -15,7 +15,7 @@ api.interceptors.request.use(
                 }
             } catch (error) {
                 console.error("Error parsing user from local storage in axios interceptor", error);
-                           }
+            }
         }
         return config;
     },

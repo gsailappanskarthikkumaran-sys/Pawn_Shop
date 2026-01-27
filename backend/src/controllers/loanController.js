@@ -23,6 +23,36 @@ const cleanupFiles = (files) => {
     }
 };
 
+const normalizeLoanPaths = (loan) => {
+    if (!loan) return loan;
+
+    if (loan.customer && typeof loan.customer === 'object') {
+        const fields = ['photo', 'aadharCard', 'panCard'];
+        fields.forEach(field => {
+            if (loan.customer[field] && typeof loan.customer[field] === 'string') {
+                const filename = loan.customer[field].split(/[/\\]/).pop();
+                if (filename) {
+                    loan.customer[field] = `src/uploads/${filename}`;
+                }
+            }
+        });
+    }
+    if (loan.items && Array.isArray(loan.items)) {
+        loan.items.forEach(item => {
+            if (item.photos && Array.isArray(item.photos)) {
+                item.photos = item.photos.map(photo => {
+                    if (typeof photo === 'string') {
+                        const filename = photo.split(/[/\\]/).pop();
+                        return filename ? `src/uploads/${filename}` : photo;
+                    }
+                    return photo;
+                });
+            }
+        });
+    }
+    return loan;
+};
+
 const createLoan = async (req, res) => {
     const { customerId, schemeId, items, requestedLoanAmount, preInterestAmount, isCustomScheme, customSchemeValues } = req.body;
 
@@ -61,8 +91,6 @@ const createLoan = async (req, res) => {
                 return res.status(400).json({ message: 'No approved custom scheme request found for this customer.' });
             }
 
-            // Optional: verify the values match exactly what was approved, to prevent tampering
-            // strictly enforced: use the values solely from the approved request, ensuring trust
             if (approvedRequest.proposedValues) {
                 appliedInterestRate = approvedRequest.proposedValues.interestRate;
                 appliedTenure = approvedRequest.proposedValues.tenureMonths;
@@ -118,7 +146,6 @@ const createLoan = async (req, res) => {
         }
 
 
-        // Use the current timestamp for due date calculations
         const loanNow = new Date();
 
         const dueDate = new Date(loanNow);
@@ -151,7 +178,7 @@ const createLoan = async (req, res) => {
 
 
 
-        const photoPaths = req.files ? req.files.map(f => f.path.replace(/\\/g, "/")) : [];
+        const photoPaths = req.files ? req.files.map(f => `src/uploads/${f.filename}`) : [];
 
         const itemDocs = itemsData.map((item, index) => ({
             loan: createdLoan._id,
@@ -199,10 +226,13 @@ const getLoans = async (req, res) => {
         }
 
         const loans = await Loan.find(query)
-            .populate('customer', 'name phone')
+            .populate('customer', 'name phone photo')
             .populate('scheme', 'schemeName interestRate')
-            .sort({ createdAt: -1 });
-        res.json(loans);
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const normalizedLoans = loans.map(normalizeLoanPaths);
+        res.json(normalizedLoans);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
@@ -223,7 +253,37 @@ const getLoanById = async (req, res) => {
             .populate('customer')
             .populate('scheme')
             .populate('items')
-            .lean(); // Use lean to allow modifying the object
+            .lean();
+
+        if (!loan && !id.match(/^[0-9a-fA-F]{24}$/)) {
+            // Search by customer name or phone if no exact ID match
+            const Customer = mongoose.model('Customer');
+            const matchingCustomers = await Customer.find({
+                $or: [
+                    { name: { $regex: id, $options: 'i' } },
+                    { phone: { $regex: id, $options: 'i' } }
+                ]
+            }).select('_id');
+
+            if (matchingCustomers.length > 0) {
+                const customerIds = matchingCustomers.map(c => c._id);
+                const matchingLoans = await Loan.find({
+                    customer: { $in: customerIds },
+                    status: { $ne: 'closed' } // Prefer active loans for payment search
+                })
+                    .populate('customer', 'name phone photo')
+                    .populate('scheme', 'schemeName')
+                    .sort({ createdAt: -1 });
+
+                if (matchingLoans.length > 0) {
+                    const normalizedMatches = matchingLoans.map(l => {
+                        const loanObj = l.toObject ? l.toObject() : l;
+                        return normalizeLoanPaths(loanObj);
+                    });
+                    return res.json(normalizedMatches);
+                }
+            }
+        }
 
         if (loan) {
             // Dynamic Penalty Calculation
@@ -266,6 +326,7 @@ const getLoanById = async (req, res) => {
             loan.penalty = penalty;
             loan.payableAmount = loan.currentBalance + penalty.amount; // Note: This is simplified. Ideally should include accrued normal interest too.
 
+            normalizeLoanPaths(loan);
             res.json(loan);
         }
         else res.status(404).json({ message: 'Loan not found' });

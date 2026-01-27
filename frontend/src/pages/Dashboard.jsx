@@ -249,7 +249,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="panel-card quick-actions">
+                {/* <div className="panel-card quick-actions">
                     <div className="panel-header">
                         <h2 className="panel-title">Quick Actions</h2>
                     </div>
@@ -275,7 +275,7 @@ const Dashboard = () => {
                             <FileText size={18} />
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

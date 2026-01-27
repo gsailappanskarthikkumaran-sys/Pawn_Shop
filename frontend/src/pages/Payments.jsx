@@ -8,6 +8,7 @@ const Payments = () => {
     const [loan, setLoan] = useState(null);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
 
     const [amount, setAmount] = useState('');
@@ -28,14 +29,34 @@ const Payments = () => {
 
         setLoading(true);
         setLoan(null);
+        setSearchResults([]);
         try {
-
             const { data } = await api.get(`/loans/${searchId}`);
-            setLoan(data);
-            fetchHistory(searchId);
+
+            if (Array.isArray(data)) {
+                setSearchResults(data);
+            } else {
+                setLoan(data);
+                fetchHistory(data._id);
+            }
         } catch (error) {
-            alert('Loan not found');
+            alert('Loan or Customer not found');
             console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const selectLoan = async (loanId) => {
+        setLoading(true);
+        setSearchResults([]);
+        try {
+            const { data } = await api.get(`/loans/${loanId}`);
+            setLoan(data);
+            fetchHistory(data._id);
+            setSearchId(data.loanId);
+        } catch (error) {
+            alert('Failed to load loan details');
         } finally {
             setLoading(false);
         }
@@ -90,14 +111,34 @@ const Payments = () => {
                 <input
                     type="text"
                     className="search-input-lg"
-                    placeholder="Enter Loan ID to search..."
+                    placeholder="Search by Loan ID, Name, or Phone..."
                     value={searchId}
                     onChange={(e) => setSearchId(e.target.value)}
                 />
                 <button className="btn-primary" type="submit" disabled={loading}>
-                    {loading ? 'Searching...' : 'Search Loan'}
+                    {loading ? 'Searching...' : 'Search'}
                 </button>
             </form>
+
+            {searchResults.length > 0 && (
+                <div className="search-results-list">
+                    <h3 className="mb-3 text-sm font-bold text-gray-600 uppercase">Multiple Matches Found:</h3>
+                    {searchResults.map((res) => (
+                        <div key={res._id} className="search-result-item" onClick={() => selectLoan(res._id)}>
+                            <div className="flex justify-between items-center w-full">
+                                <div>
+                                    <div className="font-bold text-blue-600">{res.loanId}</div>
+                                    <div className="text-sm font-semibold">{res.customer?.name}</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-sm">{res.customer?.phone}</div>
+                                    <div className="text-xs text-gray-500">{res.scheme?.schemeName} | ₹{res.loanAmount}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {loan && (
                 <div className="layout-grid">

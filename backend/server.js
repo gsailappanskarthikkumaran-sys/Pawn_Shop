@@ -28,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use('/src/uploads', express.static(path.join(__dirname, 'src/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/masters', masterRoutes);
 app.use('/api/customers', customerRoutes);
@@ -38,6 +39,20 @@ app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/auctions', auctionRoutes);
+
+// Debug route
+app.get('/api/debug/customer/:id', async (req, res) => {
+    try {
+        const customer = await (await import('./src/models/Customer.js')).default.findById(req.params.id).lean();
+        res.json({
+            id: customer._id,
+            photo: customer.photo,
+            normalized: customer.photo ? customer.photo.split(/[/\\]/).pop() : null
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 app.use('/api/branches', branchRoutes);
 app.use('/api/scheme-requests', schemeRequestRoutes);
 

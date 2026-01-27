@@ -4,6 +4,13 @@ import api from '../api/axios';
 import { ArrowLeft, User, Phone, MapPin, Printer, FileText, DollarSign, Calendar, Edit } from 'lucide-react';
 import './CustomerDetails.css';
 
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const filename = path.split(/[/\\]/).pop();
+    return `http://localhost:5000/src/uploads/${filename}`;
+};
+
 const CustomerDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -73,7 +80,7 @@ const CustomerDetails = () => {
                 <div className="profile-main">
                     <div className="avatar-large">
                         {customer.photo ?
-                            <img src={`http://localhost:5000/${customer.photo}`} alt={customer.name} /> :
+                            <img src={getImageUrl(customer.photo)} alt={customer.name} /> :
                             <User size={48} color="#cbd5e1" />
                         }
                     </div>

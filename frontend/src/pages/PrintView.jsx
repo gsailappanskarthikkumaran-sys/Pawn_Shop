@@ -4,6 +4,13 @@ import api from '../api/axios';
 import { Printer, ArrowLeft, X } from 'lucide-react';
 import './Print.css';
 
+const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const filename = path.split(/[/\\]/).pop();
+    return `http://localhost:5000/src/uploads/${filename}`;
+};
+
 const PrintView = () => {
     const { type, id } = useParams();
     const navigate = useNavigate();
@@ -78,6 +85,7 @@ const PrintView = () => {
 
     return (
         <div className="print-layout">
+            <img src={getImageUrl('watermark.png')} className="watermark-img" alt="Company Watermark" />
             <div className="screen-controls">
                 <button onClick={() => window.close()} className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
                     <X size={16} /> Close
@@ -88,7 +96,6 @@ const PrintView = () => {
             </div>
 
             <div className="paper-sheet">
-
                 <div className="print-header">
                     <div className="company-name bold mono">MAHES BANKERS</div>
                     <div className="company-details mono">
@@ -144,7 +151,10 @@ const LoanReceipt = ({ loan }) => (
                     <div>NAME : <span className="bold">MR / MS {loan.customer?.name}</span></div>
                     <div>ADDRESS : <span className="bold">{loan.customer?.address}, {loan.customer?.city}</span></div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div className="photo-column">
+                    {loan.customer?.photo && (
+                        <img src={getImageUrl(loan.customer.photo)} alt="Customer" className="customer-photo" />
+                    )}
                     <div>PHONE NO : <span className="bold">{loan.customer?.phone}</span></div>
                     <div>DATE OF BIRTH : <span className="bold">{loan.customer?.dob ? new Date(loan.customer.dob).toLocaleDateString() : '________________'}</span></div>
                 </div>
@@ -192,6 +202,9 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <div>LOAN AMOUNT DISBURSED : <span className="bold">RS. {loan.loanAmount}</span></div>
+                    {loan.preInterestAmount > 0 && (
+                        <div>PRE-INTEREST COLLECTED : <span className="bold">RS. {loan.preInterestAmount}</span></div>
+                    )}
                 </div>
             </div>
             <div className="footer" style={{ border: 'none', marginTop: '10px' }}>
@@ -299,13 +312,20 @@ const CustomerProfile = ({ customer }) => (
     <div>
         <h2 className="document-title">CUSTOMER PROFILE</h2>
         <div className="grid-2">
-            <div className="detail-group mb-4">
-                <label>Customer ID</label>
-                <div>{customer.customerId}</div>
+            <div>
+                <div className="detail-group mb-4">
+                    <label>Customer ID</label>
+                    <div className="font-bold">{customer.customerId}</div>
+                </div>
+                <div className="detail-group mb-4">
+                    <label>Join Date</label>
+                    <div>{new Date(customer.createdAt).toLocaleDateString('en-IN')}</div>
+                </div>
             </div>
-            <div className="detail-group mb-4">
-                <label>Join Date</label>
-                <div>{new Date(customer.createdAt).toLocaleDateString('en-IN')}</div>
+            <div className="photo-column">
+                {customer.photo && (
+                    <img src={getImageUrl(customer.photo)} alt="Customer" className="customer-photo" />
+                )}
             </div>
         </div>
 
@@ -545,7 +565,10 @@ const MiniStatement = ({ data }) => {
                         <div className="text-xs text-gray-500">{loan.customer?.phone}</div>
                     </div>
                 </div>
-                <div className="text-right">
+                <div className="photo-column">
+                    {loan.customer?.photo && (
+                        <img src={getImageUrl(loan.customer.photo)} alt="Customer" className="customer-photo" />
+                    )}
                     <div className="detail-group mb-2">
                         <label>Loan Amount</label>
                         <div className="font-bold">₹{loan.loanAmount}</div>
@@ -558,7 +581,7 @@ const MiniStatement = ({ data }) => {
             </div>
 
             <div className="mb-6 p-2 bg-gray-50 border border-dashed border-gray-300 rounded">
-                <div className="grid grid-cols-4 gap-2 text-xs">
+                <div className="grid grid-cols-5 gap-2 text-xs">
                     <div>
                         <span className="text-gray-500 block">Scheme</span>
                         <span className="font-bold">{loan.scheme?.schemeName}</span>
@@ -570,6 +593,10 @@ const MiniStatement = ({ data }) => {
                     <div>
                         <span className="text-gray-500 block">Weight</span>
                         <span className="font-bold">{loan.totalWeight}g</span>
+                    </div>
+                    <div>
+                        <span className="text-gray-500 block">Pre-Interest</span>
+                        <span className="font-bold">₹{loan.preInterestAmount || 0}</span>
                     </div>
                     <div className="text-right">
                         <span className="text-gray-500 block">Current Balance</span>
@@ -596,6 +623,14 @@ const MiniStatement = ({ data }) => {
                         <td className="py-2">CASH</td>
                         <td className="py-2 text-right font-bold">₹{loan.loanAmount}</td>
                     </tr>
+                    {loan.preInterestAmount > 0 && (
+                        <tr className="border-b border-gray-100 bg-blue-50">
+                            <td className="py-2">{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
+                            <td className="py-2">PRE-INTEREST COLLECTED</td>
+                            <td className="py-2">CASH</td>
+                            <td className="py-2 text-right font-bold text-green-600">-₹{loan.preInterestAmount}</td>
+                        </tr>
+                    )}
                     {payments.map(p => (
                         <tr key={p._id} className="border-b border-gray-100">
                             <td className="py-2">{new Date(p.paymentDate).toLocaleDateString('en-IN')}</td>
