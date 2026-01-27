@@ -5,6 +5,24 @@
     animation: fadeInUp 0.4s ease-out;
 }
 
+@media (max-width: 1024px) {
+    .auctions-container {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .auctions-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auctions-container {
+        padding: 0.75rem;
+    }
+}
+
 .auctions-grid {
     display: grid;
     grid-template-columns: 1.8fr 1fr;
@@ -12,9 +30,23 @@
     align-items: flex-start;
 }
 
+@media (max-width: 1200px) {
+    .auctions-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .auctions-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .auctions-grid {
+        gap: 1rem;
     }
 }
 
@@ -27,6 +59,13 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    max-height: 700px;
+}
+
+@media (max-width: 768px) {
+    .eligible-card {
+        max-height: 500px;
+    }
 }
 
 .card-header-bar {
@@ -36,12 +75,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .card-header-bar {
+        padding: 1rem;
+    }
 }
 
 .card-header-bar h3 {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .card-header-bar h3 {
+        font-size: 0.95rem;
+    }
 }
 
 .count-badge {
@@ -52,10 +104,18 @@
     padding: 0.25rem 0.75rem;
     border-radius: 50px;
     letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .count-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
 }
 
 .eligible-list {
-    max-height: 650px;
+    flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -67,6 +127,18 @@
     cursor: pointer;
     transition: all 0.2s ease;
     border-left: 4px solid transparent;
+}
+
+@media (max-width: 768px) {
+    .loan-item {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .loan-item {
+        padding: 0.75rem;
+    }
 }
 
 .loan-item:hover {
@@ -83,6 +155,14 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .loan-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 .loan-id {
@@ -90,12 +170,26 @@
     font-weight: 700;
     color: var(--text-main);
     font-size: 1rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .loan-id {
+        font-size: 0.85rem;
+    }
 }
 
 .due-amount {
     color: #ef4444;
     font-weight: 800;
     font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .due-amount {
+        font-size: 0.85rem;
+    }
 }
 
 .customer-info p {
@@ -103,6 +197,15 @@
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+    .customer-info p {
+        font-size: 0.8rem;
+    }
 }
 
 .loan-meta {
@@ -122,6 +225,20 @@
     top: 2rem;
 }
 
+@media (max-width: 1024px) {
+    .action-card {
+        position: static;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-card {
+        padding: 1rem;
+        min-height: auto;
+    }
+}
+
 .selection-tip {
     height: 100%;
     display: flex;
@@ -133,9 +250,23 @@
     padding: 2rem;
 }
 
+@media (max-width: 768px) {
+    .selection-tip {
+        padding: 1rem;
+    }
+}
+
 .tip-icon {
     margin-bottom: 1.5rem;
     opacity: 0.15;
+    font-size: 3rem;
+}
+
+@media (max-width: 480px) {
+    .tip-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
 }
 
 .selection-tip p {
@@ -144,10 +275,17 @@
     max-width: 200px;
 }
 
+@media (max-width: 768px) {
+    .selection-tip p {
+        font-size: 0.9rem;
+    }
+}
+
 .form-header {
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 1rem;
+}
 }
 
 .form-header h3 {

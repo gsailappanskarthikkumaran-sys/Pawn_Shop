@@ -151,18 +151,50 @@ button {
 
 /* Global Responsive Styles */
 :root {
-  --mobile: 768px;
-  --tablet: 1024px;
+  --mobile: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --wide: 1400px;
 }
 
-@media (max-width: 768px) {
+/* Extra Small Devices (< 480px) */
+@media (max-width: 479px) {
   html {
-    font-size: 14px;
-    /* Scale down base font size */
+    font-size: 13px;
   }
 
-  .d-cnt {
+  body {
+    padding: 0;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    width: 100%;
+  }
+
+  .card {
     padding: 1rem;
+  }
+}
+
+/* Small Devices / Tablets (480px - 768px) */
+@media (min-width: 480px) and (max-width: 768px) {
+  html {
+    font-size: 14px;
   }
 
   h1 {
@@ -176,19 +208,56 @@ button {
   h3 {
     font-size: 1.25rem;
   }
+
+  .btn-primary {
+    padding: 0.65rem 1.25rem;
+  }
+}
+
+/* Medium Devices and Up (> 768px) */
+@media (min-width: 769px) {
+  html {
+    font-size: 16px;
+  }
 }
 
 /* Generic Responsive Helpers */
 .hide-on-mobile {
-  @media (max-width: 768px) {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+.hide-on-tablet {
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .hide-on-tablet {
     display: none !important;
   }
 }
 
 .show-on-mobile {
   display: none;
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
+  .show-on-mobile {
+    display: block;
+  }
+}
+
+.show-on-tablet {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .show-on-tablet {
     display: block;
   }
 }

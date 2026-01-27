@@ -5,15 +5,40 @@
     padding-bottom: var(--spacing-xl);
 }
 
+@media (max-width: 1024px) {
+    .masters-container {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .masters-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .masters-container {
+        padding: 0.75rem;
+    }
+}
+
 .masters-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-xl);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .masters-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .masters-grid {
+        gap: 1rem;
     }
 }
 
@@ -28,6 +53,12 @@
     height: 100%;
 }
 
+@media (max-width: 768px) {
+    .master-card {
+        padding: 1rem;
+    }
+}
+
 .card-header {
     display: flex;
     align-items: center;
@@ -37,6 +68,12 @@
     border-bottom: 1px solid #f1f5f9;
 }
 
+@media (max-width: 480px) {
+    .card-header {
+        margin-bottom: 1rem;
+    }
+}
+
 .icon-box {
     width: 40px;
     height: 40px;
@@ -44,6 +81,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .gold-icon {
@@ -81,9 +120,19 @@
 .history-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: var(--spacing-sm) 0;
     border-bottom: 1px dashed #f1f5f9;
     font-size: 0.9rem;
+    gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
 }
 
 .history-item:last-child {
@@ -95,10 +144,15 @@
     color: var(--text-main);
 }
 
-/* Extracted from Masters.jsx */
 .card-header h3 {
     font-size: 1.1rem;
     font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    .card-header h3 {
+        font-size: 1rem;
+    }
 }
 
 .card-header p {
@@ -109,8 +163,14 @@
 .history-meta {
     font-size: 0.75rem;
     font-weight: 400;
-    float: right;
     color: #64748b;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .history-meta {
+        display: block;
+    }
 }
 
 .btn-clear-rate {
@@ -120,12 +180,25 @@
     border: none;
     cursor: pointer;
     padding: 0;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .btn-clear-rate {
+        margin-left: 0;
+    }
 }
 
 .form-row-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .form-row-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .schemes-scroll-area {
@@ -154,4 +227,5 @@
     border: none;
     cursor: pointer;
     color: #ef4444;
+    flex-shrink: 0;
 }

@@ -5,6 +5,24 @@
     padding-bottom: var(--spacing-xl);
 }
 
+@media (max-width: 1024px) {
+    .loans-container {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .loans-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .loans-container {
+        padding: 0.75rem;
+    }
+}
+
 .loans-card {
     background: white;
     border-radius: var(--radius-xl);
@@ -18,6 +36,7 @@
     border-collapse: separate;
     border-spacing: 0;
     text-align: left;
+    min-width: 750px;
 }
 
 .loans-table th {
@@ -31,12 +50,26 @@
     white-space: nowrap;
 }
 
+@media (max-width: 768px) {
+    .loans-table th {
+        padding: 0.75rem;
+        font-size: 0.65rem;
+    }
+}
+
 .loans-table td {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
     color: var(--text-main);
     font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .loans-table td {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
 }
 
 .loans-table tr:hover td {
@@ -47,11 +80,19 @@
     font-weight: 600;
     color: var(--primary);
     font-family: monospace;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .loan-id {
+        font-size: 0.75rem;
+    }
 }
 
 .amount-cell {
     font-weight: 700;
     color: var(--text-main);
+    white-space: nowrap;
 }
 
 .status-badge {
@@ -61,6 +102,14 @@
     font-weight: 700;
     text-transform: uppercase;
     display: inline-block;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .status-badge {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+    }
 }
 
 .status-active {
@@ -84,8 +133,19 @@
     color: var(--text-muted);
     cursor: pointer;
     transition: color 0.2s;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    font-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+    .action-btn-sm {
+        padding: 0.25rem;
+        font-size: 1rem;
+    }
 }
 
 .action-btn-sm:hover {
     color: var(--primary);
+    background-color: var(--primary-bg);
 }

@@ -5,6 +5,18 @@
     font-family: 'Inter', sans-serif;
 }
 
+@media (max-width: 768px) {
+    .voucher-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .voucher-container {
+        padding: 0.75rem;
+    }
+}
+
 .tally-wrapper {
     background: #fff;
     border-radius: 8px;
@@ -21,12 +33,36 @@
     padding: 20px 32px;
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .tally-top-bar {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .tally-top-bar {
+        padding: 0.75rem;
+    }
 }
 
 .tally-field-group {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .tally-field-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 .tally-label {
@@ -34,6 +70,12 @@
     font-size: 0.9rem;
     color: #1e293b;
     min-width: 60px;
+}
+
+@media (max-width: 768px) {
+    .tally-label {
+        min-width: unset;
+    }
 }
 
 .tally-input-s {
@@ -45,6 +87,12 @@
     font-weight: 600;
 }
 
+@media (max-width: 768px) {
+    .tally-input-s {
+        width: 100%;
+    }
+}
+
 .tally-input-m {
     padding: 6px 12px;
     border: 1px solid #cbd5e1;
@@ -52,11 +100,23 @@
     width: 180px;
 }
 
+@media (max-width: 768px) {
+    .tally-input-m {
+        width: 100%;
+    }
+}
+
 .tally-form-box {
     margin: 20px 32px;
     border: 2px solid #38bdf8;
     background: #e0f2fe;
     border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .tally-form-box {
+        margin: 1rem;
+    }
 }
 
 .form-header-row {
@@ -70,6 +130,15 @@
     font-size: 0.85rem;
 }
 
+@media (max-width: 768px) {
+    .form-header-row {
+        grid-template-columns: 40px 1.5fr 0.75fr 0.75fr;
+        gap: 8px;
+        padding: 8px;
+        font-size: 0.7rem;
+    }
+}
+
 .form-body {
     padding: 16px;
     display: flex;
@@ -77,11 +146,26 @@
     gap: 12px;
 }
 
+@media (max-width: 768px) {
+    .form-body {
+        padding: 1rem;
+        gap: 0.75rem;
+        overflow-x: auto;
+    }
+}
+
 .ledger-row {
     display: grid;
     grid-template-columns: 60px 2fr 1fr 1fr;
     gap: 16px;
     align-items: center;
+}
+
+@media (max-width: 768px) {
+    .ledger-row {
+        grid-template-columns: 40px 1.5fr 0.75fr 0.75fr;
+        gap: 8px;
+    }
 }
 
 .dr-cr-tag {
@@ -96,6 +180,15 @@
     border: 1px solid #ffffff;
     border-radius: 4px;
     background: #fff;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .tally-select,
+    .tally-input-l {
+        padding: 6px;
+        font-size: 0.8rem;
+    }
 }
 
 .amount-field {
@@ -108,6 +201,14 @@
     background: #0ea5e9;
     padding: 12px;
     color: white;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .narration-box {
+        margin: 1rem 0 0 0;
+        padding: 0.75rem;
+    }
 }
 
 .narration-label {
@@ -122,8 +223,16 @@
     padding: 8px;
     border: none;
     border-radius: 2px;
-    resize: none;
+    resize: vertical;
     font-family: inherit;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .narration-input {
+        padding: 6px;
+        font-size: 0.85rem;
+    }
 }
 
 .register-btn {
@@ -138,6 +247,14 @@
     border-radius: 4px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .register-btn {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
 }
 
 .register-btn:hover {
@@ -154,6 +271,20 @@
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .bottom-toolbar {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .bottom-toolbar {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+}
+
 .toolbar-btn {
     padding: 8px 24px;
     border: none;
@@ -163,6 +294,16 @@
     cursor: pointer;
     transition: opacity 0.2s;
     font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .toolbar-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        flex: 1;
+        min-width: 80px;
+    }
 }
 
 .toolbar-btn:hover {
@@ -203,8 +344,13 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-
 .v-lst {
     max-width: 1000px;
     margin: 32px auto 0;
+}
+
+@media (max-width: 768px) {
+    .v-lst {
+        margin: 1.5rem auto 0;
+    }
 }

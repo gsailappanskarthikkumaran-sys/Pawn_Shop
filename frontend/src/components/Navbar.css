@@ -12,11 +12,37 @@
     color: #fff;
 }
 
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+        height: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0 0.75rem;
+        height: 60px;
+    }
+}
+
 .navbar-brand {
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-brand {
+        gap: 0.5rem;
+    }
 }
 
 .menu-toggle-btn {
@@ -30,10 +56,18 @@
     padding: 0.5rem;
     border-radius: 8px;
     transition: background 0.2s;
+    font-size: 1.25rem;
 }
 
 .menu-toggle-btn:hover {
     background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 480px) {
+    .menu-toggle-btn {
+        padding: 0.25rem;
+        font-size: 1.1rem;
+    }
 }
 
 .navbar-logo {
@@ -41,6 +75,18 @@
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.1));
+}
+
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-logo {
+        height: 30px;
+    }
 }
 
 .navbar-company-name {
@@ -51,6 +97,19 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+@media (max-width: 768px) {
+    .navbar-company-name {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-company-name {
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+    }
+}
+
 .n-lnks {
     position: absolute;
     left: 50%;
@@ -59,24 +118,9 @@
     align-items: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .n-lnks {
         display: none;
-        /* Hide Home/Contact/About on mobile */
-    }
-
-    .navbar {
-        padding: 0 1rem;
-        /* Reduce padding */
-    }
-
-    .navbar-company-name {
-        font-size: 1.2rem;
-        /* Smaller logo text */
-    }
-
-    .navbar-brand {
-        gap: 0.5rem;
     }
 }
 
@@ -85,21 +129,32 @@
     gap: 2.5rem;
 }
 
+@media (max-width: 1200px) {
+    .navbar-links {
+        gap: 1.5rem;
+    }
+}
+
 .nav-link {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
     color: #94a3b8;
-    /* Match Sidebar inactive text */
     font-weight: 500;
     transition: all 0.2s;
     font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .nav-link {
+        font-size: 0.85rem;
+    }
 }
 
 .nav-link:hover {
     color: #fff;
-    /* Match Sidebar active/hover text */
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
@@ -107,6 +162,18 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .navbar-actions {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-actions {
+        gap: 0.5rem;
+    }
 }
 
 .nav-icon-btn {
@@ -121,6 +188,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.25rem;
+}
+
+@media (max-width: 480px) {
+    .nav-icon-btn {
+        padding: 0.25rem;
+        font-size: 1.1rem;
+    }
 }
 
 .nav-icon-btn:hover {
@@ -146,32 +221,12 @@
     padding: 0 4px;
 }
 
-.user-profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    padding-right: 1.5rem;
-}
-
-.user-avatar-small {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #facc15, #ca8a04);
-    color: var(--bg-dark);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.8rem;
-    box-shadow: 0 0 5px rgba(202, 138, 4, 0.3);
-}
-
-.user-name {
-    font-weight: 600;
-    color: #fff;
-    font-size: 0.9rem;
+@media (max-width: 480px) {
+    .notification-badge {
+        min-width: 16px;
+        height: 16px;
+        font-size: 0.55rem;
+    }
 }
 
 .logout-btn-nav {
@@ -184,6 +239,14 @@
     transition: background 0.2s;
     display: flex;
     align-items: center;
+    font-size: 1.25rem;
+}
+
+@media (max-width: 480px) {
+    .logout-btn-nav {
+        padding: 0.25rem;
+        font-size: 1.1rem;
+    }
 }
 
 .logout-btn-nav:hover {

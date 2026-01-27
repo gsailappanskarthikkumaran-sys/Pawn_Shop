@@ -7,6 +7,12 @@
     background: radial-gradient(circle at top right, #1e293b, var(--bg-dark));
 }
 
+@media (max-width: 480px) {
+    .login-container {
+        padding: 1rem;
+    }
+}
+
 .login-card {
     width: 100%;
     max-width: 440px;
@@ -20,6 +26,19 @@
     overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     animation: fadeInUp 0.5s ease-out;
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+    }
 }
 
 .card-decoration {
@@ -38,6 +57,12 @@
     z-index: 2;
 }
 
+@media (max-width: 480px) {
+    .login-header {
+        margin-bottom: 1.5rem;
+    }
+}
+
 .logo-wrapper {
     display: flex;
     justify-content: center;
@@ -53,6 +78,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 80px;
+    height: 80px;
+}
+
+@media (max-width: 480px) {
+    .logo-circle {
+        width: 60px;
+        height: 60px;
+        padding: 0.75rem;
+    }
 }
 
 .login-title {
@@ -60,11 +95,30 @@
     color: #fff;
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .login-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-title {
+        font-size: 1.25rem;
+    }
 }
 
 .login-subtitle {
     color: #94a3b8;
     font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
 }
 
 .error-message {
@@ -78,12 +132,25 @@
     text-align: center;
 }
 
+@media (max-width: 480px) {
+    .error-message {
+        padding: 0.625rem;
+        font-size: 0.8rem;
+    }
+}
+
 .login-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     position: relative;
     z-index: 2;
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        gap: 1rem;
+    }
 }
 
 .form-group {
@@ -98,6 +165,12 @@
     font-weight: 500;
 }
 
+@media (max-width: 480px) {
+    .form-label {
+        font-size: 0.8rem;
+    }
+}
+
 .form-input {
     width: 100%;
     padding: 0.875rem 1rem;
@@ -108,6 +181,13 @@
     font-size: 1rem;
     outline: none;
     transition: all 0.2s;
+}
+
+@media (max-width: 480px) {
+    .form-input {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.95rem;
+    }
 }
 
 .form-input::placeholder {
@@ -133,6 +213,13 @@
     cursor: pointer;
     transition: all 0.2s;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 480px) {
+    .login-btn {
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
 }
 
 .login-btn:hover {

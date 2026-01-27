@@ -3,7 +3,24 @@
     max-width: 1200px;
     margin: 0 auto;
     padding-bottom: var(--spacing-xl);
+}
 
+@media (max-width: 1024px) {
+    .pledge-container {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .pledge-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pledge-container {
+        padding: 0.75rem;
+    }
 }
 
 .pledge-layout {
@@ -12,9 +29,23 @@
     gap: var(--spacing-xl);
 }
 
+@media (max-width: 1200px) {
+    .pledge-layout {
+        grid-template-columns: 1.5fr 1fr;
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .pledge-layout {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .pledge-layout {
+        gap: 1rem;
     }
 }
 
@@ -24,6 +55,19 @@
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+    .form-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-section {
+        padding: 0.75rem;
+    }
 }
 
 .section-header {
@@ -42,6 +86,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
 }
 
 .icon-blue {
@@ -65,10 +111,29 @@
     color: var(--text-main);
 }
 
+@media (max-width: 768px) {
+    .section-header h2 {
+        font-size: 1rem;
+    }
+}
+
 .form-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-grid-2 {
+        gap: 0.75rem;
+    }
 }
 
 .form-label-bold {
@@ -77,6 +142,12 @@
     font-weight: 600;
     color: var(--text-main);
     margin-bottom: var(--spacing-sm);
+}
+
+@media (max-width: 480px) {
+    .form-label-bold {
+        font-size: 0.8rem;
+    }
 }
 
 .select-input {
@@ -91,6 +162,13 @@
     transition: all 0.2s;
 }
 
+@media (max-width: 480px) {
+    .select-input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
+
 .select-input:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1);
@@ -102,6 +180,12 @@
     gap: var(--spacing-md);
 }
 
+@media (max-width: 480px) {
+    .items-stack {
+        gap: 0.75rem;
+    }
+}
+
 .item-row {
     background: #f8fafc;
     border: 1px solid var(--border-color);
@@ -109,6 +193,12 @@
     padding: var(--spacing-md);
     position: relative;
     transition: all 0.2s;
+}
+
+@media (max-width: 768px) {
+    .item-row {
+        padding: 0.75rem;
+    }
 }
 
 .item-row:hover {
@@ -123,6 +213,20 @@
     align-items: end;
 }
 
+@media (max-width: 1024px) {
+    .item-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .item-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
 .input-label-sm {
     font-size: 0.75rem;
     font-weight: 600;
@@ -133,6 +237,12 @@
     display: block;
 }
 
+@media (max-width: 480px) {
+    .input-label-sm {
+        font-size: 0.65rem;
+    }
+}
+
 .input-sm {
     width: 100%;
     padding: 8px 12px;
@@ -141,6 +251,13 @@
     border-radius: var(--radius-md);
     outline: none;
     font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .input-sm {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
 }
 
 .input-sm:focus {
@@ -154,6 +271,13 @@
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .btn-remove {
+        padding: 4px;
+    }
 }
 
 .btn-remove:hover {
@@ -188,15 +312,30 @@
     transition: background 0.2s;
 }
 
+@media (max-width: 480px) {
+    .btn-add-item {
+        width: 100%;
+        justify-content: center;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
 .btn-add-item:hover {
     background: #e2e8f0;
 }
-
 
 .upload-area {
     margin-top: var(--spacing-lg);
     padding-top: var(--spacing-lg);
     border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 768px) {
+    .upload-area {
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
 }
 
 .upload-box {
@@ -206,6 +345,18 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+@media (max-width: 768px) {
+    .upload-box {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-box {
+        padding: 1rem;
+    }
 }
 
 .upload-box:hover {
@@ -223,8 +374,16 @@
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
+    font-size: 1.5rem;
 }
 
+@media (max-width: 480px) {
+    .upload-icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+}
 
 .calculator-card {
     background: white;
@@ -236,6 +395,19 @@
     top: 32px;
 }
 
+@media (max-width: 1024px) {
+    .calculator-card {
+        position: static;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .calculator-card {
+        padding: 1rem;
+    }
+}
+
 .calc-row {
     display: flex;
     justify-content: space-between;
@@ -243,6 +415,14 @@
     background: #f8fafc;
     border-radius: var(--radius-md);
     margin-bottom: 8px;
+    gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .calc-row {
+        padding: 0.75rem;
+        margin-bottom: 6px;
+    }
 }
 
 .calc-label {
@@ -251,9 +431,21 @@
     font-weight: 500;
 }
 
+@media (max-width: 480px) {
+    .calc-label {
+        font-size: 0.8rem;
+    }
+}
+
 .calc-val {
     font-weight: 700;
     color: var(--text-main);
+}
+
+@media (max-width: 480px) {
+    .calc-val {
+        font-size: 0.9rem;
+    }
 }
 
 .divider {
@@ -266,6 +458,13 @@
     justify-content: space-between;
     margin-bottom: 8px;
     font-size: 1.125rem;
+    gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .total-row {
+        font-size: 1rem;
+    }
 }
 
 .total-val {
@@ -282,6 +481,13 @@
     border-radius: var(--radius-lg);
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
+}
+
+@media (max-width: 480px) {
+    .loan-input-box {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
 }
 
 .loan-input-wrapper {

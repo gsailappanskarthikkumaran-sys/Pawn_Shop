@@ -39,22 +39,6 @@ const Navbar = ({ toggleSidebar }) => {
                 </button>
             </div>
 
-            <div className="n-lnks">
-                <div className="navbar-links">
-                    <Link to="/" className="nav-link">
-                        <Home size={18} />
-                        <span>Home</span>
-                    </Link>
-                    <Link to="/contact" className="nav-link">
-                        <Phone size={18} />
-                        <span>Contact</span>
-                    </Link>
-                    <Link to="/about" className="nav-link">
-                        <Info size={18} />
-                        <span>About Us</span>
-                    </Link>
-                </div>
-            </div>
 
             <div className="navbar-actions">
                 <button
@@ -66,12 +50,7 @@ const Navbar = ({ toggleSidebar }) => {
                     {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
                 </button>
 
-                <div className="user-profile-nav">
-                    <div className="user-avatar-small">
-                        {user?.fullName?.charAt(0) || 'U'}
-                    </div>
-                    <span className="user-name">{user?.fullName}</span>
-                </div>
+
 
                 <button onClick={logout} className="logout-btn-nav" title="Logout">
                     <LogOut size={18} />

@@ -10,7 +10,9 @@ import {
     Book,
     Gavel,
     GitBranch,
-    ClipboardList
+    ClipboardList,
+    Phone,
+    Info
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
@@ -77,6 +79,16 @@ const Sidebar = ({ isOpen, onNavigate }) => {
                         <p>{user?.fullName}</p>
                         <p>{user?.role}</p>
                     </div>
+                </div>
+                <div className="sidebar-footer-links">
+                    <Link to="/contact" className="footer-link">
+                        <Phone size={16} />
+                        <span>Contact</span>
+                    </Link>
+                    <Link to="/about" className="footer-link">
+                        <Info size={16} />
+                        <span>About Us</span>
+                    </Link>
                 </div>
             </div>
         </div>

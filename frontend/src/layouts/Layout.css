@@ -12,10 +12,7 @@
     padding-top: 0;
 }
 
-/*
-   Since Sidebar is fixed with width 280px (defined in Sidebar.css),
-   we need to push the main content to the right.
-*/
+/* Desktop: Sidebar pushes content */
 .main-content {
     flex: 1;
     margin-left: 280px;
@@ -24,22 +21,54 @@
     transition: margin-left 0.3s ease;
 }
 
-.sidebar-collapsed .main-content {
-    margin-left: 0;
+/* Tablet: Sidebar overlays, no margin shift */
+@media (max-width: 1200px) {
+    .main-content {
+        margin-left: 250px;
+    }
 }
 
-
+/* Mobile: Full width, sidebar overlays */
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
         width: 100%;
-        min-height: calc(100vh - 80px);
-        /* Ensure it takes full height minus navbar */
+        min-height: calc(100vh - 70px);
     }
 
-    /* When sidebar is open on mobile, main content DOES NOT shift. 
-       Sidebar acts as overlay. */
     .app-layout:not(.sidebar-collapsed) .main-content {
         margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        min-height: calc(100vh - 60px);
+    }
+}
+
+.sidebar-collapsed .main-content {
+    margin-left: 0;
+}
+
+/* Sidebar Overlay Backdrop for Mobile */
+@media (max-width: 768px) {
+    .app-layout::before {
+        content: '';
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 99;
+    }
+
+    .app-layout:not(.sidebar-collapsed)::before {
+        opacity: 1;
+        pointer-events: auto;
     }
 }
