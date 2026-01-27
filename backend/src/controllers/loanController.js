@@ -155,8 +155,16 @@ const createLoan = async (req, res) => {
         nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
 
 
+        const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
+        const countToday = await Loan.countDocuments({
+            loanId: { $regex: `LN-${today}` }
+        });
+
+        const loanId = `LN-${today}-${String(countToday + 1).padStart(3, '0')}`;
+
         const loan = new Loan({
-            loanId: `LN-${Date.now()}`,
+            loanId: loanId,
             customer: customerId,
             scheme: schemeId,
             totalWeight,

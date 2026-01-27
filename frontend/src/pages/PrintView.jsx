@@ -137,7 +137,7 @@ const LoanReceipt = ({ loan }) => (
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <div>LOAN NO : <span className="bold">{loan.loanId}</span></div>
-                    <div>LOAN PERIOD : <span className="bold">{loan.scheme?.tenureMonths * 30 || 365} DAYS</span></div>
+                    <div>LOAN PERIOD : <span className="bold">{loan.scheme?.tenureMonths || 12} MONTHS</span></div>
                     <div>MAX SANCTIONED AMOUNT/GMS : ________________</div>
                 </div>
             </div>
