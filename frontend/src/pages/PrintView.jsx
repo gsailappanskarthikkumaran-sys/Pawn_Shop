@@ -99,7 +99,12 @@ const PrintView = () => {
                 </div>
 
 
-                {type === 'loan' && <LoanReceipt loan={data} />}
+                {type === 'loan' && (
+                    <>
+                        <LoanReceipt loan={data} />
+                        <TermsAndConditions />
+                    </>
+                )}
                 {type === 'customer' && <CustomerProfile customer={data} />}
                 {type === 'payment' && <PaymentReceipt payment={data} />}
                 {type === 'day-book' && <DayBookReport data={data} date={id} />}
@@ -223,7 +228,7 @@ const LoanReceipt = ({ loan }) => (
             </div>
         </div>
 
-        {/* 8. Terms & Conditions Reference */}
+        {/* Terms and Conditions Reference */}
         <div className="text-center bold mt-4" style={{ fontSize: '10px' }}>
             “TERMS AND CONDITIONS (TAMIL & ENGLISH) ARE PRINTED ON THE REVERSE SIDE AND FORM PART OF THIS RECEIPT.”
         </div>
@@ -235,9 +240,6 @@ const LoanReceipt = ({ loan }) => (
                 BORROWER’S SIGNATURE : ________________
             </div>
         </div>
-
-        {/* Terms and Conditions Page */}
-        <TermsAndConditions />
     </div>
 );
 
@@ -264,10 +266,10 @@ const TermsAndConditions = () => (
                 <li><span>16.</span><span>நிர்வாகம் கொடுத்த அடமான ரசீது தொலைந்து விட்டாலோ அல்லது காணாமல் போனாலோ, நகையை அடமானம் வைத்தவர் உரிய மதிப்பிற்குரிய பத்திரத் தாளில் ஒப்பந்தம் எழுதிக் கொடுத்து நகையை மீட்டுக் கொள்ளலாம்.</span></li>
                 <li><span>17.</span><span>வாடிக்கையாளர்கள் தாங்கள் அடகு வைக்கும் நகைகளை வங்கி வேலை நாட்களில் மீட்டுக் கொள்ள வேண்டும்.</span></li>
             </ul>
-            <div style={{ marginTop: '20px', textAlign: 'right' }} className="bold">கடன் பெறுபவர் கையொப்பம்</div>
+            <div style={{ marginTop: '40px', textAlign: 'right' }} className="bold">கடன் பெறுபவர் கையொப்பம்</div>
         </div>
 
-        <div className="terms-section" style={{ marginTop: '40px' }}>
+        <div className="terms-section page-break" style={{ marginTop: '0' }}>
             <h3 className="bold uppercase">Terms and Conditions</h3>
             <ul className="terms-list">
                 <li><span>1.</span><span>If the loan is closed before 7 days, interest for a minimum period of 15 days will be charged.</span></li>
