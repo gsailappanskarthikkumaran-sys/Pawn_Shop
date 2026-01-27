@@ -5,15 +5,23 @@ import Navbar from '../components/Navbar';
 import './Layout.css';
 
 const Layout = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    // Initial state based on screen width
+    const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    // Function to close sidebar on mobile when navigating
+    const onNavigate = () => {
+        if (window.innerWidth <= 768) {
+            setIsSidebarOpen(false);
+        }
+    };
 
     return (
         <div className={`app-layout ${!isSidebarOpen ? 'sidebar-collapsed' : ''}`}>
             <Navbar toggleSidebar={toggleSidebar} />
             <div className="layout-body">
-                <Sidebar isOpen={isSidebarOpen} />
+                <Sidebar isOpen={isSidebarOpen} onNavigate={onNavigate} />
                 <main className="main-content">
                     <Outlet />
                 </main>

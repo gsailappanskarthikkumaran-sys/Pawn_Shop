@@ -15,7 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onNavigate }) => {
     const { user } = useAuth();
     const location = useLocation();
 
@@ -54,6 +54,7 @@ const Sidebar = () => {
                             key={item.path}
                             to={item.path}
                             className={`nav-item ${isActive ? 'active' : ''}`}
+                            onClick={onNavigate}
                         >
                             <div className="icon-wrapper">
                                 {item.icon}

@@ -7,7 +7,7 @@ import './Branches.css';
 const Branches = () => {
     const navigate = useNavigate();
     const [branches, setBranches] = useState([]);
-    const [newBranch, setNewBranch] = useState({ id: '', name: '', address: '' });
+    const [newBranch, setNewBranch] = useState({ name: '', address: '' });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -25,12 +25,12 @@ const Branches = () => {
 
     const handleAddBranch = async (e) => {
         e.preventDefault();
-        if (!newBranch.id || !newBranch.name || !newBranch.address) return;
+        if (!newBranch.name || !newBranch.address) return;
 
         setLoading(true);
         try {
             await api.post('/branches', newBranch);
-            setNewBranch({ id: '', name: '', address: '' });
+            setNewBranch({ name: '', address: '' });
             fetchBranches();
             alert('Branch Added Successfully');
         } catch (error) {
@@ -59,17 +59,6 @@ const Branches = () => {
                 <div className="add-branch-form">
                     <h3>Add New Branch</h3>
                     <form onSubmit={handleAddBranch} style={{ display: 'grid', gap: '1rem', gridTemplateColumns: '1fr 1fr auto', alignItems: 'end' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label">Branch ID</label>
-                            <input
-                                type="text"
-                                className="input-field"
-                                value={newBranch.id}
-                                onChange={(e) => setNewBranch({ ...newBranch, id: e.target.value })}
-                                placeholder="Enter Branch ID"
-                                required
-                            />
-                        </div>
                         <div className="form-group" style={{ marginBottom: 0 }}>
                             <label className="form-label">Branch Name</label>
                             <input

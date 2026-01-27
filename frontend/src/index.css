@@ -148,3 +148,67 @@ button {
 .fade-in-up {
   animation: fadeInUp 0.4s ease-out forwards;
 }
+
+/* Global Responsive Styles */
+:root {
+  --mobile: 768px;
+  --tablet: 1024px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+    /* Scale down base font size */
+  }
+
+  .d-cnt {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Generic Responsive Helpers */
+.hide-on-mobile {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.show-on-mobile {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+/* Scrollbar Styling for Webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-main);
+}

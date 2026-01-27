@@ -23,6 +23,19 @@
     transform: translateX(-100%);
 }
 
+/* Sidebar Toggle Overlay for Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        z-index: 100;
+        /* Higher than content */
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    /* When Sidebar is OPEN on mobile, we might want a backdrop. 
+       The backdrop would need to be a separate element in Layout.jsx or handled via pseudo-element on body/layout. 
+       For now, we rely on the sidebar z-index. */
+}
+
 .sidebar::after {
     content: '';
     position: absolute;

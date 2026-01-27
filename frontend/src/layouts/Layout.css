@@ -28,9 +28,18 @@
     margin-left: 0;
 }
 
+
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
         width: 100%;
+        min-height: calc(100vh - 80px);
+        /* Ensure it takes full height minus navbar */
+    }
+
+    /* When sidebar is open on mobile, main content DOES NOT shift. 
+       Sidebar acts as overlay. */
+    .app-layout:not(.sidebar-collapsed) .main-content {
+        margin-left: 0;
     }
 }

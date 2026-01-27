@@ -212,6 +212,16 @@
     }
 }
 
+@media (max-width: 768px) {
+
+    .analytics-grid,
+    .content-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
 .chart-panel {
     min-height: 380px;
 }

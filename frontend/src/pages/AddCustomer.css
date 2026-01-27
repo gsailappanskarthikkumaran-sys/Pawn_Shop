@@ -21,6 +21,11 @@
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .add-customer-card {
+        padding: 1rem;
     }
 }
 

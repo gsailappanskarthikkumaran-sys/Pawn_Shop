@@ -59,6 +59,27 @@
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .n-lnks {
+        display: none;
+        /* Hide Home/Contact/About on mobile */
+    }
+
+    .navbar {
+        padding: 0 1rem;
+        /* Reduce padding */
+    }
+
+    .navbar-company-name {
+        font-size: 1.2rem;
+        /* Smaller logo text */
+    }
+
+    .navbar-brand {
+        gap: 0.5rem;
+    }
+}
+
 .navbar-links {
     display: flex;
     gap: 2.5rem;
