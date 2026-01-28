@@ -1,32 +1,32 @@
+/* ================= SCREEN VIEW ================= */
+
 .print-layout {
-    background: #525659;
+    background: #ffffff;
     min-height: 100vh;
     padding: 40px;
     display: flex;
     justify-content: center;
     position: relative;
-
 }
 
 .watermark-img {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 70%;
     max-width: 500px;
-    opacity: 95%;
-    z-index: 1;
+    opacity: 0.08;
+    /* screen-la mattum watermark */
+    z-index: 0;
     pointer-events: none;
-    display: block !important;
 }
 
 .paper-sheet {
-    background: white;
+    background: #ffffff;
     width: 210mm;
     min-height: 297mm;
     padding: 15mm;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     position: relative;
     box-sizing: border-box;
     z-index: 2;
@@ -36,37 +36,59 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    background: white;
+    background: #ffffff;
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 10px;
     z-index: 1000;
 }
 
+/* ================= PRINT VIEW ================= */
 
 @media print {
+
+    /* Page setup */
     @page {
         size: A4;
-        margin: 0mm !important;
+        margin: 0;
+        background: #ffffff;
     }
 
     html,
     body {
-        width: 210mm;
+        width: 100%;
         height: auto;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white;
-        font-family: 'Arial', 'Helvetica', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #ffffff !important;
+        font-family: Arial, Helvetica, sans-serif;
         font-size: 11px;
-        color: black;
+        color: #000;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
-        overflow: visible !important;
     }
 
+    #root {
+        background: #ffffff !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* 🚫 REMOVE SHADOW / GREY EFFECT */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        filter: none !important;
+        background-image: none !important;
+    }
+
+    /* 🚫 WATERMARK FULLY DISABLED IN PRINT */
+    .watermark-img {
+        display: none !important;
+    }
+
+    /* Hide screen-only items */
     .sidebar,
     .navbar,
     .screen-controls,
@@ -77,56 +99,37 @@
         display: none !important;
     }
 
+    /* Layout reset */
     .app-layout,
     .main-wrp,
     .main-content {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        display: block !important;
-        height: auto !important;
-        overflow: visible !important;
-        position: static !important;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: auto;
+        position: static;
+        overflow: visible;
     }
 
     .print-layout {
         width: 100%;
-        margin: 0;
-        padding: 1.5cm !important;
-        box-sizing: border-box;
-        display: block;
-        background: white;
+        min-height: auto;
+        padding: 0;
+        background: #ffffff;
     }
 
     .paper-sheet {
         width: 100%;
+        min-height: auto;
         margin: 0;
-        padding: 0;
+        padding: 15mm;
         border: none;
         box-shadow: none;
-        background: transparent !important;
-        position: relative;
+        background: #ffffff;
+        box-sizing: border-box;
     }
 
-    [class*="bg-"] {
-        background-color: transparent !important;
-    }
-
-    .terms-conditions-page {
-        page-break-before: always;
-        padding-top: 1.5cm !important;
-        padding-bottom: 1.5cm !important;
-        display: block;
-        width: 100%;
-    }
-
-    .page-break {
-        page-break-before: always;
-        padding-top: 1.5cm !important;
-        display: block;
-        width: 100%;
-    }
-
+    /* Headings */
     .print-header {
         text-align: center;
         border-bottom: 2px solid #000;
@@ -138,7 +141,6 @@
         font-size: 24px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         margin-bottom: 5px;
     }
 
@@ -156,6 +158,7 @@
         text-transform: uppercase;
     }
 
+    /* Boxes */
     .banking-box {
         border: 1px solid #000;
         padding: 10px;
@@ -169,6 +172,7 @@
         margin-bottom: 10px;
     }
 
+    /* Tables */
     table {
         width: 100%;
         border-collapse: collapse;
@@ -189,6 +193,7 @@
         background-color: #f0f0f0 !important;
     }
 
+    /* Footer */
     .footer {
         margin-top: 30px;
         display: flex;
@@ -202,6 +207,7 @@
         margin-bottom: 5px;
     }
 
+    /* Terms */
     .terms-section h3 {
         font-size: 12px;
         font-weight: 700;
@@ -226,6 +232,7 @@
         font-weight: bold;
     }
 
+    /* Utility */
     .bold {
         font-weight: 700;
     }
@@ -238,6 +245,7 @@
         text-align: center;
     }
 
+    /* Photo */
     .customer-photo {
         width: 100px;
         height: 100px;
@@ -250,5 +258,10 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
+    }
+
+    /* Page breaks */
+    .page-break {
+        page-break-before: always;
     }
 }

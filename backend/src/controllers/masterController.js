@@ -21,13 +21,7 @@ const addGoldRate = async (req, res) => {
 
 const getLatestGoldRate = async (req, res) => {
     try {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-
-        const rate = await GoldRate.findOne({
-            rateDate: { $gte: startOfDay, $lte: endOfDay }
-        });
+        const rate = await GoldRate.findOne().sort({ rateDate: -1 });
 
         if (rate && (rate.ratePerGram22k > 0 || rate.ratePerGram20k > 0 || rate.ratePerGram18k > 0)) {
             res.json(rate);

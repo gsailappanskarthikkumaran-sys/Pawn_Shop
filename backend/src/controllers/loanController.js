@@ -101,20 +101,11 @@ const createLoan = async (req, res) => {
         }
 
         let goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
-        if (!goldRateObj) {
-            const now = new Date();
-            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-            goldRateObj = await GoldRate.findOne({
-                rateDate: { $gte: startOfDay, $lte: endOfDay }
-            });
-
-            if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
-                console.log("Error: Gold Rate not set for today");
-                cleanupFiles(req.files);
-                return res.status(400).json({ message: "Today's gold rate not set by admin" });
-            }
+        if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
+            console.log("Error: Gold Rate not set");
+            cleanupFiles(req.files);
+            return res.status(400).json({ message: "Gold rate not set by admin" });
         }
 
 
