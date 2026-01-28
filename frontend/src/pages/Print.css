@@ -1,5 +1,5 @@
 .print-layout {
-    background: #ffffff;
+    background: #525659;
     min-height: 100vh;
     padding: 40px;
     display: flex;
@@ -9,14 +9,14 @@
 }
 
 .watermark-img {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 70%;
     max-width: 500px;
-    opacity: 0.08;
-    z-index: 0;
+    opacity: 95%;
+    z-index: 1;
     pointer-events: none;
     display: block !important;
 }
@@ -26,6 +26,7 @@
     width: 210mm;
     min-height: 297mm;
     padding: 15mm;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     position: relative;
     box-sizing: border-box;
     z-index: 2;
@@ -38,6 +39,7 @@
     background: white;
     padding: 10px;
     border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 10px;
     z-index: 1000;
@@ -46,42 +48,24 @@
 
 @media print {
     @page {
+        -ms-layout-grid: portrait;
         size: A4;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
+        margin: 0mm !important;
     }
 
     html,
     body {
-        width: 100% !important;
-        height: 100% !important;
+        width: 210mm;
+        height: auto;
         margin: 0 !important;
         padding: 0 !important;
-        background: white !important;
-        background-color: white !important;
+        background: white;
         font-family: 'Arial', 'Helvetica', sans-serif;
         font-size: 11px;
-        color: black !important;
+        color: black;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         overflow: visible !important;
-        border: none !important;
-    }
-
-    #root {
-        background: white !important;
-        background-color: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    * {
-        box-shadow: none !important;
-        filter: none !important;
-        text-shadow: none !important;
-        -webkit-filter: none !important;
-        opacity: 1 !important;
     }
 
     .sidebar,
@@ -107,31 +91,26 @@
     }
 
     .print-layout {
-        width: 100% !important;
-        height: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        width: 100%;
+        margin: 0;
+        padding: 1.5cm !important;
         box-sizing: border-box;
-        display: block !important;
-        background: white !important;
-        border: none !important;
+        display: block;
+        background: white;
     }
 
     .paper-sheet {
-        width: 100% !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 15mm !important;
+        width: 100%;
+        margin: 0;
+        padding: 0;
         border: none;
         box-shadow: none;
-        background: white !important;
+        background: transparent !important;
         position: relative;
-        color: black;
-        box-sizing: border-box;
     }
 
     [class*="bg-"] {
-        background-color: white !important;
+        background: transparent !important;
     }
 
     .terms-conditions-page {
