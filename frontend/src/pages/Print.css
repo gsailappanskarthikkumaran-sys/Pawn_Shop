@@ -109,7 +109,7 @@
     }
 
     [class*="bg-"] {
-        background-color: transparent !important;
+        background: transparent !important;
     }
 
     .terms-conditions-page {
