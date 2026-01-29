@@ -576,4 +576,24 @@ const getStaffDashboardStats = async (req, res) => {
     }
 };
 
-export { createLoan, getLoans, getLoanById, getDashboardStats, getStaffDashboardStats };
+const incrementPrintCount = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const loan = await Loan.findById(id);
+
+        if (!loan) {
+            return res.status(404).json({ message: 'Loan not found' });
+        }
+
+        loan.printCount = (loan.printCount || 0) + 1;
+        await loan.save();
+
+        res.json({ message: 'Print count updated', printCount: loan.printCount });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+
+export { createLoan, getLoans, getLoanById, getDashboardStats, getStaffDashboardStats, incrementPrintCount };

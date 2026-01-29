@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { HandCoins } from 'lucide-react';
-import { Landmark } from 'lucide-react';
 import './Login.css';
+import logo from '../assets/logo.png';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -32,12 +31,12 @@ const Login = () => {
 
                 <div className="login-header">
                     <div className="logo-wrapper">
-                        <div className="logo-circle">
-                            <Landmark color="#facc15" size={40} />
+                        <div >
+                            <img src={logo} alt="Logo" className="logo" style={{ width: '80px', height: '80px' }} />
                         </div>
                     </div>
                     <h1 className="login-title">Welcome Back</h1>
-                    <p className="login-subtitle">Sign in to Pawnbroking System</p>
+                    <p className="login-subtitle">Sign in to Mahas Bankers</p>
                 </div>
 
                 {error && (

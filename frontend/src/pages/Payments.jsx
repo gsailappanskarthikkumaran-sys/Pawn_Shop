@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import api from '../api/axios';
-import { Search, DollarSign, Calendar, FileText, CheckCircle, Printer } from 'lucide-react';
+import { Search, Calendar, FileText, CheckCircle, Printer, IndianRupee } from 'lucide-react';
 import './Payments.css';
 
 const Payments = () => {
@@ -272,7 +272,7 @@ const Payments = () => {
                                     <div key={p._id} className="payment-item">
                                         <div className="payment-left">
                                             <div className="payment-icon">
-                                                <DollarSign size={20} />
+                                                <IndianRupee size={20} />
                                             </div>
                                             <div className="payment-info">
                                                 <h4>{p.type.replace('_', ' ')}</h4>

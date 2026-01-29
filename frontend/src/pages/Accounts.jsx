@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Book, TrendingUp, TrendingDown, DollarSign, Calendar, FileText, PieChart, Printer, PlusCircle, Save } from 'lucide-react';
+import { Book, TrendingUp, TrendingDown, Calendar, FileText, PieChart, Printer, PlusCircle, Save, IndianRupee } from 'lucide-react';
 import './Accounts.css';
 
 const Accounts = () => {
@@ -228,7 +228,7 @@ const Accounts = () => {
                             <>
 
                                 <div className="balance-sheet-card main-cash-card">
-                                    <div className="icon-circle"><DollarSign size={32} /></div>
+                                    <div className="icon-circle"><IndianRupee size={32} /></div>
                                     <div className="info">
                                         <h2>Cash In Hand (Net)</h2>
                                         <div className="big-amount">₹{financials?.balanceSheet?.assets?.cashInHand?.toLocaleString()}</div>

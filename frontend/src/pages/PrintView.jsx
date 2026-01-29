@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Printer, ArrowLeft, X } from 'lucide-react';
 import './Print.css';
+import logo from '../assets/logo.png';
 
 const getImageUrl = (path) => {
     if (!path) return null;
@@ -16,6 +17,7 @@ const PrintView = () => {
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [copyType, setCopyType] = useState('');
 
     const hasPrinted = useRef(false);
 
@@ -28,7 +30,26 @@ const PrintView = () => {
     const fetchData = async () => {
         try {
             let endpoint = '';
-            if (type === 'loan') endpoint = `/loans/${id}`;
+            if (type === 'loan') {
+                const { data: loan } = await api.get(`/loans/${id}`);
+                setData(loan);
+
+                // Determine copy type based on printCount
+                if (!loan.printCount || loan.printCount === 0) {
+                    setCopyType(' CUSTOMER COPY');
+                } else {
+                    setCopyType('STAFF COPY');
+                }
+
+                if (!hasPrinted.current) {
+                    // Increment print count for next time
+                    await api.put(`/loans/${id}/print-count`);
+
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
+                return;
+            }
             else if (type === 'customer') endpoint = `/customers/${id}`;
             else if (type === 'payment') endpoint = `/payments/${id}`;
             else if (type === 'day-book') {
@@ -97,7 +118,7 @@ const PrintView = () => {
 
             <div className="paper-sheet">
                 <div className="print-header">
-                    <div className="company-name bold mono">MAHES BANKERS</div>
+                    <div className="company-name bold mono"><img src={logo} style={{ width: '24px', height: '24px' }} /> MAHES BANKERS</div>
                     <div className="company-details mono">
                         2005/1 – PKN ROAD, SIVAKASI – 626123<br />
                         LICENCE NO: TN-2020230415119<br />
@@ -108,7 +129,7 @@ const PrintView = () => {
 
                 {type === 'loan' && (
                     <>
-                        <LoanReceipt loan={data} />
+                        <LoanReceipt loan={data} copyType={copyType} />
                         <TermsAndConditions />
                     </>
                 )}
@@ -123,15 +144,16 @@ const PrintView = () => {
 };
 
 
-const LoanReceipt = ({ loan }) => (
+const LoanReceipt = ({ loan, copyType }) => (
     <div className="loan-receipt-v2 mono uppercase">
         <h2 className="document-title bold">ACKNOWLEDGEMENT CUM RECEIPT</h2>
+        {copyType && <div className="text-center font-bold mb-2" style={{ fontSize: '12px' }}>({copyType})</div>}
 
         {/* 1. Transaction Header */}
         <div className="banking-box">
             <div className="grid-2">
                 <div>
-                    <div>DATE : <span className="bold">{new Date(loan.createdAt).toLocaleDateString()}</span></div>
+                    <div>DATE : <span className="bold">{new Date(loan.createdAt).toLocaleDateString('en-IN')}</span></div>
                     <div>RECEIPT NO : <span className="bold">{loan._id.substring(loan._id.length - 8).toUpperCase()}</span></div>
                     <div>COVER NO : ________________</div>
                 </div>
@@ -152,11 +174,20 @@ const LoanReceipt = ({ loan }) => (
                     <div>ADDRESS : <span className="bold">{loan.customer?.address}, {loan.customer?.city}</span></div>
                 </div>
                 <div className="photo-column">
-                    {loan.customer?.photo && (
-                        <img src={getImageUrl(loan.customer.photo)} alt="Customer" className="customer-photo" />
-                    )}
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '5px' }}>
+                        {loan.customer?.photo && (
+                            <img src={getImageUrl(loan.customer.photo)} alt="Customer" className="customer-photo" />
+                        )}
+                        {loan.items?.find(i => i.photos?.length > 0)?.photos[0] && (
+                            <img
+                                src={getImageUrl(loan.items.find(i => i.photos?.length > 0).photos[0])}
+                                alt="Jewellery"
+                                className="customer-photo"
+                            />
+                        )}
+                    </div>
                     <div>PHONE NO : <span className="bold">{loan.customer?.phone}</span></div>
-                    <div>DATE OF BIRTH : <span className="bold">{loan.customer?.dob ? new Date(loan.customer.dob).toLocaleDateString() : '________________'}</span></div>
+                    <div>DATE OF BIRTH : <span className="bold">{loan.customer?.dob ? new Date(loan.customer.dob).toLocaleDateString('en-IN') : '________________'}</span></div>
                 </div>
             </div>
         </div>
@@ -170,21 +201,27 @@ const LoanReceipt = ({ loan }) => (
         <table className="border-all">
             <thead>
                 <tr>
-                    <th>ITEM DESCRIPTION</th>
-                    <th style={{ textAlign: 'center' }}>GROSS WT</th>
-                    <th style={{ textAlign: 'center' }}>NET WT</th>
-                    <th style={{ textAlign: 'center' }}>INTEREST %</th>
+                    <th style={{ width: '40%' }}>ITEM DESCRIPTION</th>
+                    <th style={{ width: '20%', textAlign: 'center' }}>VALUE</th>
+                    <th style={{ width: '20%', textAlign: 'center' }}>NET WT</th>
+                    <th style={{ width: '20%', textAlign: 'center' }}>INTEREST %</th>
                 </tr>
             </thead>
             <tbody>
                 {loan.items?.map((item, index) => (
                     <tr key={index}>
                         <td className="bold">{item.name || 'GOLD ITEM'} - {item.description || ''}</td>
-                        <td style={{ textAlign: 'center' }}>{item.grossWeight}G</td>
+                        <td style={{ textAlign: 'center' }}>₹{loan.totalWeight > 0 ? ((item.netWeight / loan.totalWeight) * loan.valuation).toFixed(0) : '0'}</td>
                         <td style={{ textAlign: 'center' }}>{item.netWeight}G</td>
                         <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
                     </tr>
                 ))}
+                <tr className="bold" style={{ backgroundColor: '#f0f0f0' }}>
+                    <td style={{ textAlign: 'right' }}>TOTAL</td>
+                    <td style={{ textAlign: 'center' }}>₹{loan.valuation}</td>
+                    <td style={{ textAlign: 'center' }}>{loan.totalWeight}G</td>
+                    <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
+                </tr>
             </tbody>
         </table>
         <div className="mb-4">
@@ -249,11 +286,11 @@ const LoanReceipt = ({ loan }) => (
         {/* 9. Footer Signature */}
         <div className="footer">
             <div className="signature-box" style={{ width: '100%', textAlign: 'right' }}>
-                <div style={{ marginBottom: '40px' }}></div>
+                <div style={{ marginBottom: '20px' }}></div>
                 BORROWER’S SIGNATURE : ________________
             </div>
         </div>
-    </div>
+    </div >
 );
 
 const TermsAndConditions = () => (
@@ -279,7 +316,7 @@ const TermsAndConditions = () => (
                 <li><span>16.</span><span>நிர்வாகம் கொடுத்த அடமான ரசீது தொலைந்து விட்டாலோ அல்லது காணாமல் போனாலோ, நகையை அடமானம் வைத்தவர் உரிய மதிப்பிற்குரிய பத்திரத் தாளில் ஒப்பந்தம் எழுதிக் கொடுத்து நகையை மீட்டுக் கொள்ளலாம்.</span></li>
                 <li><span>17.</span><span>வாடிக்கையாளர்கள் தாங்கள் அடகு வைக்கும் நகைகளை வங்கி வேலை நாட்களில் மீட்டுக் கொள்ள வேண்டும்.</span></li>
             </ul>
-            <div style={{ marginTop: '40px', textAlign: 'right' }} className="bold">கடன் பெறுபவர் கையொப்பம்</div>
+            <div style={{ marginTop: '20px', textAlign: 'right' }} className="bold">கடன் பெறுபவர் கையொப்பம்</div>
         </div>
 
         <div className="terms-section page-break" style={{ marginTop: '0' }}>
@@ -550,7 +587,7 @@ const MiniStatement = ({ data }) => {
         <div>
             <h2 className="document-title">LOAN MINI STATEMENT</h2>
             <div className="mb-4 text-xs text-gray-500 text-center">
-                Generated on: {new Date().toLocaleString()}
+                Generated on: {new Date().toLocaleString('en-IN')}
             </div>
 
             <div className="grid-2 mb-6">

@@ -91,6 +91,10 @@ const loanSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Branch',
         required: true
+    },
+    printCount: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true,
