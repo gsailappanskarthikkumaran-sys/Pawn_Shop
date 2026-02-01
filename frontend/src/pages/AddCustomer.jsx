@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
-import { Upload, Save, X } from 'lucide-react';
+import { Upload, Save, X, Camera } from 'lucide-react';
+import CameraModal from '../components/CameraModal';
 import './AddCustomer.css';
 
 const AddCustomer = () => {
@@ -31,6 +32,9 @@ const AddCustomer = () => {
     const [idFiles, setIdFiles] = useState({ aadharCard: null, panCard: null });
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+    const [cameraTarget, setCameraTarget] = useState('photo'); // 'photo', 'aadharCard', 'panCard'
+    const [idPreviews, setIdPreviews] = useState({ aadharCard: null, panCard: null });
 
     useEffect(() => {
         fetchBranches();
@@ -97,6 +101,17 @@ const AddCustomer = () => {
         const { name, files } = e.target;
         if (files[0]) {
             setIdFiles(prev => ({ ...prev, [name]: files[0] }));
+            setIdPreviews(prev => ({ ...prev, [name]: URL.createObjectURL(files[0]) }));
+        }
+    };
+
+    const handleCameraCapture = (file, previewUrl) => {
+        if (cameraTarget === 'photo') {
+            setPhoto(file);
+            setPreview(previewUrl);
+        } else {
+            setIdFiles(prev => ({ ...prev, [cameraTarget]: file }));
+            setIdPreviews(prev => ({ ...prev, [cameraTarget]: previewUrl }));
         }
     };
 
@@ -352,25 +367,61 @@ const AddCustomer = () => {
 
                         <div className="form-group">
                             <label className="form-label">Aadhar Card Photo {isEditMode && '(Upload to replace)'}</label>
-                            <input
-                                type="file"
-                                name="aadharCard"
-                                className="input-field"
-                                onChange={handleFileChange}
-                                accept="image/*"
-                                required
-                            />
+                            <div className="id-upload-wrapper" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                    type="file"
+                                    name="aadharCard"
+                                    id="aadhar-upload"
+                                    className="input-field"
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    required={!isEditMode && !idFiles.aadharCard}
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn-camera-small"
+                                    onClick={() => { setCameraTarget('aadharCard'); setShowCamera(true); }}
+                                    style={{ padding: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                                    title="Take Photo"
+                                >
+                                    <Camera size={18} />
+                                </button>
+                            </div>
+                            {idPreviews.aadharCard && (
+                                <div className="id-preview-small" style={{ marginTop: '8px' }}>
+                                    <img src={idPreviews.aadharCard} alt="Aadhar Preview" style={{ height: '60px', borderRadius: '4px', border: '1px solid #e2e8f0' }} />
+                                </div>
+                            )}
                         </div>
                         <div className="form-group">
                             <label className="form-label">PAN Card Photo {isEditMode && '(Upload to replace)'}</label>
-                            <input
-                                type="file"
-                                name="panCard"
-                                className="input-field"
-                                onChange={handleFileChange}
-                                accept="image/*"
-                                required
-                            />
+                            <div className="id-upload-wrapper" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input
+                                    type="file"
+                                    name="panCard"
+                                    id="pan-upload"
+                                    className="input-field"
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    required={!isEditMode && !idFiles.panCard}
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn-camera-small"
+                                    onClick={() => { setCameraTarget('panCard'); setShowCamera(true); }}
+                                    style={{ padding: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                                    title="Take Photo"
+                                >
+                                    <Camera size={18} />
+                                </button>
+                            </div>
+                            {idPreviews.panCard && (
+                                <div className="id-preview-small" style={{ marginTop: '8px' }}>
+                                    <img src={idPreviews.panCard} alt="PAN Preview" style={{ height: '60px', borderRadius: '4px', border: '1px solid #e2e8f0' }} />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -386,12 +437,30 @@ const AddCustomer = () => {
                                 </div>
                             )}
 
-                            <label className="btn-secondary" style={{ display: 'inline-block', marginTop: '16px' }}>
-                                Choose Photo
-                                <input type="file" required onChange={handlePhotoChange} hidden accept="image/*" />
-                            </label>
+                            <div className="upload-options" style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+                                <label className="btn-secondary" style={{ display: 'inline-block', cursor: 'pointer' }}>
+                                    <Upload size={18} style={{ marginRight: '8px' }} />
+                                    Choose Photo
+                                    <input type="file" required={!isEditMode && !photo} onChange={handlePhotoChange} hidden accept="image/*" />
+                                </label>
+                                <button
+                                    type="button"
+                                    className="btn-secondary"
+                                    onClick={() => { setCameraTarget('photo'); setShowCamera(true); }}
+                                >
+                                    <Camera size={18} style={{ marginRight: '8px' }} />
+                                    Take Photo
+                                </button>
+                            </div>
                         </div>
                     </div>
+
+                    {showCamera && (
+                        <CameraModal
+                            onCapture={handleCameraCapture}
+                            onClose={() => setShowCamera(false)}
+                        />
+                    )}
 
                     <div className="form-actions">
                         <button type="button" className="btn-secondary" onClick={() => navigate(isEditMode ? `/customers/${id}` : '/customers')}>

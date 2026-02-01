@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Plus, Trash2, Calculator, Upload, Gem, UserCheck, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Calculator, Upload, Gem, UserCheck, AlertCircle, Camera, X } from 'lucide-react';
+import CameraModal from '../components/CameraModal';
+import SearchableDropdown from '../components/SearchableDropdown';
 import './PledgeEntry.css';
 
 const PledgeEntry = () => {
+    // START: STATIC GOLD ITEMS LIST
+    // You can add more items to this list in the future
+    const GOLD_ITEMS = [
+        { label: 'Gold Ring', value: 'Gold Ring' },
+        { label: 'Chain with Locket', value: 'Chain with Locket' }
+    ];
+    // END: STATIC GOLD ITEMS LIST
+
     const [schemes, setSchemes] = useState([]);
     const [goldRate, setGoldRate] = useState(null);
     const [customers, setCustomers] = useState([]);
@@ -14,8 +24,7 @@ const PledgeEntry = () => {
     });
     const [preInterestAmount, setPreInterestAmount] = useState('');
 
-    // Customization State
-    const [customRequest, setCustomRequest] = useState(null); // Stores approved request if any
+    const [customRequest, setCustomRequest] = useState(null);
     const [isCustomMode, setIsCustomMode] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [requestReason, setRequestReason] = useState('');
@@ -29,7 +38,7 @@ const PledgeEntry = () => {
         if (formData.schemeId && formData.requestedLoan) {
             const scheme = schemes.find(s => s._id === formData.schemeId);
 
-            // Use custom values if in custom mode
+
             const currentInterestRate = isCustomMode && customRequest ? customRequest.proposedValues.interestRate : (scheme?.interestRate || 0);
             const currentTenure = isCustomMode && customRequest ? customRequest.proposedValues.tenureMonths : (scheme?.tenureMonths || 12);
             const currentPreInterestMonths = scheme?.preInterestMonths || 0;
@@ -45,7 +54,6 @@ const PledgeEntry = () => {
         }
     }, [formData.schemeId, formData.requestedLoan, schemes, isCustomMode, customRequest]);
 
-    // Check for approved requests when customer/scheme changes
     useEffect(() => {
         if (formData.customerId && formData.schemeId) {
             checkCustomStatus();
@@ -62,7 +70,7 @@ const PledgeEntry = () => {
             });
             if (data) {
                 setCustomRequest(data);
-                setIsCustomMode(true); // Auto-enable if approved request exists
+                setIsCustomMode(true);
                 alert("Custom Scheme Approved! Values updated.");
             } else {
                 setCustomRequest(null);
@@ -93,6 +101,8 @@ const PledgeEntry = () => {
     };
     const [items, setItems] = useState([{ name: '', netWeight: '', purity: '22k', description: '' }]);
     const [files, setFiles] = useState([]);
+    const [showCamera, setShowCamera] = useState(false);
+    const [previews, setPreviews] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -143,7 +153,21 @@ const PledgeEntry = () => {
     };
 
     const handleFileChange = (e) => {
-        setFiles(e.target.files);
+        const selectedFiles = Array.from(e.target.files);
+        setFiles(prev => [...prev, ...selectedFiles]);
+
+        const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+        setPreviews(prev => [...prev, ...newPreviews]);
+    };
+
+    const removeFile = (index) => {
+        setFiles(prev => prev.filter((_, i) => i !== index));
+        setPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleCapture = (file, previewUrl) => {
+        setFiles(prev => [...prev, file]);
+        setPreviews(prev => [...prev, previewUrl]);
     };
 
     const calculateValuation = () => {
@@ -260,15 +284,15 @@ const PledgeEntry = () => {
                         <div className="form-grid-2">
                             <div>
                                 <label className="form-label-bold">Select Customer</label>
-                                <select
-                                    className="select-input"
+                                <SearchableDropdown
+                                    options={customers.map(c => ({
+                                        label: `${c.name} (${c.customerId})`,
+                                        value: c._id
+                                    }))}
                                     value={formData.customerId}
-                                    onChange={e => setFormData({ ...formData, customerId: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Select a Customer...</option>
-                                    {customers.map(c => <option key={c._id} value={c._id}>{c.name} ({c.customerId})</option>)}
-                                </select>
+                                    onChange={value => setFormData({ ...formData, customerId: value })}
+                                    placeholder="Search by name or ID..."
+                                />
                             </div>
                             <div>
                                 <label className="form-label-bold">Select Scheme</label>
@@ -332,10 +356,11 @@ const PledgeEntry = () => {
                                     <div className="item-grid">
                                         <div>
                                             <label className="input-label-sm">Item Name</label>
-                                            <input
-                                                type="text" placeholder="e.g. Gold Ring"
-                                                className="input-sm"
-                                                value={item.name} onChange={e => handleItemChange(index, 'name', e.target.value)} required
+                                            <SearchableDropdown
+                                                options={GOLD_ITEMS}
+                                                value={item.name}
+                                                onChange={value => handleItemChange(index, 'name', value)}
+                                                placeholder="e.g. Gold Ring"
                                             />
                                         </div>
                                         <div>
@@ -382,18 +407,51 @@ const PledgeEntry = () => {
                             </label>
                             <div className="upload-box">
                                 <input type="file" multiple onChange={handleFileChange} className="hidden file-hidden" id="photo-upload" />
-                                <label htmlFor="photo-upload" className="upload-label">
-                                    <div className="upload-icon-circle">
-                                        <Upload size={24} />
+                                <div className="upload-options-row" style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                                    <label htmlFor="photo-upload" className="upload-label" style={{ flex: 1, margin: 0 }}>
+                                        <div className="upload-icon-circle">
+                                            <Upload size={24} />
+                                        </div>
+                                        <p className="upload-text">Upload Photos</p>
+                                    </label>
+                                    <div
+                                        className="upload-label"
+                                        style={{ flex: 1, margin: 0, cursor: 'pointer' }}
+                                        onClick={() => setShowCamera(true)}
+                                    >
+                                        <div className="upload-icon-circle" style={{ background: '#f0f9ff', color: '#0369a1' }}>
+                                            <Camera size={24} />
+                                        </div>
+                                        <p className="upload-text">Take Photo</p>
                                     </div>
-                                    <p className="upload-text">Click to upload photos</p>
-                                    <p className="upload-hint">
-                                        {files.length > 0 ? `${files.length} files selected` : "SVG, PNG, JPG or GIF (max. 800x400px)"}
-                                    </p>
-                                </label>
+                                </div>
                             </div>
+
+                            {previews.length > 0 && (
+                                <div className="previews-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px', marginTop: '16px' }}>
+                                    {previews.map((src, idx) => (
+                                        <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                            <img src={src} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeFile(idx)}
+                                                style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
+
+                    {showCamera && (
+                        <CameraModal
+                            onCapture={handleCapture}
+                            onClose={() => setShowCamera(false)}
+                        />
+                    )}
                 </div>
                 <div className="calc-column">
                     <div className="calculator-card">

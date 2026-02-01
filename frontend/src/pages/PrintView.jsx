@@ -17,13 +17,12 @@ const PrintView = () => {
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [copyType, setCopyType] = useState('');
 
     const hasPrinted = useRef(false);
 
     useEffect(() => {
         fetchData();
-        // Reset hasPrinted when id/type changes
+
         return () => { hasPrinted.current = false; };
     }, [type, id]);
 
@@ -34,15 +33,7 @@ const PrintView = () => {
                 const { data: loan } = await api.get(`/loans/${id}`);
                 setData(loan);
 
-                // Determine copy type based on printCount
-                if (!loan.printCount || loan.printCount === 0) {
-                    setCopyType(' CUSTOMER COPY');
-                } else {
-                    setCopyType('STAFF COPY');
-                }
-
                 if (!hasPrinted.current) {
-                    // Increment print count for next time
                     await api.put(`/loans/${id}/print-count`);
 
                     hasPrinted.current = true;
@@ -118,7 +109,7 @@ const PrintView = () => {
 
             <div className="paper-sheet">
                 <div className="print-header">
-                    <div className="company-name bold mono"><img src={logo} style={{ width: '24px', height: '24px' }} /> MAHES BANKERS</div>
+                    <div className="company-name bold mono"><img src={logo} className="company-logo" /> MAHES BANKERS</div>
                     <div className="company-details mono">
                         2005/1 – PKN ROAD, SIVAKASI – 626123<br />
                         LICENCE NO: TN-2020230415119<br />
@@ -129,8 +120,19 @@ const PrintView = () => {
 
                 {type === 'loan' && (
                     <>
-                        <LoanReceipt loan={data} copyType={copyType} />
-                        <TermsAndConditions />
+                        <div className="print-section">
+                            <LoanReceipt loan={data} copyType="OFFICE COPY" />
+                            <TermsAndConditions />
+                        </div>
+                        {(!data.printCount || data.printCount === 0) && (
+                            <>
+                                <div className="page-break"></div>
+                                <div className="print-section">
+                                    <LoanReceipt loan={data} copyType="CUSTOMER COPY" />
+                                    <TermsAndConditions />
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
                 {type === 'customer' && <CustomerProfile customer={data} />}
@@ -147,9 +149,8 @@ const PrintView = () => {
 const LoanReceipt = ({ loan, copyType }) => (
     <div className="loan-receipt-v2 mono uppercase">
         <h2 className="document-title bold">ACKNOWLEDGEMENT CUM RECEIPT</h2>
-        {copyType && <div className="text-center font-bold mb-2" style={{ fontSize: '12px' }}>({copyType})</div>}
+        {copyType && <div className="copy-type-label">({copyType})</div>}
 
-        {/* 1. Transaction Header */}
         <div className="banking-box">
             <div className="grid-2">
                 <div>
@@ -157,7 +158,7 @@ const LoanReceipt = ({ loan, copyType }) => (
                     <div>RECEIPT NO : <span className="bold">{loan._id.substring(loan._id.length - 8).toUpperCase()}</span></div>
                     <div>COVER NO : ________________</div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div className="text-right-aligned">
                     <div>LOAN NO : <span className="bold">{loan.loanId}</span></div>
                     <div>LOAN PERIOD : <span className="bold">{loan.scheme?.tenureMonths || 12} MONTHS</span></div>
                     <div>MAX SANCTIONED AMOUNT/GMS : ________________</div>
@@ -165,7 +166,6 @@ const LoanReceipt = ({ loan, copyType }) => (
             </div>
         </div>
 
-        {/* 2. Borrower Details */}
         <div className="banking-box">
             <div className="bold border-b mb-2">BORROWER DETAILS</div>
             <div className="grid-2">
@@ -174,7 +174,7 @@ const LoanReceipt = ({ loan, copyType }) => (
                     <div>ADDRESS : <span className="bold">{loan.customer?.address}, {loan.customer?.city}</span></div>
                 </div>
                 <div className="photo-column">
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginBottom: '5px' }}>
+                    <div className="photo-wrapper">
                         {loan.customer?.photo && (
                             <img src={getImageUrl(loan.customer.photo)} alt="Customer" className="customer-photo" />
                         )}
@@ -192,35 +192,32 @@ const LoanReceipt = ({ loan, copyType }) => (
             </div>
         </div>
 
-        {/* 3. Loan Declaration (Tamil) */}
-        <div className="tamil-text" style={{ fontSize: '9px', lineHeight: '1.4' }}>
+        <div className="tamil-text-body">
             மேற்கண்ட முகவரியில் வசிக்கும் நான் எனது கைவசமுள்ள தனிச் சொத்தான நகைகளை உங்களுக்கு அடகு வைத்து கடன் பெற்றுள்ளேன். நகைகள் விவரம் கீழே கொடுக்கப்பட்டுள்ளது. நகைகளில் வைக்கப்பட்டுள்ள கற்களுக்கு மதிப்பு கிடையாது. இந்த அடமானத்திற்குரிய அசல் மற்றும் வட்டியை நிர்ணயிக்கப்பட்ட காலத்திற்குள் அல்லது உங்களால் கேட்கப்படும் போது செலுத்துகிறேன் என்று உறுதி கூறுகிறேன். நிறுவனத்தின் இதர விதிகள் மற்றும் நிபந்தனைகளுக்கு நான் கட்டுப்படுகிறேன். அடகு வைக்கப்படும் நகைகள் என்னுடையதே என்று உறுதி அளிக்கிறேன்.
         </div>
-
-        {/* 4. Jewellery Details Table */}
         <table className="border-all">
             <thead>
                 <tr>
-                    <th style={{ width: '40%' }}>ITEM DESCRIPTION</th>
-                    <th style={{ width: '20%', textAlign: 'center' }}>VALUE</th>
-                    <th style={{ width: '20%', textAlign: 'center' }}>NET WT</th>
-                    <th style={{ width: '20%', textAlign: 'center' }}>INTEREST %</th>
+                    <th className="col-item-desc">ITEM DESCRIPTION</th>
+                    <th className="col-value">VALUE</th>
+                    <th className="col-weight">NET WT</th>
+                    <th className="col-interest">INTEREST %</th>
                 </tr>
             </thead>
             <tbody>
                 {loan.items?.map((item, index) => (
                     <tr key={index}>
                         <td className="bold">{item.name || 'GOLD ITEM'} - {item.description || ''}</td>
-                        <td style={{ textAlign: 'center' }}>₹{loan.totalWeight > 0 ? ((item.netWeight / loan.totalWeight) * loan.valuation).toFixed(0) : '0'}</td>
-                        <td style={{ textAlign: 'center' }}>{item.netWeight}G</td>
-                        <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
+                        <td className="table-cell-center">₹{loan.totalWeight > 0 ? ((item.netWeight / loan.totalWeight) * loan.valuation).toFixed(0) : '0'}</td>
+                        <td className="table-cell-center">{item.netWeight}G</td>
+                        <td className="table-cell-center">{loan.interestRate}%</td>
                     </tr>
                 ))}
-                <tr className="bold" style={{ backgroundColor: '#f0f0f0' }}>
-                    <td style={{ textAlign: 'right' }}>TOTAL</td>
-                    <td style={{ textAlign: 'center' }}>₹{loan.valuation}</td>
-                    <td style={{ textAlign: 'center' }}>{loan.totalWeight}G</td>
-                    <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
+                <tr className="row-highlight">
+                    <td className="table-cell-right">TOTAL</td>
+                    <td className="table-cell-center">₹{loan.valuation}</td>
+                    <td className="table-cell-center">{loan.totalWeight}G</td>
+                    <td className="table-cell-center">{loan.interestRate}%</td>
                 </tr>
             </tbody>
         </table>
@@ -237,19 +234,19 @@ const LoanReceipt = ({ loan, copyType }) => (
                     <div>APPRAISED BY : ________________</div>
                     <div>KYC VERIFIED : <span className="bold">YES</span></div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
+                <div className="text-right-aligned">
                     <div>LOAN AMOUNT DISBURSED : <span className="bold">RS. {loan.loanAmount}</span></div>
                     {loan.preInterestAmount > 0 && (
                         <div>PRE-INTEREST COLLECTED : <span className="bold">RS. {loan.preInterestAmount}</span></div>
                     )}
                 </div>
             </div>
-            <div className="footer" style={{ border: 'none', marginTop: '10px' }}>
-                <div className="signature-box" style={{ width: '220px' }}>
+            <div className="footer footer-clean">
+                <div className="signature-box signature-box-small">
                     <div className="signature-line"></div>
                     APPRAISER SIGNATURE
                 </div>
-                <div className="signature-box" style={{ width: '220px' }}>
+                <div className="signature-box signature-box-small">
                     <div className="signature-line"></div>
                     OFFICE IN-CHARGE SIGNATURE
                 </div>
@@ -262,31 +259,31 @@ const LoanReceipt = ({ loan, copyType }) => (
             <div>“I HAVE RECEIVED THE PLEDGED JEWELLERY IN GOOD CONDITION.”</div>
             <div className="grid-2 mt-4">
                 <div>BORROWER SIGNATURE : ________________</div>
-                <div style={{ textAlign: 'right' }}>DATE : ________________</div>
+                <div className="text-right-aligned">DATE : ________________</div>
             </div>
         </div>
 
         {/* 7. Nomination Section (Tamil) */}
         <div className="banking-box">
             <div className="bold border-b mb-1">வாரிசுதாரர் விபரம் (NOMINATION)</div>
-            <div className="tamil-text" style={{ fontSize: '9px', marginBottom: '5px' }}>
+            <div className="tamil-text-nomination">
                 வாரிசுதாரர் பெயர் : <span className="bold">{loan.customer?.nominee || '________________'}</span> | உறவு : ________________ | வயது : ________________ (மேஜர்)<br />
                 எனது மரணத்திற்குப் பிறகு இந்த அடமானச் சீட்டில் குறிப்பிட்டுள்ள நகைகளை பெற்றுக்கொள்ள மேற்கண்ட வாரிசுதாரரை நியமிக்கிறேன். இந்த நியமனம் மற்ற அனைத்து உயில் மற்றும் சட்ட ஆவணங்களை விட மேலானது என்று நான் உறுதி கூறுகிறேன்.
             </div>
-            <div className="text-right mt-2" style={{ fontSize: '10px' }}>
+            <div className="signature-nomination">
                 கடன் வாங்குபவர் கையொப்பம் : ________________
             </div>
         </div>
 
         {/* Terms and Conditions Reference */}
-        <div className="text-center bold mt-4" style={{ fontSize: '10px' }}>
+        <div className="terms-ref-note">
             “TERMS AND CONDITIONS (TAMIL & ENGLISH) ARE PRINTED ON THE REVERSE SIDE AND FORM PART OF THIS RECEIPT.”
         </div>
 
         {/* 9. Footer Signature */}
         <div className="footer">
-            <div className="signature-box" style={{ width: '100%', textAlign: 'right' }}>
-                <div style={{ marginBottom: '20px' }}></div>
+            <div className="signature-box signature-box-full">
+                <div className="mb-5"></div>
                 BORROWER’S SIGNATURE : ________________
             </div>
         </div>
@@ -316,10 +313,10 @@ const TermsAndConditions = () => (
                 <li><span>16.</span><span>நிர்வாகம் கொடுத்த அடமான ரசீது தொலைந்து விட்டாலோ அல்லது காணாமல் போனாலோ, நகையை அடமானம் வைத்தவர் உரிய மதிப்பிற்குரிய பத்திரத் தாளில் ஒப்பந்தம் எழுதிக் கொடுத்து நகையை மீட்டுக் கொள்ளலாம்.</span></li>
                 <li><span>17.</span><span>வாடிக்கையாளர்கள் தாங்கள் அடகு வைக்கும் நகைகளை வங்கி வேலை நாட்களில் மீட்டுக் கொள்ள வேண்டும்.</span></li>
             </ul>
-            <div style={{ marginTop: '20px', textAlign: 'right' }} className="bold">கடன் பெறுபவர் கையொப்பம்</div>
+            <div className="terms-borrower-signature bold">கடன் பெறுபவர் கையொப்பம்</div>
         </div>
 
-        <div className="terms-section page-break" style={{ marginTop: '0' }}>
+        <div className="terms-section page-break terms-section-compact">
             <h3 className="bold uppercase">Terms and Conditions</h3>
             <ul className="terms-list">
                 <li><span>1.</span><span>If the loan is closed before 7 days, interest for a minimum period of 15 days will be charged.</span></li>
@@ -340,65 +337,63 @@ const TermsAndConditions = () => (
                 <li><span>16.</span><span>If the pledge receipt issued by the management is lost or misplaced, the borrower may redeem the jewellery by executing an indemnity bond on a stamp paper of appropriate value.</span></li>
                 <li><span>17.</span><span>Customers must redeem the pledged jewellery only on bank working days.</span></li>
             </ul>
-            <div style={{ marginTop: '20px', textAlign: 'right' }} className="bold">BORROWER’S SIGNATURE</div>
+            <div className="terms-borrower-signature bold">BORROWER’S SIGNATURE</div>
         </div>
     </div>
 );
 
 const CustomerProfile = ({ customer }) => (
-    <div>
+    <div className="mono">
         <h2 className="document-title">CUSTOMER PROFILE</h2>
-        <div className="grid-2">
-            <div>
-                <div className="detail-group mb-4">
-                    <label>Customer ID</label>
-                    <div className="font-bold">{customer.customerId}</div>
-                </div>
-                <div className="detail-group mb-4">
-                    <label>Join Date</label>
-                    <div>{new Date(customer.createdAt).toLocaleDateString('en-IN')}</div>
-                </div>
-            </div>
-            <div className="photo-column">
-                {customer.photo && (
-                    <img src={getImageUrl(customer.photo)} alt="Customer" className="customer-photo" />
-                )}
-            </div>
-        </div>
-
-        <div className="mb-8">
-            <h3 className="text-sm font-bold border-b border-black mb-4 uppercase">Personal Information</h3>
-            <div className="grid-2 gap-y-6">
-                <div className="detail-group">
-                    <label>Full Name</label>
-                    <div>{customer.name}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Phone Number</label>
-                    <div>{customer.phone}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Email Address</label>
-                    <div>{customer.email || 'N/A'}</div>
-                </div>
-                <div className="detail-group">
-                    <label>City/Location</label>
-                    <div>{customer.city || 'N/A'}</div>
-                </div>
-            </div>
-            <div className="detail-group mt-4">
-                <label>Full Address</label>
-                <div>{customer.address}</div>
-            </div>
-            <div className="detail-group mt-4">
-                <label>Branch ID</label>
-                <div>{customer.branch || 'N/A'}</div>
-            </div>
-
-        </div>
+        <table className="border-all">
+            <thead>
+                <tr>
+                    <th style={{ width: '40%' }}>FIELD</th>
+                    <th style={{ width: '60%' }}>INFORMATION</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td className="bold">FULL NAME</td>
+                    <td>{customer.name}</td>
+                </tr>
+                <tr>
+                    <td className="bold">CUSTOMER ID</td>
+                    <td>{customer.customerId}</td>
+                </tr>
+                <tr>
+                    <td className="bold">PHONE NUMBER</td>
+                    <td>{customer.phone}</td>
+                </tr>
+                <tr>
+                    <td className="bold">EMAIL ADDRESS</td>
+                    <td>{customer.email || 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td className="bold">JOIN DATE</td>
+                    <td>{new Date(customer.createdAt).toLocaleDateString('en-IN')}</td>
+                </tr>
+                <tr>
+                    <td className="bold">CITY / LOCATION</td>
+                    <td>{customer.city || 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td className="bold">FULL ADDRESS</td>
+                    <td>{customer.address}</td>
+                </tr>
+                <tr>
+                    <td className="bold">BRANCH ID</td>
+                    <td>{customer.branch || 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td className="bold">NOMINEE</td>
+                    <td>{customer.nominee || 'N/A'}</td>
+                </tr>
+            </tbody>
+        </table>
 
         <div className="footer">
-            <div style={{ width: '100%', textAlign: 'center', fontSize: '10px', color: '#666' }}>
+            <div className="report-footer-note">
                 Report Generated on {new Date().toLocaleString('en-IN')}
             </div>
         </div>
@@ -406,68 +401,69 @@ const CustomerProfile = ({ customer }) => (
 );
 
 const PaymentReceipt = ({ payment }) => (
-    <div>
+    <div className="mono uppercase">
         <h2 className="document-title">PAYMENT RECEIPT</h2>
-        <div className="grid-2">
-            <div className="detail-group mb-4">
-                <label>Receipt No</label>
-                <div>{payment._id.substring(payment._id.length - 8).toUpperCase()}</div>
+        <div className="banking-box">
+            <div className="grid-2">
+                <div className="detail-group mb-4">
+                    <label>Receipt No</label>
+                    <div className="bold">{payment._id.substring(payment._id.length - 8).toUpperCase()}</div>
+                </div>
+                <div className="detail-group mb-4">
+                    <label>Date</label>
+                    <div className="bold">{new Date(payment.paymentDate).toLocaleDateString('en-IN')}</div>
+                </div>
             </div>
-            <div className="detail-group mb-4">
-                <label>Date</label>
-                <div>{new Date(payment.paymentDate).toLocaleDateString('en-IN')}</div>
-            </div>
-        </div>
 
-        <div className="mb-6">
-            <h3 className="text-sm font-bold border-b border-black mb-4 uppercase">Payment Details</h3>
-            <div className="grid-2 gap-y-6">
-                <div className="detail-group">
-                    <label>Amount Paid</label>
-                    <div className="text-2xl font-bold">₹{payment.amount}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Payment Type</label>
-                    <div style={{ textTransform: 'capitalize' }}>{payment.type.replace('_', ' ')}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Payment Mode</label>
-                    <div style={{ textTransform: 'capitalize' }}>{payment.paymentMode || 'Cash'}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Loan ID</label>
-                    <div>{payment.loan?.loanId || 'N/A'}</div>
-                </div>
-                <div className="detail-group">
-                    <label>Remarks</label>
-                    <div>{payment.remarks || '-'}</div>
-                </div>
-            </div>
-        </div>
-
-        {payment.loan && (
-            <div className="mb-6 p-4 bg-gray-50 border border-gray-200">
-                <h3 className="text-sm font-bold border-b border-gray-400 mb-2 uppercase">Upcoming Payment</h3>
-                <div className="grid-2">
+            <div className="mb-6">
+                <h3 className="text-sm font-bold border-b border-black mb-4 uppercase">Payment Details</h3>
+                <div className="grid-2 gap-y-6">
                     <div className="detail-group">
-                        <label>Next Due Date</label>
-                        <div className="font-bold text-lg">
-
-                            {new Date(payment.loan.nextPaymentDate).toLocaleDateString('en-IN')}
-                        </div>
+                        <label>Amount Paid</label>
+                        <div className="text-2xl bold">₹{payment.amount}</div>
                     </div>
-                    <div className="detail-group text-right">
-                        <label>Next Interest Amount</label>
-                        <div className="font-bold">
-                            ₹{payment.loan.monthlyInterest ? payment.loan.monthlyInterest.toFixed(2) : ((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
-                        </div>
+                    <div className="detail-group">
+                        <label>Payment Type</label>
+                        <div className="capitalize-mode bold">{payment.type.replace('_', ' ')}</div>
                     </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-2 text-center">
-                    Please pay by the due date to avoid penalty charges.
+                    <div className="detail-group">
+                        <label>Payment Mode</label>
+                        <div className="capitalize-mode bold">{payment.paymentMode || 'Cash'}</div>
+                    </div>
+                    <div className="detail-group">
+                        <label>Loan ID</label>
+                        <div className="bold">{payment.loan?.loanId || 'N/A'}</div>
+                    </div>
+                    <div className="detail-group">
+                        <label>Remarks</label>
+                        <div className="bold">{payment.remarks || '-'}</div>
+                    </div>
                 </div>
             </div>
-        )}
+
+            {payment.loan && (
+                <div className="mb-6 p-4 bg-gray-50 border border-gray-200">
+                    <h3 className="text-sm font-bold border-b border-gray-400 mb-2 uppercase">Upcoming Payment</h3>
+                    <div className="grid-2">
+                        <div className="detail-group">
+                            <label>Next Due Date</label>
+                            <div className="bold text-lg">
+                                {new Date(payment.loan.nextPaymentDate).toLocaleDateString('en-IN')}
+                            </div>
+                        </div>
+                        <div className="detail-group text-right">
+                            <label>Next Interest Amount</label>
+                            <div className="bold">
+                                ₹{payment.loan.monthlyInterest ? payment.loan.monthlyInterest.toFixed(2) : ((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2 text-center">
+                        Please pay by the due date to avoid penalty charges.
+                    </div>
+                </div>
+            )}
+        </div>
     </div>
 );
 
@@ -618,7 +614,7 @@ const MiniStatement = ({ data }) => {
             </div>
 
             <div className="mb-6 p-2 bg-gray-50 border border-dashed border-gray-300 rounded">
-                <div className="grid grid-cols-5 gap-2 text-xs">
+                <div className="grid grid-cols-4 gap-2 text-xs">
                     <div>
                         <span className="text-gray-500 block">Scheme</span>
                         <span className="font-bold">{loan.scheme?.schemeName}</span>
@@ -634,10 +630,6 @@ const MiniStatement = ({ data }) => {
                     <div>
                         <span className="text-gray-500 block">Pre-Interest</span>
                         <span className="font-bold">₹{loan.preInterestAmount || 0}</span>
-                    </div>
-                    <div className="text-right">
-                        <span className="text-gray-500 block">Current Balance</span>
-                        <span className="font-bold text-red-600">₹{loan.currentBalance}</span>
                     </div>
                 </div>
             </div>
@@ -684,25 +676,9 @@ const MiniStatement = ({ data }) => {
                 </tbody>
             </table>
 
-            <div className="flex justify-end border-t border-black pt-4">
-                <div className="w-1/2">
-                    <div className="flex justify-between mb-2 text-sm">
-                        <span>Total Principal Received:</span>
-                        <span className="font-bold">₹{payments.filter(p => p.type !== 'interest').reduce((s, p) => s + p.amount, 0)}</span>
-                    </div>
-                    <div className="flex justify-between mb-2 text-sm">
-                        <span>Total Interest Received:</span>
-                        <span className="font-bold">₹{payments.filter(p => p.type === 'interest').reduce((s, p) => s + p.amount, 0)}</span>
-                    </div>
-                    <div className="flex justify-between text-lg font-bold border-t border-dashed border-gray-400 pt-2 mt-2">
-                        <span>Outstanding Balance:</span>
-                        <span>₹{loan.currentBalance}</span>
-                    </div>
-                </div>
-            </div>
 
             <div className="footer">
-                <div style={{ width: '100%', textAlign: 'center', fontSize: '10px', color: '#666' }}>
+                <div className="report-footer-note">
                     This is a computer generated statement.
                 </div>
             </div>
