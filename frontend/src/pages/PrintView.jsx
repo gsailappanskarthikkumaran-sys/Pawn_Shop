@@ -326,7 +326,7 @@ const TermsAndConditions = () => (
         <div className="terms-section page-break" style={{ marginTop: '0' }}>
             <div className='force-break-before'>
                 <h3 className="bold uppercase" style={{ marginBottom: '30px', fontSize: '20px' }}>Terms and Conditions</h3>
-                <ul className="terms-list" style={{ fontSize: '12px' }}>
+                <ul className="terms-list" style={{ fontSize: '14px' }}>
                     <li><span>1.</span><span>If the loan is closed before 7 days, interest for a minimum period of 15 days will be charged.</span></li>
                     <li><span>2.</span><span>The borrower shall pay the interest rate mentioned in the promissory note and any other charges fixed by the management from time to time.</span></li>
                     <li><span>3.</span><span>In case of default, the management has the right to retain the articles pledged as security either for this loan or for any other amounts payable to the management by the borrower.</span></li>

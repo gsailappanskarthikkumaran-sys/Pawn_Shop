@@ -240,6 +240,7 @@
         padding-left: 18px;
         margin-top: 8px;
         list-style: none;
+        text-align: justify;
     }
 
     .terms-list li {
