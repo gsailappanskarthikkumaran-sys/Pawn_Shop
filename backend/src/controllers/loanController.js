@@ -120,6 +120,7 @@ const createLoan = async (req, res) => {
             else if (item.purity === '18k') rate = goldRateObj.ratePerGram18k;
 
             if (!rate || rate <= 0) {
+                console.error(`Validation Error: Gold rate for ${item.purity} is missing (Rate: ${rate})`);
                 cleanupFiles(req.files);
                 return res.status(400).json({ message: `Gold rate for ${item.purity} is not set by admin` });
             }
@@ -131,7 +132,7 @@ const createLoan = async (req, res) => {
         console.log("Valuation debug:", { totalValuation, maxLoan, requestedLoanAmount });
 
         if (requestedLoanAmount > maxLoan) {
-            console.log("Error: Loan amount exceeds limit");
+            console.error(`Validation Error: Requested ${requestedLoanAmount} > Max ${maxLoan}`);
             cleanupFiles(req.files);
             return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
         }
@@ -207,6 +208,7 @@ const createLoan = async (req, res) => {
         res.status(201).json(createdLoan);
 
     } catch (error) {
+        console.error("createLoan Exception:", error);
         cleanupFiles(req.files);
         res.status(400).json({ message: 'Error creating loan', error: error.message });
     }
