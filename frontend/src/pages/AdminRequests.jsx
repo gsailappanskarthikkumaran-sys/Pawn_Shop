@@ -15,7 +15,6 @@ const AdminRequests = () => {
 
     const fetchRequests = async () => {
         try {
-            // Fetch only pending requests for actionable view, or all for history
             const { data } = await api.get('/scheme-requests');
             setRequests(data);
         } catch (error) {
@@ -27,14 +26,14 @@ const AdminRequests = () => {
 
     const handleAction = async (id, status) => {
         const comment = prompt("Enter a response/reason for this action:", status === 'approved' ? 'Approved' : 'Rejected');
-        if (comment === null) return; // Cancelled
+        if (comment === null) return; 
 
         try {
             await api.put(`/scheme-requests/${id}/status`, {
                 status,
                 adminComment: comment
             });
-            fetchRequests(); // Refresh list
+            fetchRequests();
         } catch (error) {
             console.error(error);
             alert("Failed to update status. You might not have permission.");

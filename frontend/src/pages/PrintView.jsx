@@ -4,12 +4,16 @@ import api from '../api/axios';
 import { Printer, ArrowLeft, X } from 'lucide-react';
 import './Print.css';
 import logo from '../assets/logo.png';
+import watermark from '../assets/watermark.png';
 
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     const filename = path.split(/[/\\]/).pop();
-    return `http://localhost:5000/src/uploads/${filename}`;
+
+    // Get backend base URL from axios config or environment
+    const backendUrl = api.defaults.baseURL.replace('/api', '');
+    return `${backendUrl}/src/uploads/${filename}`;
 };
 
 const PrintView = () => {
@@ -106,7 +110,7 @@ const PrintView = () => {
 
     return (
         <div className="print-layout">
-            <img src={getImageUrl('watermark.png')} className="watermark-img" alt="Company Watermark" />
+            <img src={watermark} className="watermark-img" alt="Company Watermark" />
             <div className="screen-controls">
                 <button onClick={() => window.close()} className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
                     <X size={16} /> Close

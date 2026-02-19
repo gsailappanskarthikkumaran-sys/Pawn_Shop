@@ -341,7 +341,7 @@ const Accounts = () => {
                         </div>
                         {loading ? <p>Loading Demand List...</p> : (
                             <div className="t-tbl">
-                                <table className="data-table">
+                                <table className="data-table demand-table">
                                     <thead>
                                         <tr>
                                             <th>Loan ID</th>

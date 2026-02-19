@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Watermark Test</title>
 </head>
+
 <body>
     <h1>Watermark Image Test</h1>
     <p>Testing watermark.png from different URLs:</p>
-    
+
     <h2>Test 1: /src/uploads/watermark.png</h2>
-    <img src="http://localhost:5000/src/uploads/watermark.png" style="width: 300px; border: 2px solid red;" alt="Test 1" />
-    
+    <img src="https://localhost:5000/src/uploads/watermark.png" style="width: 300px; border: 2px solid red;"
+        alt="Test 1" />
+
     <h2>Test 2: /uploads/watermark.png</h2>
-    <img src="http://localhost:5000/uploads/watermark.png" style="width: 300px; border: 2px solid blue;" alt="Test 2" />
-    
+    <img src="https://localhost:5000/uploads/watermark.png" style="width: 300px; border: 2px solid blue;"
+        alt="Test 2" />
+
     <script>
         console.log('Testing watermark URLs...');
-        fetch('http://localhost:5000/src/uploads/watermark.png')
+        fetch('https://localhost:5000/src/uploads/watermark.png')
             .then(r => console.log('Test 1 status:', r.status))
             .catch(e => console.error('Test 1 error:', e));
-        
-        fetch('http://localhost:5000/uploads/watermark.png')
+
+        fetch('https://localhost:5000/uploads/watermark.png')
             .then(r => console.log('Test 2 status:', r.status))
             .catch(e => console.error('Test 2 error:', e));
     </script>
 </body>
+
 </html>

@@ -5,12 +5,9 @@ import Navbar from '../components/Navbar';
 import './Layout.css';
 
 const Layout = () => {
-    // Initial state based on screen width
+ 
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
-
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-    // Function to close sidebar on mobile when navigating
     const onNavigate = () => {
         if (window.innerWidth <= 768) {
             setIsSidebarOpen(false);

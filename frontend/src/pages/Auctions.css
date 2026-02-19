@@ -50,7 +50,6 @@
     }
 }
 
-/* Eligible Items Card */
 .eligible-card {
     background: white;
     border-radius: var(--radius-xl);
@@ -213,7 +212,6 @@
     color: #94a3b8;
 }
 
-/* Right Action Card */
 .action-card {
     background: white;
     border-radius: var(--radius-xl);
@@ -285,7 +283,6 @@
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 1rem;
-}
 }
 
 .form-header h3 {
@@ -382,7 +379,7 @@
     transform: translateY(0);
 }
 
-/* Utils */
+
 .primary-icon {
     color: #ea580c;
 }

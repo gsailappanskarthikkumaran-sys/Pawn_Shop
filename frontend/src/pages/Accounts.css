@@ -122,7 +122,7 @@
     background: white;
     border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);
-    overflow: hidden;
+    overflow: auto;
 }
 
 .data-table {
@@ -135,6 +135,38 @@
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
+}
+
+/* Responsive rules specific to demand list (avoid affecting other .data-table uses) */
+@media (max-width: 480px) {
+    .demand-table th:nth-child(3), .demand-table td:nth-child(3),
+    .demand-table th:nth-child(6), .demand-table td:nth-child(6) {
+        display: none; /* hide Maturity Date and Action on very small screens */
+    }
+    .demand-table th:nth-child(4), .demand-table td:nth-child(4) {
+        font-size: 0.85rem; /* status smaller */
+    }
+    .demand-table th, .demand-table td { padding: 0.5rem; }
+}
+
+/* Ledger (tally) responsive adjustments */
+@media (max-width: 768px) {
+    .tally-container { max-width: 100%; margin: 0.5rem; }
+    .tally-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .tally-header-left { gap: 1rem; }
+    .tally-header label, .tally-header .tally-select { font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+    .tally-container { margin: 0.5rem; box-shadow: none; }
+    .tally-header { padding: 0.75rem; }
+    .tally-header-left { gap: 0.6rem; flex-direction: column; }
+    .tally-dr-cr { width: 44px; padding: 8px 12px; }
+    .tally-table th { font-size: 0.85rem; padding: 6px 8px; }
+    .tally-input { padding: 8px 10px; font-size: 0.95rem; }
+    .tally-body { min-height: auto; }
+    /* allow horizontal scroll for tally table if needed */
+    .tally-container { overflow-x: auto; }
 }
 
 .data-table th {

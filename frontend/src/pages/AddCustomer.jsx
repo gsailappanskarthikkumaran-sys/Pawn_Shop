@@ -33,7 +33,7 @@ const AddCustomer = () => {
     const [preview, setPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
-    const [cameraTarget, setCameraTarget] = useState('photo'); // 'photo', 'aadharCard', 'panCard'
+    const [cameraTarget, setCameraTarget] = useState('photo'); 
     const [idPreviews, setIdPreviews] = useState({ aadharCard: null, panCard: null });
 
     useEffect(() => {
