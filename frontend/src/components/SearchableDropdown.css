@@ -36,7 +36,6 @@
     flex: 1;
     border: none;
     padding: 12px 40px 12px 42px;
-    /* Large left padding (42px) to clear icon */
     font-size: 0.95rem;
     color: #1e293b;
     background: transparent;
@@ -80,7 +79,6 @@
     overflow-y: auto;
 }
 
-/* Custom scrollbar for dropdown menu */
 .dropdown-menu::-webkit-scrollbar {
     width: 6px;
 }

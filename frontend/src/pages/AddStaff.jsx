@@ -65,7 +65,7 @@ const AddStaff = () => {
                     idProofNumber: member.idProofNumber || '',
                     username: member.username,
                     password: '',
-                    branch: member.branch?._id || member.branch || '' // Handle populated or raw ID
+                    branch: member.branch?._id || member.branch || '' 
                 });
             } else {
                 alert('Staff not found');

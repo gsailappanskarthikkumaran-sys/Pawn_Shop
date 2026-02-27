@@ -364,6 +364,29 @@
     border-color: #cbd5e1;
 }
 
+/* preview thumbnails grid for uploaded/captured images */
+.previews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .previews-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 6px;
+    }
+}
+
+/* even smaller screens -- shrink form elements further */
+@media (max-width: 480px) {
+    .loan-input { font-size: 1.25rem; }
+    .btn-submit { padding: 12px; font-size: 0.9rem; }
+    .calculator-card { padding: 0.75rem; }
+}
+
+
 .upload-icon-circle {
     width: 48px;
     height: 48px;

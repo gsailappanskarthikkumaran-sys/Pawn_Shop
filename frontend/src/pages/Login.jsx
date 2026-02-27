@@ -36,7 +36,7 @@ const Login = () => {
                         </div>
                     </div>
                     <h1 className="login-title">Welcome Back</h1>
-                    <p className="login-subtitle">Sign in to Mahas Bankers</p>
+                    <p className="login-subtitle">Sign in to Mahes Bankers</p>
                 </div>
 
                 {error && (

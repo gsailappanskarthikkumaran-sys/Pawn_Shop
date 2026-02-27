@@ -23,7 +23,7 @@ const Navbar = ({ toggleSidebar }) => {
         };
 
         fetchUnreadCount();
-        const interval = setInterval(fetchUnreadCount, 60000); // Check every minute
+        const interval = setInterval(fetchUnreadCount, 60000); 
         return () => clearInterval(interval);
     }, [user]);
 
@@ -49,8 +49,6 @@ const Navbar = ({ toggleSidebar }) => {
                     <Bell size={20} />
                     {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
                 </button>
-
-
 
                 <button onClick={logout} className="logout-btn-nav" title="Logout">
                     <LogOut size={18} />

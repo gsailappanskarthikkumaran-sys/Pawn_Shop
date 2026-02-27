@@ -11,7 +11,6 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Select...
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Sync search term with selected value label when not open
     useEffect(() => {
         const selectedOption = options.find(opt => opt[valueKey] === value);
         if (selectedOption && !isOpen) {
@@ -21,18 +20,18 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Select...
         }
     }, [value, options, isOpen, labelKey, valueKey]);
 
-    // Handle filtering
+    
     useEffect(() => {
         if (!isOpen) return;
 
         const filtered = options.filter(opt =>
             opt[labelKey].toLowerCase().includes(searchTerm.toLowerCase())
         );
-        setFilteredOptions(filtered.slice(0, 50)); // Limit display for performance, but search covers all
+        setFilteredOptions(filtered.slice(0, 50)); 
         setHighlightedIndex(0);
     }, [searchTerm, options, isOpen, labelKey]);
 
-    // Close on click outside
+ 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -77,7 +76,7 @@ const SearchableDropdown = ({ options, value, onChange, placeholder = "Select...
 
     const handleInputClick = () => {
         setIsOpen(true);
-        setSearchTerm(''); // Clear on click to show all options
+        setSearchTerm('');
     };
 
     return (

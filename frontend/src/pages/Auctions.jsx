@@ -100,7 +100,7 @@ const Auctions = () => {
                     </div>
                 </div>
 
-                {/* Right Panel: Auction Action */}
+                
                 <div className="action-card">
                     {!selectedLoan ? (
                         <div className="selection-tip">

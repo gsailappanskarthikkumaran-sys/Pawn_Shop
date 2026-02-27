@@ -9,20 +9,25 @@ const CameraModal = ({ onCapture, onClose }) => {
     const [capturedImage, setCapturedImage] = useState(null);
     const [error, setError] = useState(null);
     const [isStarting, setIsStarting] = useState(true);
+    const [facingMode, setFacingMode] = useState('user');
 
     useEffect(() => {
         startCamera();
         return () => {
             stopCamera();
         };
-    }, []);
+    }, [facingMode]);
 
     const startCamera = async () => {
         setIsStarting(true);
         setError(null);
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+                video: {
+                    facingMode: facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
             });
             setStream(mediaStream);
             if (videoRef.current) {
@@ -43,6 +48,11 @@ const CameraModal = ({ onCapture, onClose }) => {
         }
     };
 
+    const toggleCamera = () => {
+        stopCamera();
+        setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+    };
+
     const handleCapture = () => {
         if (videoRef.current && canvasRef.current) {
             const video = videoRef.current;
@@ -51,9 +61,11 @@ const CameraModal = ({ onCapture, onClose }) => {
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
 
-            // Mirror flip if using front camera
-            context.translate(canvas.width, 0);
-            context.scale(-1, 1);
+            // Only mirror the capture if we are in 'user' (selfie) mode to match the preview
+            if (facingMode === 'user') {
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1);
+            }
 
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -70,7 +82,6 @@ const CameraModal = ({ onCapture, onClose }) => {
 
     const handleSave = () => {
         if (capturedImage) {
-            // Convert dataURL to Blob
             fetch(capturedImage)
                 .then(res => res.blob())
                 .then(blob => {
@@ -104,7 +115,7 @@ const CameraModal = ({ onCapture, onClose }) => {
                                     ref={videoRef}
                                     autoPlay
                                     playsInline
-                                    className="camera-video"
+                                    className={`camera-video ${facingMode === 'user' ? 'mirrored' : ''}`}
                                 />
                             )}
                         </div>
@@ -119,13 +130,23 @@ const CameraModal = ({ onCapture, onClose }) => {
 
                 <div className="camera-modal-footer">
                     {!capturedImage ? (
-                        <button
-                            className="btn-capture"
-                            onClick={handleCapture}
-                            disabled={!stream || isStarting}
-                        >
-                            <Camera size={20} /> Capture
-                        </button>
+                        <div className="action-buttons">
+                            <button
+                                className="btn-switch"
+                                onClick={toggleCamera}
+                                disabled={isStarting}
+                                title="Switch Camera"
+                            >
+                                <RefreshCw size={20} />
+                            </button>
+                            <button
+                                className="btn-capture"
+                                onClick={handleCapture}
+                                disabled={!stream || isStarting}
+                            >
+                                <Camera size={20} /> Capture
+                            </button>
+                        </div>
                     ) : (
                         <div className="action-buttons">
                             <button className="btn-retake" onClick={handleRetake}>

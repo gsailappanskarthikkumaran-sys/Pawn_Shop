@@ -39,7 +39,6 @@ const Sidebar = ({ isOpen, onNavigate }) => {
             { name: 'Branches', path: '/branches', icon: <GitBranch size={20} /> },
         ] : []),
 
-        // Staff sees "My Branch" if they have one assigned
         ...(!isAdmin && user?.branch ? [
             { name: 'My Branch', path: `/branches/${user.branch}`, icon: <GitBranch size={20} /> }
         ] : []),

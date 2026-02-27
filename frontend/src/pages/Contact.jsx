@@ -17,7 +17,8 @@ const Contact = () => {
                             <Phone size={24} />
                         </div>
                         <h3>Phone</h3>
-                        <p>+91 12345 67890</p>
+                        <p>+91 9791624169 or </p>
+                        <p>+91 8838543387 </p>
                         <p className="c-sub">Mon-Sat, 10AM to 8PM</p>
                     </div>
 
@@ -35,7 +36,7 @@ const Contact = () => {
                             <MapPin size={24} />
                         </div>
                         <h3>Office</h3>
-                        <p className="c-sub">123, North Street, West side,East Mambalam </p>
+                        <p className="c-sub">2005/1, P.K.N. Road, Srinivasa Mess, Sivakasi - 626 123 </p>
                     </div>
                 </div>
             </div>

@@ -4,12 +4,16 @@ import api from '../api/axios';
 import { Printer, ArrowLeft, X } from 'lucide-react';
 import './Print.css';
 import logo from '../assets/logo.png';
+import watermark from '../assets/watermark.png';
 
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     const filename = path.split(/[/\\]/).pop();
-    return `http://localhost:5000/src/uploads/${filename}`;
+
+    // Get backend base URL from axios config or environment
+    const backendUrl = api.defaults.baseURL.replace('/api', '');
+    return `${backendUrl}/src/uploads/${filename}`;
 };
 
 const PrintView = () => {
@@ -38,7 +42,7 @@ const PrintView = () => {
                 if (!loan.printCount || loan.printCount === 0) {
                     setCopyType(' CUSTOMER COPY');
                 } else {
-                    setCopyType('STAFF COPY');
+                    setCopyType('OFFICE COPY');
                 }
 
                 if (!hasPrinted.current) {
@@ -117,7 +121,7 @@ const PrintView = () => {
 
     return (
         <div className="print-layout">
-            <img src={getImageUrl('watermark.png')} className="watermark-img" alt="Company Watermark" />
+            <img src={watermark} className="watermark-img" alt="Company Watermark" />
             <div className="screen-controls">
                 <button onClick={() => window.close()} className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
                     <X size={16} /> Close
@@ -129,7 +133,7 @@ const PrintView = () => {
 
             <div className="paper-sheet">
                 <div className="print-header">
-                    <div className="company-name bold mono"><img src={logo} style={{ width: '24px', height: '24px' }} /> MAHES BANKERS</div>
+                    <div className="company-name bold mono"><img src={logo} style={{ width: '78px', height: '78px' }} /> MAHES BANKERS</div>
                     <div className="company-details mono">
                         2005/1 – PKN ROAD, SIVAKASI – 626123<br />
                         LICENCE NO: TN-2020230415119<br />
