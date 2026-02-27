@@ -4,8 +4,12 @@ import Voucher from '../models/Voucher.js';
 
 const getEligibleLoans = async (req, res) => {
     try {
-
-        const loans = await Loan.find({ status: 'overdue' })
+        const loans = await Loan.find({
+            $or: [
+                { status: 'overdue' },
+                { status: 'active', dueDate: { $lt: new Date() } }
+            ]
+        })
             .populate('customer', 'name phone')
             .populate('scheme', 'schemeName text');
 
@@ -23,7 +27,12 @@ const recordAuctionSale = async (req, res) => {
     try {
         const loan = await Loan.findById(id);
         if (!loan) return res.status(404).json({ message: 'Loan not found' });
-        if (loan.status !== 'overdue') return res.status(400).json({ message: 'Loan must be overdue to auction' });
+
+        const isOverdue = loan.status === 'overdue' || (loan.status === 'active' && new Date() > new Date(loan.dueDate));
+
+        if (!isOverdue) {
+            return res.status(400).json({ message: 'Loan must be active and past due, or marked overdue to auction' });
+        }
 
 
         loan.status = 'auctioned';

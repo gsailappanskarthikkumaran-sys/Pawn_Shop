@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Settings, TrendingUp, Layers, Save, Trash2 } from 'lucide-react';
+import { Settings, TrendingUp, Layers, Save, Trash2, Printer } from 'lucide-react';
 import './Masters.css';
 
 const Masters = () => {
@@ -108,6 +108,10 @@ const Masters = () => {
                 alert('Failed to delete scheme');
             }
         }
+    };
+
+    const handlePrintScheme = (scheme) => {
+        window.open(`/print/scheme-report/${scheme._id}`, '_blank', 'noopener,noreferrer');
     };
 
     return (
@@ -292,24 +296,39 @@ const Masters = () => {
                         <div className="schemes-scroll-area">
                             {schemes.map(s => (
                                 <div key={s._id} className="history-item">
-                                    <span>{s.schemeName}</span>
-                                    <div className="s-det-r">
-                                        <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
-                                        {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
-                                        {(s.penalInterestRate > 0 || s.overdueFine > 0) && (
-                                            <span style={{ fontSize: '0.75rem', color: '#ef4444', display: 'block' }}>
-                                                {s.penalInterestRate > 0 && `Penal: +${s.penalInterestRate}% `}
-                                                {s.overdueFine > 0 && `Fine: ₹${s.overdueFine}`}
+                                    <div style={{ flex: 1 }}>
+                                        <span>{s.schemeName}</span>
+                                        <div className="s-det-r">
+                                            <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
+                                            {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
+                                            {(s.penalInterestRate > 0 || s.overdueFine > 0) && (
+                                                <span style={{ fontSize: '0.75rem', color: '#ef4444', display: 'block' }}>
+                                                    {s.penalInterestRate > 0 && `Penal: +${s.penalInterestRate}% `}
+                                                    {s.overdueFine > 0 && `Fine: ₹${s.overdueFine}`}
+                                                </span>
+                                            )}
+                                            <span style={{ fontSize: '0.8rem', color: '#2563eb', display: 'block', marginTop: '4px', fontWeight: '500' }}>
+                                                Active Loans: {s.activeLoanCount || 0}
                                             </span>
-                                        )}
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDeleteScheme(s._id)}
-                                        className="btn-delete-scheme"
-                                        title="Delete Scheme"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={() => handlePrintScheme(s)}
+                                            className="btn-print-scheme"
+                                            title="Print Loan List"
+                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4b5563' }}
+                                        >
+                                            <Printer size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteScheme(s._id)}
+                                            className="btn-delete-scheme"
+                                            title="Delete Scheme"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

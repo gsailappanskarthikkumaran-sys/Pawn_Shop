@@ -83,6 +83,17 @@ const PrintView = () => {
                 return;
             }
 
+            else if (type === 'scheme-report') {
+                const { data } = await api.get(`/loans?scheme=${id}`);
+                const validLoans = data.filter(l => l.status === 'active' || l.status === 'overdue');
+                setData(validLoans);
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
+                return;
+            }
+
             if (endpoint) {
                 const { data } = await api.get(endpoint);
                 setData(data);
@@ -138,6 +149,7 @@ const PrintView = () => {
                 {type === 'day-book' && <DayBookReport data={data} date={id} />}
                 {type === 'report-demand' && <DemandReport report={data} />}
                 {type === 'mini-statement' && <MiniStatement data={data} />}
+                {type === 'scheme-report' && <SchemeReport data={data} schemeId={id} />}
             </div>
         </div>
     );
@@ -712,6 +724,52 @@ const MiniStatement = ({ data }) => {
                     This is a computer generated statement.
                 </div>
             </div>
+        </div>
+    );
+};
+
+const SchemeReport = ({ data, schemeId }) => {
+    // Determine scheme name from the first loan if available
+    const schemeName = data.length > 0 && data[0].scheme ? data[0].scheme.schemeName : 'Scheme Report';
+
+    return (
+        <div>
+            <h2 className="document-title">Scheme Report - {schemeName}</h2>
+            <div className="mb-4 text-sm text-gray-500">
+                Generated on: {new Date().toLocaleString('en-IN')}
+            </div>
+            <p className="mb-4"><strong>Total Active/Overdue Loans:</strong> {data.length}</p>
+
+            <table className="w-full text-xs text-left border-collapse">
+                <thead>
+                    <tr className="border-b-2 border-black">
+                        <th className="py-2">Loan ID</th>
+                        <th className="py-2">Customer</th>
+                        <th className="py-2">Loan Date</th>
+                        <th className="py-2">Amount (₹)</th>
+                        <th className="py-2">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map(loan => (
+                        <tr key={loan._id} className="border-b border-gray-200">
+                            <td className="py-2">{loan.loanId}</td>
+                            <td className="py-2">
+                                {loan.customer?.name || 'N/A'}<br />
+                                <small className="text-gray-500">{loan.customer?.phone || ''}</small>
+                            </td>
+                            <td className="py-2">{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
+                            <td className="py-2">{loan.loanAmount}</td>
+                            <td className="py-2"><span className="status capitalize font-bold">{loan.status}</span></td>
+                        </tr>
+                    ))}
+                    {data.length === 0 && (
+                        <tr>
+                            <td colSpan="5" className="py-4 text-center text-gray-500 italic">No active or overdue loans found for this scheme.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
         </div>
     );
 };

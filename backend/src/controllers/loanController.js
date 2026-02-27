@@ -226,6 +226,14 @@ const getLoans = async (req, res) => {
             query.branch = req.query.branch;
         }
 
+        if (req.query.scheme) {
+            query.scheme = req.query.scheme;
+        }
+
+        if (req.query.status) {
+            query.status = req.query.status;
+        }
+
         const loans = await Loan.find(query)
             .populate('customer', 'name phone photo')
             .populate('scheme', 'schemeName interestRate')
@@ -358,7 +366,7 @@ const getDashboardStats = async (req, res) => {
         }
 
         const totalLoans = await Loan.countDocuments(query);
-        const activeLoans = await Loan.countDocuments({ ...query, status: { $ne: 'closed' } });
+        const activeLoans = await Loan.countDocuments({ ...query, status: { $nin: ['closed', 'auctioned'] } });
         const overdueLoans = await Loan.countDocuments({ ...query, status: 'overdue' });
 
 
@@ -540,7 +548,7 @@ const getStaffDashboardStats = async (req, res) => {
         const interestCollectedToday = paymentsToday[0]?.interestAmount || 0;
 
 
-        const totalActive = await Loan.countDocuments({ ...query, status: { $ne: 'closed' } });
+        const totalActive = await Loan.countDocuments({ ...query, status: { $nin: ['closed', 'auctioned'] } });
 
         const outstandingAgg = await Loan.aggregate([
             { $match: { ...query, status: { $ne: 'closed' } } },

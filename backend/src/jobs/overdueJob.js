@@ -5,7 +5,7 @@ import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
 const startOverdueJob = () => {
 
-    cron.schedule('0 0 * * *', async () => {
+    const verifyOverdueLoans = async () => {
         console.log('Running Overdue Check Job...');
         try {
             const today = new Date();
@@ -42,7 +42,15 @@ const startOverdueJob = () => {
         } catch (error) {
             console.error('Error in Overdue Job:', error);
         }
-    });
+    };
+
+    const startOverdueJob = () => {
+        // Run immediately on server start to catch missed jobs
+        verifyOverdueLoans();
+
+        // Schedule for midnight
+        cron.schedule('0 0 * * *', verifyOverdueLoans);
+    };
 };
 
 export default startOverdueJob;

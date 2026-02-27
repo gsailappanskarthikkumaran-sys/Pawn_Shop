@@ -1,5 +1,6 @@
 import GoldRate from '../models/GoldRate.js';
 import Scheme from '../models/Scheme.js';
+import Loan from '../models/Loan.js';
 
 const addGoldRate = async (req, res) => {
     const { ratePerGram22k, ratePerGram20k, ratePerGram18k, date } = req.body;
@@ -44,9 +45,19 @@ const addScheme = async (req, res) => {
 
 const getSchemes = async (req, res) => {
     try {
-        const schemes = await Scheme.find({ isActive: true });
-        res.json(schemes);
+        const schemes = await Scheme.find({ isActive: true }).lean();
+
+        const schemesWithCounts = await Promise.all(schemes.map(async (scheme) => {
+            const activeLoanCount = await Loan.countDocuments({
+                scheme: scheme._id,
+                status: { $in: ['active', 'overdue'] }
+            });
+            return { ...scheme, activeLoanCount };
+        }));
+
+        res.json(schemesWithCounts);
     } catch (error) {
+        console.error("Error fetching schemes:", error);
         res.status(500).json({ message: 'Server Error' });
     }
 };

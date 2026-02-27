@@ -128,7 +128,7 @@ const getFinancialStats = async (req, res) => {
         }
 
         const activeLoans = await Loan.find({ ...query, status: { $ne: 'closed' } });
-        const outstandingPrincipal = activeLoans.reduce((acc, l) => acc + l.loanAmount, 0);
+        const outstandingPrincipal = activeLoans.reduce((acc, l) => acc + (l.currentBalance || 0), 0);
         let paymentMatch = {};
         if (query.branch) {
             const branchLoanIds = await Loan.find({ branch: query.branch }).distinct('_id');
