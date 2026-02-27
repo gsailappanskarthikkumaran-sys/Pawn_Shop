@@ -3,7 +3,48 @@
     max-width: 1200px;
     margin: 0 auto;
     animation: fadeIn 0.4s ease-out;
+    width: 100%;
+    box-sizing: border-box;
 }
+
+/* header styling reused from other pages */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.page-title h1 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.25rem;
+}
+
+.page-title p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .accounts-container {
+        padding: 1rem;
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .page-title h1 { font-size: 1.25rem; }
+    .page-title p { font-size: 0.875rem; }
+}
+
 
 .tabs-header {
     display: flex;
@@ -11,7 +52,14 @@
     margin-bottom: 2rem;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 1px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
+
+/* prevent scrollbar from pushing content */
+.tabs-header::-webkit-scrollbar { height: 6px; }
+.tabs-header::-webkit-scrollbar-track { background: transparent; }
+.tabs-header::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
 
 .tab-btn {
     display: flex;
@@ -138,6 +186,21 @@
 }
 
 /* Responsive rules specific to demand list (avoid affecting other .data-table uses) */
+@media (max-width: 768px) {
+    /* shrink balance column to avoid overflow on tablets */
+    .demand-table th:nth-child(5), .demand-table td:nth-child(5) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+}
+
+@media (max-width: 4800px) {
+    /* ensure table wrapper scrolls on any device */
+    .t-tbl { overflow-x: auto; }
+}
+
 @media (max-width: 480px) {
     .demand-table th:nth-child(3), .demand-table td:nth-child(3),
     .demand-table th:nth-child(6), .demand-table td:nth-child(6) {
@@ -147,7 +210,28 @@
         font-size: 0.85rem; /* status smaller */
     }
     .demand-table th, .demand-table td { padding: 0.5rem; }
+
+    /* convert demand table to stacked cards on tiny screens */
+    .demand-table thead { display: none; }
+    .demand-table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 0.75rem;
+    }
+    .demand-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+    }
+    .demand-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-muted);
+    }
 }
+
 
 /* Ledger (tally) responsive adjustments */
 @media (max-width: 768px) {
@@ -155,6 +239,43 @@
     .tally-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .tally-header-left { gap: 1rem; }
     .tally-header label, .tally-header .tally-select { font-size: 0.95rem; }
+}
+
+/* General accounts page mobile tweaks */
+@media (max-width: 1024px) {
+    .tabs-header { flex-wrap: wrap; gap: 0.5rem; }
+    .tab-btn { flex: 1 1 auto; padding: 0.6rem 1rem; font-size: 0.9rem; }
+}
+
+@media (max-width: 768px) {
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .page-title h1 { font-size: 1.25rem; }
+    .tabs-header { justify-content: center; }
+    .tab-btn { flex: 1 1 45%; }
+    .date-picker-bar { flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%; }
+    .date-picker-bar input { width: 100%; }
+    .summary-cards { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .tab-btn { flex: 1 1 100%; padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+    .page-title h1 { font-size: 1rem; }
+    .page-title p { font-size: 0.85rem; }
+    .date-picker-bar label { width: 100%; }
+    .summary-cards { gap: 1rem; }
+    /* tighten report row padding on tiny views */
+    .report-row { padding: 0.75rem 1rem; }
+    .card-header-sm { padding: 0.75rem 1rem; }
+}
+
+/* stack the cash-in-hand card and reduce font size on smaller tablets */
+@media (max-width: 768px) {
+    .main-cash-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .big-amount { font-size: 2rem; }
 }
 
 @media (max-width: 480px) {
@@ -250,11 +371,16 @@
     font-weight: 800;
     color: #fff;
     line-height: 1.2;
+    /* ensure very large numbers wrap instead of overflowing card */
+    overflow-wrap: break-word;
+    word-break: break-all;
+    white-space: normal;
 }
 
 .reports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    /* reduced min-width so cards shrink in mobile view and prevent overflow */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
 }
 
@@ -285,6 +411,22 @@
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #f1f5f9;
     color: var(--text-main);
+}
+
+/* make amount text wrap or shrink instead of being cut off */
+.report-row span {
+    display: inline-block;
+    max-width: 100%;
+    /* allow wrapping of long numbers or labels so they don't overflow
+       their parent flex container */
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+@media (max-width: 480px) {
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .report-row.success {

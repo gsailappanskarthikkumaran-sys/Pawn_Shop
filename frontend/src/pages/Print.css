@@ -154,13 +154,17 @@
     }
 
     .company-name {
-        font-size: 22px;
+        font-size: 32px;
         font-weight: 800;
         margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
     }
 
     .company-details {
-        font-size: 10px;
+        font-size: 12px;
         line-height: 1.4;
     }
 

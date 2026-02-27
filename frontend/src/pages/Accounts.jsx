@@ -357,20 +357,20 @@ const Accounts = () => {
                                             <tr><td colSpan="6" className="text-center">No demands generated.</td></tr>
                                         ) : demandData.map((loan) => (
                                             <tr key={loan._id}>
-                                                <td className="font-mono">{loan.loanId}</td>
-                                                <td>
+                                                <td className="font-mono" data-label="Loan ID">{loan.loanId}</td>
+                                                <td data-label="Customer">
                                                     <div>{loan.customer?.name}</div>
                                                     <div className="text-xs text-gray-500">{loan.customer?.phone}</div>
                                                 </td>
-                                                <td>
+                                                <td data-label="Maturity Date">
                                                     {new Date(loan.maturityDate).toLocaleDateString('en-IN')}
                                                     {new Date(loan.maturityDate) < new Date() &&
                                                         <span className="ml-2 text-xs text-red-600 font-bold">(EXPIRED)</span>
                                                     }
                                                 </td>
-                                                <td><span className={`badge status-${loan.status}`}>{loan.status}</span></td>
-                                                <td className="text-right font-bold">₹{loan.balance}</td>
-                                                <td>
+                                                <td data-label="Status"><span className={`badge status-${loan.status}`}>{loan.status}</span></td>
+                                                <td className="text-right font-bold" data-label="Balance">₹{loan.balance}</td>
+                                                <td data-label="Action">
                                                     <button className="text-blue-600 hover:underline text-xs" onClick={() => window.open(`/print/loan/${loan._id}`, '_blank')}>
                                                         Print Notice
                                                     </button>

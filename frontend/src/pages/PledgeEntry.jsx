@@ -6,13 +6,52 @@ import SearchableDropdown from '../components/SearchableDropdown';
 import './PledgeEntry.css';
 
 const PledgeEntry = () => {
-    // START: STATIC GOLD ITEMS LIST
-    // You can add more items to this list in the future
+
     const GOLD_ITEMS = [
-        { label: 'Gold Ring', value: 'Gold Ring' },
-        { label: 'Chain with Locket', value: 'Chain with Locket' }
+        { label: 'Aaram', value: 'Aaram' },
+        { label: 'Bangles', value: 'Bangles' },
+        { label: 'Bracelet', value: 'Bracelet' },
+        { label: 'Chain', value: 'Chain' },
+        { label: 'Chain W Locket', value: 'Chain W Locket' },
+        { label: 'Coin', value: 'Coin' },
+        { label: 'Document Charges', value: 'Document Charges' },
+        { label: 'Drops', value: 'Drops' },
+        { label: 'Ear Ring', value: 'Ear Ring' },
+        { label: 'G.Malai', value: 'G.Malai' },
+        { label: 'Gold Pledged', value: 'Gold Pledged' },
+        { label: 'Head Chain', value: 'Head Chain' },
+        { label: 'III LINE CHAIN', value: 'III LINE CHAIN' },
+        { label: 'II LINE CHAIN', value: 'II LINE CHAIN' },
+        { label: 'Jimikki', value: 'Jimikki' },
+        { label: 'Jimmkey', value: 'Jimmkey' },
+        { label: 'Kappu', value: 'Kappu' },
+        { label: 'Kasu Malai', value: 'Kasu Malai' },
+        { label: 'KODI', value: 'KODI' },
+        { label: 'Kolusu', value: 'Kolusu' },
+        { label: 'Locket', value: 'Locket' },
+        { label: 'Malai', value: 'Malai' },
+        { label: 'Matti', value: 'Matti' },
+        { label: 'Necklace', value: 'Necklace' },
+        { label: 'NETHISUDI', value: 'NETHISUDI' },
+        { label: 'Retta Vada Chain', value: 'Retta Vada Chain' },
+        { label: 'Ring', value: 'Ring' },
+        { label: 'Stone Malai', value: 'Stone Malai' },
+        { label: 'Stone Ring', value: 'Stone Ring' },
+        { label: 'Stone Stud', value: 'Stone Stud' },
+        { label: 'Stud', value: 'Stud' },
+        { label: 'Studd W Matti', value: 'Studd W Matti' },
+        { label: 'Stud Titanic', value: 'Stud Titanic' },
+        { label: 'STUD W ATTAM', value: 'STUD W ATTAM' },
+        { label: 'Stud W Drops', value: 'Stud W Drops' },
+        { label: 'Stud with Jimmkey', value: 'Stud with Jimmkey' },
+        { label: 'Stud with Stone', value: 'Stud with Stone' },
+        { label: 'STUD WT MATTI', value: 'STUD WT MATTI' },
+        { label: 'Stud Wt Titanic', value: 'Stud Wt Titanic' },
+        { label: 'Taitanic', value: 'Taitanic' },
+        { label: 'THAAYATHU', value: 'THAAYATHU' },
+        { label: 'TITANIC', value: 'TITANIC' }
     ];
-    // END: STATIC GOLD ITEMS LIST
+
 
     const [schemes, setSchemes] = useState([]);
     const [goldRate, setGoldRate] = useState(null);
@@ -428,7 +467,7 @@ const PledgeEntry = () => {
                             </div>
 
                             {previews.length > 0 && (
-                                <div className="previews-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px', marginTop: '16px' }}>
+                                <div className="previews-grid">
                                     {previews.map((src, idx) => (
                                         <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                                             <img src={src} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
