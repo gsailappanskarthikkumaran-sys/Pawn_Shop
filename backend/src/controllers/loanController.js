@@ -234,6 +234,10 @@ const getLoans = async (req, res) => {
             query.status = req.query.status;
         }
 
+        if (req.query.customer) {
+            query.customer = req.query.customer;
+        }
+
         const loans = await Loan.find(query)
             .populate('customer', 'name phone photo')
             .populate('scheme', 'schemeName interestRate')

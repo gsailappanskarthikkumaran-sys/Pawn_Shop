@@ -23,6 +23,8 @@ import Contact from './pages/Contact';
 import About from './pages/About';
 import Branches from './pages/Branches';
 import BranchDetails from './pages/BranchDetails';
+import CustomerVoucher from './pages/CustomerVoucher';
+
 
 const App = () => {
   const { loading } = useAuth();
@@ -49,6 +51,8 @@ const App = () => {
         <Route path="/loans" element={<Loans />} />
         <Route path="/masters" element={<Masters />} />
         <Route path="/vouchers" element={<VoucherEntry />} />
+        <Route path="/customer-vouchers" element={<CustomerVoucher />} />
+
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/print/:type/:id" element={<PrintView />} />

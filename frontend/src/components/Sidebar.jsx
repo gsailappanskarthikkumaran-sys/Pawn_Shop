@@ -32,6 +32,8 @@ const Sidebar = ({ isOpen, onNavigate }) => {
         { name: 'Accounts', path: '/accounts', icon: <Book size={20} /> },
         { name: 'Auctions', path: '/auctions', icon: <Gavel size={20} /> },
         { name: 'Vouchers', path: '/vouchers', icon: <Receipt size={20} /> },
+        { name: 'Customer Voucher', path: '/customer-vouchers', icon: <FileText size={20} /> },
+
 
         ...(isAdmin ? [
             { name: 'Requests', path: '/admin/requests', icon: <ClipboardList size={20} /> },

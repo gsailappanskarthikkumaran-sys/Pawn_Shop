@@ -270,3 +270,27 @@
     }
 
 }
+
+/* Customer Voucher Special Size */
+.customer-voucher-print .paper-sheet {
+    width: 100mm;
+    min-height: auto;
+    border: none;
+    box-shadow: none;
+}
+
+@media print {
+    .customer-voucher-print {
+        padding: 0;
+    }
+
+    .customer-voucher-print .paper-sheet {
+        width: 100mm;
+        padding: 5mm;
+    }
+
+    .customer-voucher-print .watermark-img {
+        width: 60mm;
+        opacity: 0.1;
+    }
+}

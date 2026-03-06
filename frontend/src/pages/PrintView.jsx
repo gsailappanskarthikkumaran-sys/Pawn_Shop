@@ -98,7 +98,18 @@ const PrintView = () => {
                 return;
             }
 
+            else if (type === 'customer-voucher') {
+                const { data } = await api.get(`/loans/${id}`);
+                setData(data);
+                if (!hasPrinted.current) {
+                    hasPrinted.current = true;
+                    setTimeout(() => window.print(), 500);
+                }
+                return;
+            }
+
             if (endpoint) {
+
                 const { data } = await api.get(endpoint);
                 setData(data);
 
@@ -121,6 +132,8 @@ const PrintView = () => {
 
     return (
         <div className="print-layout">
+
+
             <img src={watermark} className="watermark-img" alt="Company Watermark" />
             <div className="screen-controls">
                 <button onClick={() => window.close()} className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
@@ -142,6 +155,8 @@ const PrintView = () => {
                 </div>
 
 
+
+
                 {type === 'loan' && (
                     <>
                         <LoanReceipt loan={data} copyType={copyType} />
@@ -154,7 +169,9 @@ const PrintView = () => {
                 {type === 'report-demand' && <DemandReport report={data} />}
                 {type === 'mini-statement' && <MiniStatement data={data} />}
                 {type === 'scheme-report' && <SchemeReport data={data} schemeId={id} />}
+                {type === 'customer-voucher' && <CustomerVoucherReceipt loan={data} />}
             </div>
+
         </div>
     );
 };
@@ -778,4 +795,66 @@ const SchemeReport = ({ data, schemeId }) => {
     );
 };
 
+const CustomerVoucherReceipt = ({ loan }) => {
+    return (
+        <div className="customer-voucher-receipt mono uppercase">
+            <h2 className="document-title">CUSTOMER VOUCHER</h2>
+
+            <div style={{ textAlign: 'right', marginBottom: '15px', fontSize: '14px' }} className="bold">
+                DATE: {new Date(loan.createdAt).toLocaleDateString('en-IN')}
+            </div>
+
+            <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                marginBottom: '30px',
+                border: '2px solid black'
+            }}>
+                <tbody>
+                    <tr>
+                        <td className="bold" style={{ width: '30%', padding: '12px', border: '1px solid black' }}>TRANSACTION TYPE</td>
+                        <td style={{ width: '70%', padding: '12px', border: '1px solid black' }} colSpan="3">LOAN</td>
+                    </tr>
+                    <tr>
+                        <td className="bold" style={{ padding: '12px', border: '1px solid black' }}>LOAN NUMBER</td>
+                        <td style={{ padding: '12px', border: '1px solid black' }} colSpan="3">{loan.loanId}</td>
+                    </tr>
+                    <tr>
+                        <td className="bold" style={{ padding: '12px', border: '1px solid black' }}>CUSTOMER NAME</td>
+                        <td style={{ padding: '12px', border: '1px solid black' }} colSpan="3">{loan.customer?.name}</td>
+                    </tr>
+                    <tr>
+                        <td className="bold" style={{ padding: '12px', border: '1px solid black' }}>PHONE NUMBER</td>
+                        <td style={{ padding: '12px', border: '1px solid black' }} colSpan="3">{loan.customer?.phone}</td>
+                    </tr>
+                    <tr>
+                        <td className="bold" style={{ padding: '12px', border: '1px solid black' }}>GROSS WEIGHT</td>
+                        <td style={{ padding: '12px', border: '1px solid black', width: '20%' }}>{loan.totalWeight} G</td>
+                        <td className="bold" style={{ padding: '12px', border: '1px solid black', width: '20%' }}>NET WEIGHT</td>
+                        <td style={{ padding: '12px', border: '1px solid black', width: '30%' }}>{(loan.items?.reduce((acc, i) => acc + (parseFloat(i.netWeight) || 0), 0)).toFixed(2)} G</td>
+                    </tr>
+                    <tr style={{ background: '#f8fafc' }}>
+                        <td className="bold" style={{ padding: '15px', fontSize: '20px', border: '1px solid black' }}>AMOUNT</td>
+                        <td className="bold" style={{ padding: '15px', fontSize: '20px', border: '1px solid black' }} colSpan="3">
+                            RS. {loan.loanAmount}/-
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div className="footer" style={{ marginTop: '80px' }}>
+                <div className="signature-box" style={{ width: '220px' }}>
+                    <div className="signature-line"></div>
+                    CUSTOMER SIGNATURE
+                </div>
+                <div className="signature-box" style={{ width: '220px' }}>
+                    <div className="signature-line"></div>
+                    AUTHORIZED SIGNATURE
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default PrintView;
+

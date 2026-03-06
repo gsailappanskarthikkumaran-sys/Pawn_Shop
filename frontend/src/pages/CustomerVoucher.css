@@ -1,0 +1,141 @@
+.voucher-page-container {
+    padding: 1.5rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.voucher-search-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f6;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.input-label-bold {
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.loans-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.loans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.loan-item-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s;
+}
+
+.loan-item-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+}
+
+.loan-info-brief {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.loan-id-tag {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.loan-amount-tag {
+    font-weight: 700;
+    color: #059669;
+}
+
+.loan-date-brief {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.loan-status-brief {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 1rem;
+}
+
+.loan-status-brief span {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-active {
+    color: #2563eb;
+}
+
+.status-closed {
+    color: #64748b;
+}
+
+.status-overdue {
+    color: #ef4444;
+}
+
+.btn-print-voucher {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-print-voucher:hover {
+    background: #2563eb;
+}
+
+.no-loans {
+    text-align: center;
+    padding: 2rem;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 2px dashed #e2e8f0;
+}
