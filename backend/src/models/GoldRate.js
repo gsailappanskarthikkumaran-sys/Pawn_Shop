@@ -15,6 +15,14 @@ const goldRateSchema = new mongoose.Schema({
     ratePerGram18k: {
         type: Number,
     },
+    deduction22k: {
+        type: Number,
+        default: 0
+    },
+    deductionOrdinary: {
+        type: Number,
+        default: 0
+    },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

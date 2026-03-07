@@ -9,7 +9,8 @@ const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     const filename = path.split(/[/\\]/).pop();
-    return `http://localhost:5000/src/uploads/${filename}`;
+    const baseUrl = api.defaults.baseURL.replace(/\/api$/, '');
+    return `${baseUrl}/src/uploads/${filename}`;
 };
 
 const Customers = () => {

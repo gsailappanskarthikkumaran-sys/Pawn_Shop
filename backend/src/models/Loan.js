@@ -39,15 +39,26 @@ const loanSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    interestRate: {
-        type: Number,
-        required: true,
-    },
-    monthlyInterest: {
-        type: Number,
-        required: true,
+    interestMonths: {
+        m1: { type: Number, required: true },
+        m2: { type: Number, required: true },
+        m3: { type: Number, required: true },
+        m4: { type: Number, required: true },
+        m5: { type: Number, required: true },
+        m6: { type: Number, required: true },
+        m7: { type: Number, required: true },
+        m8: { type: Number, required: true },
+        m9: { type: Number, required: true },
+        m10: { type: Number, required: true },
+        m11: { type: Number, required: true },
+        m12: { type: Number, required: true },
+        afterValidity: { type: Number, required: true }
     },
     preInterestAmount: {
+        type: Number,
+        default: 0,
+    },
+    processingCharges: {
         type: Number,
         default: 0,
     },

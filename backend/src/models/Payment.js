@@ -21,7 +21,7 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentMode: {
         type: String,
-        enum: ['cash', 'online', 'bank_transfer'],
+        enum: ['cash', 'online', 'bank_transfer', 'renewal'],
         default: 'cash',
         required: true
     },

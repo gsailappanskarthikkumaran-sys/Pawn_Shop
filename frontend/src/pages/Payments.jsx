@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { Search, Calendar, FileText, CheckCircle, Printer, IndianRupee } from 'lucide-react';
+import { Search, Calendar, FileText, CheckCircle, Printer, IndianRupee, RefreshCw } from 'lucide-react';
 import './Payments.css';
 
 const Payments = () => {
+    const navigate = useNavigate();
     const [searchId, setSearchId] = useState('');
     const [loan, setLoan] = useState(null);
     const [payments, setPayments] = useState([]);
@@ -38,6 +40,10 @@ const Payments = () => {
             } else {
                 setLoan(data);
                 fetchHistory(data._id);
+                if (data.calculatedInterest?.totalDue > 0) {
+                    setAmount(data.calculatedInterest.totalDue.toFixed(2));
+                    setType('interest');
+                }
             }
         } catch (error) {
             alert('Loan or Customer not found');
@@ -55,6 +61,10 @@ const Payments = () => {
             setLoan(data);
             fetchHistory(data._id);
             setSearchId(data.loanId);
+            if (data.calculatedInterest?.totalDue > 0) {
+                setAmount(data.calculatedInterest.totalDue.toFixed(2));
+                setType('interest');
+            }
         } catch (error) {
             alert('Failed to load loan details');
         } finally {
@@ -146,9 +156,20 @@ const Payments = () => {
                     <div className="details-card">
                         <div className="card-header-row">
                             <h3 className="card-title">Loan Details</h3>
-                            <span className={`status-badge status-${loan.status}`}>
-                                {loan.status}
-                            </span>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                {loan.status !== 'closed' && (
+                                    <button 
+                                        type="button"
+                                        style={{ background: '#f8fafc', border: '1px solid #cbd5e1', color: '#0f172a', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        onClick={() => navigate('/pledge', { state: { renewLoanId: loan._id } })}
+                                    >
+                                        <RefreshCw size={12} /> Renew / Top-up
+                                    </button>
+                                )}
+                                <span className={`status-badge status-${loan.status}`}>
+                                    {loan.status}
+                                </span>
+                            </div>
                         </div>
 
                         <div className="detail-row">
@@ -165,8 +186,30 @@ const Payments = () => {
                         </div>
                         <div className="detail-row">
                             <span className="detail-label">Scheme</span>
-                            <span className="detail-value">{loan.scheme?.schemeName} ({loan.scheme?.interestRate}%)</span>
+                            <span className="detail-value">{loan.scheme?.schemeName} ({loan.scheme?.interestMonths?.m1}% Start)</span>
                         </div>
+
+                        {loan.calculatedInterest && loan.calculatedInterest.monthsUnpaid > 0 && (
+                            <div className="detail-row" style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '8px 0', border: '1px solid #e2e8f0' }}>
+                                <div style={{ width: '100%' }}>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="font-bold text-gray-700">Accumulated Interest</span>
+                                        <span className="font-bold text-blue-600">₹{loan.calculatedInterest.totalDue.toFixed(2)}</span>
+                                    </div>
+                                    <div className="text-sm text-gray-500 mb-2">
+                                        Pending for {loan.calculatedInterest.monthsUnpaid} month(s)
+                                    </div>
+                                    <div style={{ display: 'grid', gap: '4px' }}>
+                                        {loan.calculatedInterest.details.map((detail, idx) => (
+                                            <div key={idx} className="flex justify-between text-xs text-gray-400">
+                                                <span>Month {detail.month} ({detail.rate}%)</span>
+                                                <span>₹{detail.amount.toFixed(2)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Penalty Display in User Interface */}
                         {loan.penalty && loan.penalty.amount > 0 && (
@@ -191,10 +234,13 @@ const Payments = () => {
                                         onChange={(e) => {
                                             setType(e.target.value);
                                             if (e.target.value === 'full_settlement') {
-                                                // Automatic Full Settlement Calculation
-                                                // Use payableAmount from backend if available (includes penalties), else fallback to currentBalance
                                                 const totalPayable = loan.payableAmount !== undefined ? loan.payableAmount : loan.currentBalance;
                                                 setAmount(totalPayable);
+                                            } else if (e.target.value === 'interest' && loan.calculatedInterest?.totalDue > 0) {
+                                                // Auto-fill with the accumulated exact interest due
+                                                setAmount(loan.calculatedInterest.totalDue.toFixed(2));
+                                            } else {
+                                                setAmount('');
                                             }
                                         }}
                                     >

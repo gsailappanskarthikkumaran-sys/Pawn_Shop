@@ -6,9 +6,20 @@ const schemeSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    interestRate: {
-        type: Number,
-        required: true,
+    interestMonths: {
+        m1: { type: Number, required: true },
+        m2: { type: Number, required: true },
+        m3: { type: Number, required: true },
+        m4: { type: Number, required: true },
+        m5: { type: Number, required: true },
+        m6: { type: Number, required: true },
+        m7: { type: Number, required: true },
+        m8: { type: Number, required: true },
+        m9: { type: Number, required: true },
+        m10: { type: Number, required: true },
+        m11: { type: Number, required: true },
+        m12: { type: Number, required: true },
+        afterValidity: { type: Number, required: true }
     },
     tenureMonths: {
         type: Number,
@@ -21,14 +32,6 @@ const schemeSchema = new mongoose.Schema({
     preInterestMonths: {
         type: Number,
         default: 0,
-    },
-    penalInterestRate: {
-        type: Number,
-        default: 0, // Extra interest % per annum (e.g. 3%)
-    },
-    overdueFine: {
-        type: Number,
-        default: 0, // Flat fine amount (e.g. 500)
     },
     description: {
         type: String,

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
-import { Plus, Trash2, Calculator, Upload, Gem, UserCheck, AlertCircle, Camera, X } from 'lucide-react';
+import { Plus, Trash2, Calculator, Upload, Gem, UserCheck, AlertCircle, Camera, X, RefreshCw } from 'lucide-react';
 import CameraModal from '../components/CameraModal';
 import SearchableDropdown from '../components/SearchableDropdown';
 import './PledgeEntry.css';
 
 const PledgeEntry = () => {
+    const location = useLocation();
+    const renewLoanId = location.state?.renewLoanId;
+    const [oldLoanData, setOldLoanData] = useState(null);
 
     const GOLD_ITEMS = [
         { label: 'Aaram', value: 'Aaram' },
@@ -62,6 +66,7 @@ const PledgeEntry = () => {
         requestedLoan: '',
     });
     const [preInterestAmount, setPreInterestAmount] = useState('');
+    const [processingCharges, setProcessingCharges] = useState('');
 
     const [customRequest, setCustomRequest] = useState(null);
     const [isCustomMode, setIsCustomMode] = useState(false);
@@ -78,14 +83,18 @@ const PledgeEntry = () => {
             const scheme = schemes.find(s => s._id === formData.schemeId);
 
 
-            const currentInterestRate = isCustomMode && customRequest ? customRequest.proposedValues.interestRate : (scheme?.interestRate || 0);
+            const currentInterestMonths = isCustomMode && customRequest ? customRequest.proposedValues.interestMonths : (scheme?.interestMonths || {});
             const currentTenure = isCustomMode && customRequest ? customRequest.proposedValues.tenureMonths : (scheme?.tenureMonths || 12);
             const currentPreInterestMonths = scheme?.preInterestMonths || 0;
 
             if (currentPreInterestMonths > 0) {
-                const totalInterest = (parseFloat(formData.requestedLoan) * currentInterestRate) / 100;
-                const monthlyInterest = totalInterest / currentTenure;
-                const preInterest = monthlyInterest * currentPreInterestMonths;
+                let preInterest = 0;
+                const principal = parseFloat(formData.requestedLoan);
+                for (let i = 1; i <= currentPreInterestMonths; i++) {
+                    const monthKey = i <= 12 ? `m${i}` : 'afterValidity';
+                    const rate = currentInterestMonths[monthKey] || 0;
+                    preInterest += (principal * rate) / 100;
+                }
                 setPreInterestAmount(preInterest.toFixed(2));
             } else {
                 setPreInterestAmount('');
@@ -122,11 +131,17 @@ const PledgeEntry = () => {
 
     const handleRequestSubmit = async () => {
         try {
+            const reqRate = parseFloat(proposedValues.interestRate);
+            const generatedMonths = {
+                m1: reqRate, m2: reqRate, m3: reqRate, m4: reqRate, m5: reqRate,
+                m6: reqRate, m7: reqRate, m8: reqRate, m9: reqRate, m10: reqRate,
+                m11: reqRate, m12: reqRate, afterValidity: reqRate
+            };
             await api.post('/scheme-requests', {
                 customerId: formData.customerId,
                 originalSchemeId: formData.schemeId,
                 proposedValues: {
-                    interestRate: parseFloat(proposedValues.interestRate),
+                    interestMonths: generatedMonths,
                     tenureMonths: parseInt(proposedValues.tenureMonths),
                     maxLoanPercentage: parseFloat(proposedValues.maxLoanPercentage)
                 },
@@ -165,6 +180,32 @@ const PledgeEntry = () => {
                 } catch (err) {
                     console.log("No gold rate set yet.");
                     setGoldRate(null);
+                }
+
+                if (renewLoanId) {
+                    try {
+                        const { data: oldLoan } = await api.get(`/loans/${renewLoanId}`);
+                        if (oldLoan) {
+                            setFormData(prev => ({
+                                ...prev,
+                                customerId: oldLoan.customer?._id || oldLoan.customer
+                            }));
+                            
+                            if (oldLoan.items && oldLoan.items.length > 0) {
+                                const prefilledItems = oldLoan.items.map(i => ({
+                                    name: i.name || '',
+                                    netWeight: i.netWeight || '',
+                                    purity: i.purity || '22k',
+                                    description: i.description || ''
+                                }));
+                                setItems(prefilledItems);
+                            }
+
+                            setOldLoanData(oldLoan);
+                        }
+                    } catch (e) {
+                         alert("Failed to load renewal details.");
+                    }
                 }
 
             } catch (error) {
@@ -209,6 +250,22 @@ const PledgeEntry = () => {
         setPreviews(prev => [...prev, previewUrl]);
     };
 
+    const getEffectiveRate = (purity, rateObj) => {
+        if (!rateObj) return 0;
+        let rate = 0;
+        if (purity === '22k') {
+            rate = rateObj.ratePerGram22k;
+            if (rateObj.deduction22k) rate -= rate * (rateObj.deduction22k / 100);
+        } else if (purity === '20k') {
+            rate = rateObj.ratePerGram20k;
+            if (rateObj.deductionOrdinary) rate -= rate * (rateObj.deductionOrdinary / 100);
+        } else if (purity === '18k') {
+            rate = rateObj.ratePerGram18k;
+            if (rateObj.deductionOrdinary) rate -= rate * (rateObj.deductionOrdinary / 100);
+        }
+        return rate;
+    };
+
     const calculateValuation = () => {
         if (!goldRate) return 0;
         let total = 0;
@@ -216,10 +273,7 @@ const PledgeEntry = () => {
 
         items.forEach(item => {
             const weight = parseFloat(item.netWeight) || 0;
-            let rate = 0;
-            if (item.purity === '22k') rate = goldRate.ratePerGram22k;
-            else if (item.purity === '20k') rate = goldRate.ratePerGram20k;
-            else if (item.purity === '18k') rate = goldRate.ratePerGram18k;
+            const rate = getEffectiveRate(item.purity, goldRate);
 
             if (!rate || rate <= 0) {
                 missingRate = true;
@@ -248,10 +302,15 @@ const PledgeEntry = () => {
         data.append('schemeId', formData.schemeId);
         data.append('requestedLoanAmount', formData.requestedLoan);
         data.append('preInterestAmount', preInterestAmount);
+        data.append('processingCharges', processingCharges);
 
         if (isCustomMode && customRequest) {
             data.append('isCustomScheme', true);
             data.append('customSchemeValues', JSON.stringify(customRequest.proposedValues));
+        }
+
+        if (oldLoanData) {
+            data.append('renewFromLoanId', oldLoanData._id);
         }
 
         data.append('items', JSON.stringify(items));
@@ -304,8 +363,11 @@ const PledgeEntry = () => {
         <div className="pledge-container">
             <div className="page-header">
                 <div className="page-title">
-                    <h1>New Pledge</h1>
-                    <p>Create a new gold loan application</p>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                        <h1>{oldLoanData ? 'Renew & Top-up Loan' : 'New Pledge'}</h1>
+                        {oldLoanData && <span className="status-badge" style={{background: '#dbeafe', color: '#1e40af'}}><RefreshCw size={12} style={{display:'inline', marginRight:'4px'}}/> Auto-Settling {oldLoanData.loanId}</span>}
+                    </div>
+                    <p>{oldLoanData ? `Creating a new loan to replace ${oldLoanData.loanId}` : 'Create a new gold loan application'}</p>
                 </div>
             </div>
 
@@ -342,7 +404,7 @@ const PledgeEntry = () => {
                                     required
                                 >
                                     <option value="">Select a Scheme...</option>
-                                    {schemes.map(s => <option key={s._id} value={s._id}>{s.schemeName} ({s.interestRate}% Interest)</option>)}
+                                    {schemes.map(s => <option key={s._id} value={s._id}>{s.schemeName} ({s.interestMonths?.m1}% Start)</option>)}
                                 </select>
                             </div>
                         </div>
@@ -352,7 +414,7 @@ const PledgeEntry = () => {
                             <div className="c-wrp">
                                 {isCustomMode ? (
                                     <div className="custom-scheme-badge">
-                                        Active Custom Scheme: {customRequest.proposedValues.interestRate}% Interest, {customRequest.proposedValues.tenureMonths} Months
+                                        Active Custom Scheme: {customRequest.proposedValues.interestMonths?.m1}% Start, {customRequest.proposedValues.tenureMonths} Months
                                     </div>
                                 ) : (
                                     <button
@@ -360,7 +422,7 @@ const PledgeEntry = () => {
                                         onClick={() => {
                                             const s = schemes.find(x => x._id === formData.schemeId);
                                             setProposedValues({
-                                                interestRate: s.interestRate,
+                                                interestRate: s.interestMonths?.m1 || 0,
                                                 tenureMonths: s.tenureMonths,
                                                 maxLoanPercentage: s.maxLoanPercentage
                                             });
@@ -522,19 +584,34 @@ const PledgeEntry = () => {
                             {goldRate?.ratePerGram22k > 0 && items.some(i => i.purity === '22k') && (
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (22k)</span>
-                                    <span className="calc-val">₹{goldRate.ratePerGram22k}/g</span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="calc-val">₹{getEffectiveRate('22k', goldRate).toFixed(2)}/g</div>
+                                        {goldRate.deduction22k > 0 && (
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram22k} - {goldRate.deduction22k}%)</div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                             {goldRate?.ratePerGram20k > 0 && items.some(i => i.purity === '20k') && (
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (20k)</span>
-                                    <span className="calc-val">₹{goldRate.ratePerGram20k}/g</span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="calc-val">₹{getEffectiveRate('20k', goldRate).toFixed(2)}/g</div>
+                                        {goldRate.deductionOrdinary > 0 && (
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram20k} - {goldRate.deductionOrdinary}%)</div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                             {goldRate?.ratePerGram18k > 0 && items.some(i => i.purity === '18k') && (
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (18k)</span>
-                                    <span className="calc-val">₹{goldRate.ratePerGram18k}/g</span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="calc-val">₹{getEffectiveRate('18k', goldRate).toFixed(2)}/g</div>
+                                        {goldRate.deductionOrdinary > 0 && (
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram18k} - {goldRate.deductionOrdinary}%)</div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 
@@ -592,13 +669,38 @@ const PledgeEntry = () => {
                                         />
                                     </div>
                                 </div>
+                                <div className="calc-row">
+                                    <span className="calc-label calc-label-orange">Processing Charges</span>
+                                    <div className="f-c-4">
+                                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>₹</span>
+                                        <input
+                                            type="number"
+                                            className="input-sm input-small-narrow"
+                                            value={processingCharges}
+                                            onChange={e => setProcessingCharges(e.target.value)}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {oldLoanData && (
+                            <div className="renewal-summary" style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', margin: '16px 0', border: '1px solid #cbd5e1' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                    <span className="font-bold text-gray-700 text-sm">Old Loan Settlement</span>
+                                    <span className="font-bold text-red-600">-₹{oldLoanData.payableAmount?.toFixed(2)}</span>
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'right' }}>
+                                    (Principal + Arrears + Penalties)
+                                </div>
                             </div>
                         )}
 
                         <div className="total-row net-cash-row">
-                            <span className="dark-strong">Net Cash to Customer</span>
+                            <span className="dark-strong">Net Cash Disbursed</span>
                             <span className="total-val dark-text">
-                                ₹{((parseFloat(formData.requestedLoan) || 0) - (parseFloat(preInterestAmount) || 0)).toFixed(2)}
+                                ₹{((parseFloat(formData.requestedLoan) || 0) - (parseFloat(preInterestAmount) || 0) - (parseFloat(processingCharges) || 0) - (oldLoanData ? (oldLoanData.payableAmount || 0) : 0)).toFixed(2)}
                             </span>
                         </div>
 
@@ -620,7 +722,7 @@ const PledgeEntry = () => {
                         <h3 className="modal-title">Request Custom Scheme</h3>
                         <div className="modal-content-stack">
                             <div>
-                                <label className="input-label-sm">Interest Rate (%)</label>
+                                <label className="input-label-sm">Starting Interest Rate (%)</label>
                                 <input type="number" className="input-field" value={proposedValues.interestRate} onChange={e => setProposedValues({ ...proposedValues, interestRate: e.target.value })} />
                             </div>
                             <div>

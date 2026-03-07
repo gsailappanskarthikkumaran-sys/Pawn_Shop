@@ -24,6 +24,7 @@ const addPayment = async (req, res) => {
         if (type === 'full_settlement') {
             loan.status = 'closed';
             loan.currentBalance = 0;
+            loan.payableAmount = 0;
         } else if (type === 'principal') {
             loan.currentBalance -= amount;
             if (loan.currentBalance <= 0) {
@@ -31,10 +32,37 @@ const addPayment = async (req, res) => {
                 loan.currentBalance = 0;
             }
         } else if (type === 'interest') {
+            // Find how many months this payment covers by doing a simulated calculation
+            let tempAmount = amount;
+            let monthsPaid = 0;
+            let currentArrearsIndex = 1; // Start at m1 because payment clears the oldest unpaid month first
 
-            const nextDate = new Date(loan.nextPaymentDate);
-            nextDate.setMonth(nextDate.getMonth() + 1);
-            loan.nextPaymentDate = nextDate;
+            while (tempAmount > 0) {
+                const monthKey = `m${currentArrearsIndex}`;
+                let rate = loan.interestMonths[monthKey];
+                if (currentArrearsIndex > 12 || rate === undefined) {
+                    rate = loan.interestMonths.afterValidity;
+                }
+
+                const expectedMonthInterest = (loan.currentBalance * rate) / 100;
+                
+                // If they pay exactly or more than this month's interest, clear 1 month
+                if (tempAmount >= expectedMonthInterest - 0.01) { // -0.01 for float precision
+                    monthsPaid++;
+                    tempAmount -= expectedMonthInterest;
+                    currentArrearsIndex++;
+                } else {
+                    // Partial payment of a single month - don't advance the date fully
+                    break;
+                }
+            }
+
+            // Advance nextPaymentDate by the number of full months paid
+            if (monthsPaid > 0) {
+                const nextDate = new Date(loan.nextPaymentDate);
+                nextDate.setMonth(nextDate.getMonth() + monthsPaid);
+                loan.nextPaymentDate = nextDate;
+            }
         }
 
         await loan.save();

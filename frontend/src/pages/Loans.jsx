@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Search, Filter, FileText, ChevronRight, Printer, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Filter, FileText, ChevronRight, Printer, Plus, RefreshCw } from 'lucide-react';
 import './Loans.css';
 
 const Loans = () => {
@@ -11,6 +12,7 @@ const Loans = () => {
     const [branches, setBranches] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState('');
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (user?.role !== 'staff') {
@@ -115,7 +117,7 @@ const Loans = () => {
                                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{loan.customer?.phone}</div>
                                         </td>
                                         <td>{loan.scheme?.schemeName}</td>
-                                        <td>{loan.interestRate}%</td>
+                                        <td>{loan.interestMonths?.m1}%</td>
                                         <td>{new Date(loan.createdAt).toLocaleDateString('en-IN')}</td>
                                         <td>{new Date(loan.dueDate).toLocaleDateString('en-IN')}</td>
                                         <td className="amount-cell">₹{loan.loanAmount}</td>
@@ -125,6 +127,16 @@ const Loans = () => {
                                             </span>
                                         </td>
                                         <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                            {loan.status !== 'closed' && (
+                                                <button
+                                                    className="action-icon-btn"
+                                                    title="Renew / Top-up"
+                                                    onClick={() => navigate('/pledge', { state: { renewLoanId: loan._id } })}
+                                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#3b82f6' }}
+                                                >
+                                                    <RefreshCw size={18} />
+                                                </button>
+                                            )}
                                             <button
                                                 className="action-icon-btn"
                                                 title="Print Receipt"

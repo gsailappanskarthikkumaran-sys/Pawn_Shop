@@ -85,7 +85,7 @@ const AdminRequests = () => {
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             <span className="change-tag tag-blue">
-                                                Int: {req.proposedValues.interestRate}%
+                                                Int: {req.proposedValues.interestMonths?.m1}% Start
                                             </span>
                                             <span className="change-tag tag-purple">
                                                 Tenure: {req.proposedValues.tenureMonths}m

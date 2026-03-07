@@ -8,17 +8,20 @@ const Masters = () => {
     const [rate22k, setRate22k] = useState('');
     const [rate20k, setRate20k] = useState('');
     const [rate18k, setRate18k] = useState('');
+    const [deduction22k, setDeduction22k] = useState('');
+    const [deductionOrdinary, setDeductionOrdinary] = useState('');
     const [currentRate, setCurrentRate] = useState(null);
     const [loadingRate, setLoadingRate] = useState(false);
+    const [activeTab, setActiveTab] = useState('goldrates');
 
 
     const [schemeName, setSchemeName] = useState('');
-    const [interestRate, setInterestRate] = useState('');
+    const [interestMonths, setInterestMonths] = useState({
+        m1:'', m2:'', m3:'', m4:'', m5:'', m6:'', m7:'', m8:'', m9:'', m10:'', m11:'', m12:'', afterValidity:''
+    });
     const [tenure, setTenure] = useState('');
     const [preInterest, setPreInterest] = useState('');
     const [maxLoan, setMaxLoan] = useState('');
-    const [penalInterest, setPenalInterest] = useState('');
-    const [overdueFine, setOverdueFine] = useState('');
     const [schemes, setSchemes] = useState([]);
 
     useEffect(() => {
@@ -45,13 +48,17 @@ const Masters = () => {
             const { data } = await api.post('/masters/gold-rate', {
                 ratePerGram22k: parseFloat(rate22k),
                 ratePerGram20k: parseFloat(rate20k),
-                ratePerGram18k: parseFloat(rate18k)
+                ratePerGram18k: parseFloat(rate18k),
+                deduction22k: parseFloat(deduction22k) || 0,
+                deductionOrdinary: parseFloat(deductionOrdinary) || 0
             });
             setCurrentRate(data);
             alert('Gold Rate Updated!');
             setRate22k('');
             setRate20k('');
             setRate18k('');
+            setDeduction22k('');
+            setDeductionOrdinary('');
         } catch (error) {
             alert('Failed to update rate');
         } finally {
@@ -76,22 +83,24 @@ const Masters = () => {
         try {
             const { data } = await api.post('/masters/schemes', {
                 schemeName,
-                interestRate: parseFloat(interestRate),
+                interestMonths: {
+                    m1: parseFloat(interestMonths.m1) || 0, m2: parseFloat(interestMonths.m2) || 0, m3: parseFloat(interestMonths.m3) || 0,
+                    m4: parseFloat(interestMonths.m4) || 0, m5: parseFloat(interestMonths.m5) || 0, m6: parseFloat(interestMonths.m6) || 0,
+                    m7: parseFloat(interestMonths.m7) || 0, m8: parseFloat(interestMonths.m8) || 0, m9: parseFloat(interestMonths.m9) || 0,
+                    m10: parseFloat(interestMonths.m10) || 0, m11: parseFloat(interestMonths.m11) || 0, m12: parseFloat(interestMonths.m12) || 0,
+                    afterValidity: parseFloat(interestMonths.afterValidity) || 0
+                },
                 tenureMonths: parseInt(tenure),
                 maxLoanPercentage: parseFloat(maxLoan),
-                preInterestMonths: parseInt(preInterest) || 0,
-                penalInterestRate: parseFloat(penalInterest) || 0,
-                overdueFine: parseFloat(overdueFine) || 0
+                preInterestMonths: parseInt(preInterest) || 0
             });
             setSchemes([...schemes, data]);
             alert('Scheme Added!');
             setSchemeName('');
-            setInterestRate('');
+            setInterestMonths({m1:'', m2:'', m3:'', m4:'', m5:'', m6:'', m7:'', m8:'', m9:'', m10:'', m11:'', m12:'', afterValidity:''});
             setTenure('');
             setPreInterest('');
             setMaxLoan('');
-            setPenalInterest('');
-            setOverdueFine('');
         } catch (error) {
             alert('Failed to add scheme');
         }
@@ -123,10 +132,24 @@ const Masters = () => {
                 </div>
             </div>
 
-            <div className="masters-grid">
+            <div className="tabs-header">
+                <button
+                    className={`tab-btn ${activeTab === 'goldrates' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('goldrates')}
+                >
+                    <TrendingUp size={18} /> Gold Rates
+                </button>
+                <button
+                    className={`tab-btn ${activeTab === 'schemes' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('schemes')}
+                >
+                    <Layers size={18} /> Loan Schemes
+                </button>
+            </div>
 
-
-                <div className="master-card">
+            <div className="tab-content">
+                {activeTab === 'goldrates' && (
+                    <div className="master-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
                     <div className="card-header">
                         <div className="icon-box gold-icon">
                             <TrendingUp size={20} />
@@ -171,7 +194,31 @@ const Masters = () => {
                                 required
                             />
                         </div>
-                        <button type="submit" className="btn-primary" disabled={loadingRate}>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
+                            <div className="form-group">
+                                <label className="form-label" style={{ color: '#d97706' }}>22k (916) Deduction (%)</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={deduction22k}
+                                    onChange={e => setDeduction22k(e.target.value)}
+                                    placeholder={currentRate?.deduction22k || "0"}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label" style={{ color: '#d97706' }}>Ordinary Gold Deduction (%)</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={deductionOrdinary}
+                                    onChange={e => setDeductionOrdinary(e.target.value)}
+                                    placeholder={currentRate?.deductionOrdinary || "0"}
+                                />
+                            </div>
+                        </div>
+
+                        <button type="submit" className="btn-primary" disabled={loadingRate} style={{ marginTop: '12px' }}>
                             <Save size={16} /> Save Daily Rate
                         </button>
 
@@ -212,16 +259,37 @@ const Masters = () => {
                                         <span className="rate-val">₹{currentRate.ratePerGram18k}</span>
                                     </div>
                                 )}
+                                
+                                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                                    <h5 style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Applied Deductions</h5>
+                                    {currentRate.deduction22k > 0 && (
+                                        <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                                            <span style={{ color: '#b45309' }}>22k (916) Deduction</span>
+                                            <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deduction22k}%</span>
+                                        </div>
+                                    )}
+                                    {currentRate.deductionOrdinary > 0 && (
+                                        <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                                            <span style={{ color: '#b45309' }}>Ordinary Gold Deduction</span>
+                                            <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deductionOrdinary}%</span>
+                                        </div>
+                                    )}
+                                    {(!currentRate.deduction22k && !currentRate.deductionOrdinary) && (
+                                        <p className="text-muted text-sm">No deductions applied.</p>
+                                    )}
+                                </div>
+
                                 {!(currentRate.ratePerGram22k > 0 || currentRate.ratePerGram20k > 0 || currentRate.ratePerGram18k > 0) && (
                                     <p className="text-muted text-sm">No rates have been set yet.</p>
                                 )}
                             </>
                         ) : <p className="text-muted text-sm">No rate records found.</p>}
                     </div>
-                </div>
+                    </div>
+                )}
 
-
-                <div className="master-card">
+                {activeTab === 'schemes' && (
+                    <div className="master-card" style={{ maxWidth: '1000px', margin: '0 auto' }}>
                     <div className="card-header">
                         <div className="icon-box scheme-icon">
                             <Layers size={20} />
@@ -241,24 +309,41 @@ const Masters = () => {
                                 placeholder="e.g. Standard Gold Loan" required
                             />
                         </div>
-                        <div className="form-row-grid">
-                            <div className="form-group">
-                                <label className="form-label">Interest (%)</label>
-                                <input
-                                    type="number" className="input-field"
-                                    value={interestRate} onChange={e => setInterestRate(e.target.value)}
-                                    placeholder="12" step="0.1" required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Number of months</label>
-                                <input
-                                    type="number" className="input-field"
-                                    value={tenure} onChange={e => setTenure(e.target.value)}
-                                    placeholder="12" required
-                                />
-                            </div>
+                        <div className="form-group">
+                            <label className="form-label">Number of months (Validity)</label>
+                            <input
+                                type="number" className="input-field"
+                                value={tenure} onChange={e => setTenure(e.target.value)}
+                                placeholder="e.g. 12" required
+                            />
                         </div>
+                        {tenure && parseInt(tenure) > 0 && (
+                            <div className="form-row-grid">
+                                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                    <label className="form-label">Interest % Matrix</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+                                        {[...Array(Math.min(parseInt(tenure), 12)).keys()].map(i => {
+                                            const m = i + 1;
+                                            return (
+                                                <input
+                                                    key={`m${m}`}
+                                                    type="number" className="input-field"
+                                                    value={interestMonths[`m${m}`] || ''}
+                                                    onChange={e => setInterestMonths({ ...interestMonths, [`m${m}`]: e.target.value })}
+                                                    placeholder={`Month ${m}`} step="0.1" required
+                                                />
+                                            );
+                                        })}
+                                        <input
+                                            type="number" className="input-field"
+                                            value={interestMonths.afterValidity}
+                                            onChange={e => setInterestMonths({ ...interestMonths, afterValidity: e.target.value })}
+                                            placeholder="After Val." step="0.1" required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label className="form-label">Max Loan to Value (%)</label>
@@ -267,24 +352,6 @@ const Masters = () => {
                                 value={maxLoan} onChange={e => setMaxLoan(e.target.value)}
                                 placeholder="75" max="100" required
                             />
-                        </div>
-                        <div className="form-row-grid">
-                            <div className="form-group">
-                                <label className="form-label">Penal Interest (% p.a)</label>
-                                <input
-                                    type="number" className="input-field"
-                                    value={penalInterest} onChange={e => setPenalInterest(e.target.value)}
-                                    placeholder="e.g. 5" step="0.1"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Overdue Fine (Flat ₹)</label>
-                                <input
-                                    type="number" className="input-field"
-                                    value={overdueFine} onChange={e => setOverdueFine(e.target.value)}
-                                    placeholder="e.g. 500"
-                                />
-                            </div>
                         </div>
                         <button type="submit" className="btn-primary">
                             <Save size={16} /> Add Scheme
@@ -299,14 +366,8 @@ const Masters = () => {
                                     <div style={{ flex: 1 }}>
                                         <span>{s.schemeName}</span>
                                         <div className="s-det-r">
-                                            <span className="scheme-rate-text">{s.interestRate}% / {s.maxLoanPercentage}% LTV</span>
+                                            <span className="scheme-rate-text">M1: {s.interestMonths?.m1}% | After: {s.interestMonths?.afterValidity}% / {s.maxLoanPercentage}% LTV</span>
                                             {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
-                                            {(s.penalInterestRate > 0 || s.overdueFine > 0) && (
-                                                <span style={{ fontSize: '0.75rem', color: '#ef4444', display: 'block' }}>
-                                                    {s.penalInterestRate > 0 && `Penal: +${s.penalInterestRate}% `}
-                                                    {s.overdueFine > 0 && `Fine: ₹${s.overdueFine}`}
-                                                </span>
-                                            )}
                                             <span style={{ fontSize: '0.8rem', color: '#2563eb', display: 'block', marginTop: '4px', fontWeight: '500' }}>
                                                 Active Loans: {s.activeLoanCount || 0}
                                             </span>
@@ -333,8 +394,8 @@ const Masters = () => {
                             ))}
                         </div>
                     </div>
-                </div>
-
+                    </div>
+                )}
             </div>
         </div>
     );

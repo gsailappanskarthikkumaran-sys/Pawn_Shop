@@ -246,20 +246,20 @@ const LoanReceipt = ({ loan, copyType }) => (
                         <td className="bold">{item.name || 'GOLD ITEM'} - {item.description || ''}</td>
                         <td style={{ textAlign: 'center' }}>₹{loan.totalWeight > 0 ? ((item.netWeight / loan.totalWeight) * loan.valuation).toFixed(0) : '0'}</td>
                         <td style={{ textAlign: 'center' }}>{item.netWeight}G</td>
-                        <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
+                        <td style={{ textAlign: 'center' }}>{loan.interestMonths?.m1}%</td>
                     </tr>
                 ))}
                 <tr className="bold" style={{ backgroundColor: '#f0f0f0' }}>
                     <td style={{ textAlign: 'right' }}>TOTAL</td>
                     <td style={{ textAlign: 'center' }}>₹{loan.valuation}</td>
                     <td style={{ textAlign: 'center' }}>{loan.totalWeight}G</td>
-                    <td style={{ textAlign: 'center' }}>{loan.interestRate}%</td>
+                    <td style={{ textAlign: 'center' }}>{loan.interestMonths?.m1}%</td>
                 </tr>
             </tbody>
         </table>
         <div className="mb-4">
             <div>SCHEME : <span className="bold">{loan.scheme?.schemeName || 'AGL – ONE YEAR'}</span></div>
-            <div>INTEREST RATE FOR THE PERIOD : <span className="bold">{loan.interestRate}% PM</span></div>
+            <div>STARTING INTEREST RATE : <span className="bold">{loan.interestMonths?.m1}% PM</span></div>
         </div>
 
         {/* 5. Office Use Section */}
@@ -498,7 +498,7 @@ const PaymentReceipt = ({ payment }) => (
                     <div className="detail-group text-right">
                         <label>Next Interest Amount</label>
                         <div className="font-bold">
-                            ₹{payment.loan.monthlyInterest ? payment.loan.monthlyInterest.toFixed(2) : ((payment.loan.loanAmount * (payment.loan.interestRate || 2)) / 100).toFixed(2)}
+                            ₹{((payment.loan.loanAmount * (payment.loan.interestMonths?.m1 || 2)) / 100).toFixed(2)}
                         </div>
                     </div>
                 </div>
@@ -664,7 +664,7 @@ const MiniStatement = ({ data }) => {
                     </div>
                     <div>
                         <span className="text-gray-500 block">Interest Rate</span>
-                        <span className="font-bold">{loan.interestRate}%</span>
+                        <span className="font-bold">{loan.interestMonths?.m1}% Start</span>
                     </div>
                     <div>
                         <span className="text-gray-500 block">Weight</span>

@@ -3,7 +3,7 @@ import Scheme from '../models/Scheme.js';
 import Loan from '../models/Loan.js';
 
 const addGoldRate = async (req, res) => {
-    const { ratePerGram22k, ratePerGram20k, ratePerGram18k, date } = req.body;
+    const { ratePerGram22k, ratePerGram20k, ratePerGram18k, deduction22k, deductionOrdinary, date } = req.body;
 
     try {
         const rate = await GoldRate.create({
@@ -11,6 +11,8 @@ const addGoldRate = async (req, res) => {
             ratePerGram22k,
             ratePerGram20k,
             ratePerGram18k,
+            deduction22k: deduction22k || 0,
+            deductionOrdinary: deductionOrdinary || 0,
             updatedBy: req.user._id,
         });
         res.status(201).json(rate);
