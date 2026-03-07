@@ -190,7 +190,7 @@ const PledgeEntry = () => {
                                 ...prev,
                                 customerId: oldLoan.customer?._id || oldLoan.customer
                             }));
-                            
+
                             if (oldLoan.items && oldLoan.items.length > 0) {
                                 const prefilledItems = oldLoan.items.map(i => ({
                                     name: i.name || '',
@@ -204,7 +204,7 @@ const PledgeEntry = () => {
                             setOldLoanData(oldLoan);
                         }
                     } catch (e) {
-                         alert("Failed to load renewal details.");
+                        alert("Failed to load renewal details.");
                     }
                 }
 
@@ -250,39 +250,61 @@ const PledgeEntry = () => {
         setPreviews(prev => [...prev, previewUrl]);
     };
 
-    const getEffectiveRate = (purity, rateObj) => {
+    const getPurityWeights = () => {
+        const weights = { '22k': 0, '20k': 0, '18k': 0 };
+        items.forEach(item => {
+            const w = parseFloat(item.netWeight) || 0;
+            if (weights[item.purity] !== undefined) {
+                weights[item.purity] += w;
+            }
+        });
+        return weights;
+    };
+
+    const getEffectiveRate = (purity, rateObj, totalPurityWeight) => {
         if (!rateObj) return 0;
         let rate = 0;
+        const weight = totalPurityWeight || 0;
+
         if (purity === '22k') {
             rate = rateObj.ratePerGram22k;
-            if (rateObj.deduction22k) rate -= rate * (rateObj.deduction22k / 100);
+            const deductionBase = rateObj.deduction22k || 0;
+            const totalDeductionPercent = deductionBase * weight;
+            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
         } else if (purity === '20k') {
             rate = rateObj.ratePerGram20k;
-            if (rateObj.deductionOrdinary) rate -= rate * (rateObj.deductionOrdinary / 100);
+            const deductionBase = rateObj.deductionOrdinary || 0;
+            const totalDeductionPercent = deductionBase * weight;
+            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
         } else if (purity === '18k') {
             rate = rateObj.ratePerGram18k;
-            if (rateObj.deductionOrdinary) rate -= rate * (rateObj.deductionOrdinary / 100);
+            const deductionBase = rateObj.deductionOrdinary || 0;
+            const totalDeductionPercent = deductionBase * weight;
+            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
         }
         return rate;
     };
 
     const calculateValuation = () => {
         if (!goldRate) return 0;
+        const purityWeights = getPurityWeights();
         let total = 0;
         let missingRate = false;
 
-        items.forEach(item => {
-            const weight = parseFloat(item.netWeight) || 0;
-            const rate = getEffectiveRate(item.purity, goldRate);
-
-            if (!rate || rate <= 0) {
-                missingRate = true;
+        ['22k', '20k', '18k'].forEach(purity => {
+            const weight = purityWeights[purity];
+            if (weight > 0) {
+                const rate = getEffectiveRate(purity, goldRate, weight);
+                if (!rate || rate <= 0) {
+                    missingRate = true;
+                }
+                total += weight * (rate || 0);
             }
-            total += weight * (rate || 0);
         });
 
         return missingRate ? 0 : total;
     };
+
 
     const calculateMaxLoan = () => {
         const valuation = calculateValuation();
@@ -363,9 +385,9 @@ const PledgeEntry = () => {
         <div className="pledge-container">
             <div className="page-header">
                 <div className="page-title">
-                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <h1>{oldLoanData ? 'Renew & Top-up Loan' : 'New Pledge'}</h1>
-                        {oldLoanData && <span className="status-badge" style={{background: '#dbeafe', color: '#1e40af'}}><RefreshCw size={12} style={{display:'inline', marginRight:'4px'}}/> Auto-Settling {oldLoanData.loanId}</span>}
+                        {oldLoanData && <span className="status-badge" style={{ background: '#dbeafe', color: '#1e40af' }}><RefreshCw size={12} style={{ display: 'inline', marginRight: '4px' }} /> Auto-Settling {oldLoanData.loanId}</span>}
                     </div>
                     <p>{oldLoanData ? `Creating a new loan to replace ${oldLoanData.loanId}` : 'Create a new gold loan application'}</p>
                 </div>
@@ -585,9 +607,11 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (22k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('22k', goldRate).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('22k', goldRate, getPurityWeights()['22k']).toFixed(2)}/g</div>
                                         {goldRate.deduction22k > 0 && (
-                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram22k} - {goldRate.deduction22k}%)</div>
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>
+                                                (Base: ₹{goldRate.ratePerGram22k} - {goldRate.deduction22k}% × {getPurityWeights()['22k']}g = {(goldRate.deduction22k * getPurityWeights()['22k']).toFixed(2)}%)
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -596,9 +620,11 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (20k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('20k', goldRate).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('20k', goldRate, getPurityWeights()['20k']).toFixed(2)}/g</div>
                                         {goldRate.deductionOrdinary > 0 && (
-                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram20k} - {goldRate.deductionOrdinary}%)</div>
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>
+                                                (Base: ₹{goldRate.ratePerGram20k} - {goldRate.deductionOrdinary}% × {getPurityWeights()['20k']}g = {(goldRate.deductionOrdinary * getPurityWeights()['20k']).toFixed(2)}%)
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -607,9 +633,11 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (18k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('18k', goldRate).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('18k', goldRate, getPurityWeights()['18k']).toFixed(2)}/g</div>
                                         {goldRate.deductionOrdinary > 0 && (
-                                            <div style={{ fontSize: '10px', color: '#64748b' }}>(Base: ₹{goldRate.ratePerGram18k} - {goldRate.deductionOrdinary}%)</div>
+                                            <div style={{ fontSize: '10px', color: '#64748b' }}>
+                                                (Base: ₹{goldRate.ratePerGram18k} - {goldRate.deductionOrdinary}% × {getPurityWeights()['18k']}g = {(goldRate.deductionOrdinary * getPurityWeights()['18k']).toFixed(2)}%)
+                                            </div>
                                         )}
                                     </div>
                                 </div>

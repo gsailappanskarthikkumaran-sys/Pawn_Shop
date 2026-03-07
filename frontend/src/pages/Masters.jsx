@@ -12,12 +12,13 @@ const Masters = () => {
     const [deductionOrdinary, setDeductionOrdinary] = useState('');
     const [currentRate, setCurrentRate] = useState(null);
     const [loadingRate, setLoadingRate] = useState(false);
+    const [loadingDeduction, setLoadingDeduction] = useState(false);
     const [activeTab, setActiveTab] = useState('goldrates');
 
 
     const [schemeName, setSchemeName] = useState('');
     const [interestMonths, setInterestMonths] = useState({
-        m1:'', m2:'', m3:'', m4:'', m5:'', m6:'', m7:'', m8:'', m9:'', m10:'', m11:'', m12:'', afterValidity:''
+        m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '', m10: '', m11: '', m12: '', afterValidity: ''
     });
     const [tenure, setTenure] = useState('');
     const [preInterest, setPreInterest] = useState('');
@@ -46,23 +47,42 @@ const Masters = () => {
         setLoadingRate(true);
         try {
             const { data } = await api.post('/masters/gold-rate', {
-                ratePerGram22k: parseFloat(rate22k),
-                ratePerGram20k: parseFloat(rate20k),
-                ratePerGram18k: parseFloat(rate18k),
-                deduction22k: parseFloat(deduction22k) || 0,
-                deductionOrdinary: parseFloat(deductionOrdinary) || 0
+                ratePerGram22k: parseFloat(rate22k) || 0,
+                ratePerGram20k: parseFloat(rate20k) || 0,
+                ratePerGram18k: parseFloat(rate18k) || 0
             });
             setCurrentRate(data);
-            alert('Gold Rate Updated!');
+            alert('Gold Rates Updated!');
             setRate22k('');
             setRate20k('');
             setRate18k('');
+        } catch (error) {
+            alert('Failed to update gold rates');
+        } finally {
+            setLoadingRate(false);
+        }
+    };
+
+    const handleDeductionSubmit = async (e) => {
+        e.preventDefault();
+        setLoadingDeduction(true);
+        try {
+            const { data } = await api.post('/masters/deductions', {
+                deduction22k: parseFloat(deduction22k) || 0,
+                deductionOrdinary: parseFloat(deductionOrdinary) || 0
+            });
+            setCurrentRate(prev => ({
+                ...prev,
+                deduction22k: data.deduction22k,
+                deductionOrdinary: data.deductionOrdinary
+            }));
+            alert('Deduction Percentages Updated!');
             setDeduction22k('');
             setDeductionOrdinary('');
         } catch (error) {
-            alert('Failed to update rate');
+            alert('Failed to update deductions');
         } finally {
-            setLoadingRate(false);
+            setLoadingDeduction(false);
         }
     };
 
@@ -97,7 +117,7 @@ const Masters = () => {
             setSchemes([...schemes, data]);
             alert('Scheme Added!');
             setSchemeName('');
-            setInterestMonths({m1:'', m2:'', m3:'', m4:'', m5:'', m6:'', m7:'', m8:'', m9:'', m10:'', m11:'', m12:'', afterValidity:''});
+            setInterestMonths({ m1: '', m2: '', m3: '', m4: '', m5: '', m6: '', m7: '', m8: '', m9: '', m10: '', m11: '', m12: '', afterValidity: '' });
             setTenure('');
             setPreInterest('');
             setMaxLoan('');
@@ -150,250 +170,257 @@ const Masters = () => {
             <div className="tab-content">
                 {activeTab === 'goldrates' && (
                     <div className="master-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <div className="card-header">
-                        <div className="icon-box gold-icon">
-                            <TrendingUp size={20} />
-                        </div>
-                        <div>
-                            <h3>Daily Gold Rates</h3>
-                            <p>Set today's market rate manually</p>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handleGoldRateSubmit} className="form-stack">
-                        <div className="form-group">
-                            <label className="form-label">22k Rate (per gram) (₹)</label>
-                            <input
-                                type="number"
-                                className="input-field"
-                                value={rate22k}
-                                onChange={e => setRate22k(e.target.value)}
-                                placeholder={currentRate ? currentRate.ratePerGram22k : "0.00"}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">20k Rate (per gram) (₹)</label>
-                            <input
-                                type="number"
-                                className="input-field"
-                                value={rate20k}
-                                onChange={e => setRate20k(e.target.value)}
-                                placeholder={currentRate ? currentRate.ratePerGram20k : "0.00"}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">18k Rate (per gram) (₹)</label>
-                            <input
-                                type="number"
-                                className="input-field"
-                                value={rate18k}
-                                onChange={e => setRate18k(e.target.value)}
-                                placeholder={currentRate ? currentRate.ratePerGram18k : "0.00"}
-                                required
-                            />
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
-                            <div className="form-group">
-                                <label className="form-label" style={{ color: '#d97706' }}>22k (916) Deduction (%)</label>
-                                <input
-                                    type="number"
-                                    className="input-field"
-                                    value={deduction22k}
-                                    onChange={e => setDeduction22k(e.target.value)}
-                                    placeholder={currentRate?.deduction22k || "0"}
-                                />
+                        <div className="card-header">
+                            <div className="icon-box gold-icon">
+                                <TrendingUp size={20} />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label" style={{ color: '#d97706' }}>Ordinary Gold Deduction (%)</label>
-                                <input
-                                    type="number"
-                                    className="input-field"
-                                    value={deductionOrdinary}
-                                    onChange={e => setDeductionOrdinary(e.target.value)}
-                                    placeholder={currentRate?.deductionOrdinary || "0"}
-                                />
+                            <div>
+                                <h3>Daily Gold Rates</h3>
+                                <p>Set today's market rate manually</p>
                             </div>
                         </div>
 
-                        <button type="submit" className="btn-primary" disabled={loadingRate} style={{ marginTop: '12px' }}>
-                            <Save size={16} /> Save Daily Rate
-                        </button>
+                        <form onSubmit={handleGoldRateSubmit} className="form-stack">
+                            <div className="form-group">
+                                <label className="form-label">22k Rate (per gram) (₹)</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={rate22k}
+                                    onChange={e => setRate22k(e.target.value)}
+                                    placeholder={currentRate ? currentRate.ratePerGram22k : "0.00"}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">20k Rate (per gram) (₹)</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={rate20k}
+                                    onChange={e => setRate20k(e.target.value)}
+                                    placeholder={currentRate ? currentRate.ratePerGram20k : "0.00"}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">18k Rate (per gram) (₹)</label>
+                                <input
+                                    type="number"
+                                    className="input-field"
+                                    value={rate18k}
+                                    onChange={e => setRate18k(e.target.value)}
+                                    placeholder={currentRate ? currentRate.ratePerGram18k : "0.00"}
+                                    required
+                                />
+                            </div>
 
-                    </form>
+                            <button type="submit" className="btn-primary" disabled={loadingRate} style={{ marginTop: '12px' }}>
+                                <Save size={16} /> Save Daily Rates
+                            </button>
+                        </form>
 
-                    <div className="history-list">
-                        <h4 className="history-title">
-                            Currently Set Rates
-                            {currentRate && <span className="history-meta">
-
-                                Last Update: {new Date(currentRate.rateDate).toLocaleDateString('en-IN')}
-                                <button
-                                    onClick={handleDeleteGoldRate}
-                                    className="btn-clear-rate"
-                                    title="Delete today's rates"
-                                >
-                                    <Trash2 size={12} />
-                                </button>
-                            </span>}
-                        </h4>
-                        {currentRate ? (
-                            <>
-                                {currentRate.ratePerGram22k > 0 && (
-                                    <div className="history-item">
-                                        <span>22k Standard</span>
-                                        <span className="rate-val">₹{currentRate.ratePerGram22k}</span>
-                                    </div>
-                                )}
-                                {currentRate.ratePerGram20k > 0 && (
-                                    <div className="history-item">
-                                        <span>20k Gold</span>
-                                        <span className="rate-val">₹{currentRate.ratePerGram20k}</span>
-                                    </div>
-                                )}
-                                {currentRate.ratePerGram18k > 0 && (
-                                    <div className="history-item">
-                                        <span>18k Gold</span>
-                                        <span className="rate-val">₹{currentRate.ratePerGram18k}</span>
-                                    </div>
-                                )}
-                                
-                                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-                                    <h5 style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Applied Deductions</h5>
-                                    {currentRate.deduction22k > 0 && (
-                                        <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-                                            <span style={{ color: '#b45309' }}>22k (916) Deduction</span>
-                                            <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deduction22k}%</span>
-                                        </div>
-                                    )}
-                                    {currentRate.deductionOrdinary > 0 && (
-                                        <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-                                            <span style={{ color: '#b45309' }}>Ordinary Gold Deduction</span>
-                                            <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deductionOrdinary}%</span>
-                                        </div>
-                                    )}
-                                    {(!currentRate.deduction22k && !currentRate.deductionOrdinary) && (
-                                        <p className="text-muted text-sm">No deductions applied.</p>
-                                    )}
+                        <form onSubmit={handleDeductionSubmit} className="form-stack" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px dashed #e2e8f0' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ color: '#d97706' }}>22k (916) Deduction (%)</label>
+                                    <input
+                                        type="number"
+                                        className="input-field"
+                                        value={deduction22k}
+                                        onChange={e => setDeduction22k(e.target.value)}
+                                        placeholder={currentRate?.deduction22k || "0"}
+                                        required
+                                    />
                                 </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ color: '#d97706' }}>Ordinary Gold Deduction (%)</label>
+                                    <input
+                                        type="number"
+                                        className="input-field"
+                                        value={deductionOrdinary}
+                                        onChange={e => setDeductionOrdinary(e.target.value)}
+                                        placeholder={currentRate?.deductionOrdinary || "0"}
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                                {!(currentRate.ratePerGram22k > 0 || currentRate.ratePerGram20k > 0 || currentRate.ratePerGram18k > 0) && (
-                                    <p className="text-muted text-sm">No rates have been set yet.</p>
-                                )}
-                            </>
-                        ) : <p className="text-muted text-sm">No rate records found.</p>}
-                    </div>
+                            <button type="submit" className="btn-primary" disabled={loadingDeduction} style={{ marginTop: '12px', background: '#d97706' }}>
+                                <Save size={16} /> Save Deduction Percentages
+                            </button>
+                        </form>
+
+                        <div className="history-list">
+                            <h4 className="history-title">
+                                Currently Set Rates
+                                {currentRate && <span className="history-meta">
+
+                                    Last Update: {new Date(currentRate.rateDate).toLocaleDateString('en-IN')}
+                                    <button
+                                        onClick={handleDeleteGoldRate}
+                                        className="btn-clear-rate"
+                                        title="Delete today's rates"
+                                    >
+                                        <Trash2 size={12} />
+                                    </button>
+                                </span>}
+                            </h4>
+                            {currentRate ? (
+                                <>
+                                    {currentRate.ratePerGram22k > 0 && (
+                                        <div className="history-item">
+                                            <span>22k Standard</span>
+                                            <span className="rate-val">₹{currentRate.ratePerGram22k}</span>
+                                        </div>
+                                    )}
+                                    {currentRate.ratePerGram20k > 0 && (
+                                        <div className="history-item">
+                                            <span>20k Gold</span>
+                                            <span className="rate-val">₹{currentRate.ratePerGram20k}</span>
+                                        </div>
+                                    )}
+                                    {currentRate.ratePerGram18k > 0 && (
+                                        <div className="history-item">
+                                            <span>18k Gold</span>
+                                            <span className="rate-val">₹{currentRate.ratePerGram18k}</span>
+                                        </div>
+                                    )}
+
+                                    <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                                        <h5 style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Applied Deductions</h5>
+                                        {currentRate.deduction22k > 0 && (
+                                            <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                                                <span style={{ color: '#b45309' }}>22k (916) Deduction</span>
+                                                <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deduction22k}%</span>
+                                            </div>
+                                        )}
+                                        {currentRate.deductionOrdinary > 0 && (
+                                            <div className="history-item" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                                                <span style={{ color: '#b45309' }}>Ordinary Gold Deduction</span>
+                                                <span className="rate-val" style={{ color: '#b45309' }}>-{currentRate.deductionOrdinary}%</span>
+                                            </div>
+                                        )}
+                                        {(!currentRate.deduction22k && !currentRate.deductionOrdinary) && (
+                                            <p className="text-muted text-sm">No deductions applied.</p>
+                                        )}
+                                    </div>
+
+                                    {!(currentRate.ratePerGram22k > 0 || currentRate.ratePerGram20k > 0 || currentRate.ratePerGram18k > 0) && (
+                                        <p className="text-muted text-sm">No rates have been set yet.</p>
+                                    )}
+                                </>
+                            ) : <p className="text-muted text-sm">No rate records found.</p>}
+                        </div>
                     </div>
                 )}
 
                 {activeTab === 'schemes' && (
                     <div className="master-card" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                    <div className="card-header">
-                        <div className="icon-box scheme-icon">
-                            <Layers size={20} />
-                        </div>
-                        <div>
-                            <h3>Loan Schemes</h3>
-                            <p>Define interest & limits</p>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handleSchemeSubmit} className="form-stack">
-                        <div className="form-group">
-                            <label className="form-label">Scheme Name</label>
-                            <input
-                                type="text" className="input-field"
-                                value={schemeName} onChange={e => setSchemeName(e.target.value)}
-                                placeholder="e.g. Standard Gold Loan" required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">Number of months (Validity)</label>
-                            <input
-                                type="number" className="input-field"
-                                value={tenure} onChange={e => setTenure(e.target.value)}
-                                placeholder="e.g. 12" required
-                            />
-                        </div>
-                        {tenure && parseInt(tenure) > 0 && (
-                            <div className="form-row-grid">
-                                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                                    <label className="form-label">Interest % Matrix</label>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
-                                        {[...Array(Math.min(parseInt(tenure), 12)).keys()].map(i => {
-                                            const m = i + 1;
-                                            return (
-                                                <input
-                                                    key={`m${m}`}
-                                                    type="number" className="input-field"
-                                                    value={interestMonths[`m${m}`] || ''}
-                                                    onChange={e => setInterestMonths({ ...interestMonths, [`m${m}`]: e.target.value })}
-                                                    placeholder={`Month ${m}`} step="0.1" required
-                                                />
-                                            );
-                                        })}
-                                        <input
-                                            type="number" className="input-field"
-                                            value={interestMonths.afterValidity}
-                                            onChange={e => setInterestMonths({ ...interestMonths, afterValidity: e.target.value })}
-                                            placeholder="After Val." step="0.1" required
-                                        />
-                                    </div>
-                                </div>
+                        <div className="card-header">
+                            <div className="icon-box scheme-icon">
+                                <Layers size={20} />
                             </div>
-                        )}
-
-                        <div className="form-group">
-                            <label className="form-label">Max Loan to Value (%)</label>
-                            <input
-                                type="number" className="input-field"
-                                value={maxLoan} onChange={e => setMaxLoan(e.target.value)}
-                                placeholder="75" max="100" required
-                            />
+                            <div>
+                                <h3>Loan Schemes</h3>
+                                <p>Define interest & limits</p>
+                            </div>
                         </div>
-                        <button type="submit" className="btn-primary">
-                            <Save size={16} /> Add Scheme
-                        </button>
-                    </form>
 
-                    <div className="history-list">
-                        <h4 className="history-title">Active Schemes</h4>
-                        <div className="schemes-scroll-area">
-                            {schemes.map(s => (
-                                <div key={s._id} className="history-item">
-                                    <div style={{ flex: 1 }}>
-                                        <span>{s.schemeName}</span>
-                                        <div className="s-det-r">
-                                            <span className="scheme-rate-text">M1: {s.interestMonths?.m1}% | After: {s.interestMonths?.afterValidity}% / {s.maxLoanPercentage}% LTV</span>
-                                            {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
-                                            <span style={{ fontSize: '0.8rem', color: '#2563eb', display: 'block', marginTop: '4px', fontWeight: '500' }}>
-                                                Active Loans: {s.activeLoanCount || 0}
-                                            </span>
+                        <form onSubmit={handleSchemeSubmit} className="form-stack">
+                            <div className="form-group">
+                                <label className="form-label">Scheme Name</label>
+                                <input
+                                    type="text" className="input-field"
+                                    value={schemeName} onChange={e => setSchemeName(e.target.value)}
+                                    placeholder="e.g. Standard Gold Loan" required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Number of months (Validity)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={tenure} onChange={e => setTenure(e.target.value)}
+                                    placeholder="e.g. 12" required
+                                />
+                            </div>
+                            {tenure && parseInt(tenure) > 0 && (
+                                <div className="form-row-grid">
+                                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                        <label className="form-label">Interest % Matrix</label>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+                                            {[...Array(Math.min(parseInt(tenure), 12)).keys()].map(i => {
+                                                const m = i + 1;
+                                                return (
+                                                    <input
+                                                        key={`m${m}`}
+                                                        type="number" className="input-field"
+                                                        value={interestMonths[`m${m}`] || ''}
+                                                        onChange={e => setInterestMonths({ ...interestMonths, [`m${m}`]: e.target.value })}
+                                                        placeholder={`Month ${m}`} step="0.1" required
+                                                    />
+                                                );
+                                            })}
+                                            <input
+                                                type="number" className="input-field"
+                                                value={interestMonths.afterValidity}
+                                                onChange={e => setInterestMonths({ ...interestMonths, afterValidity: e.target.value })}
+                                                placeholder="After Val." step="0.1" required
+                                            />
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <button
-                                            onClick={() => handlePrintScheme(s)}
-                                            className="btn-print-scheme"
-                                            title="Print Loan List"
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4b5563' }}
-                                        >
-                                            <Printer size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteScheme(s._id)}
-                                            className="btn-delete-scheme"
-                                            title="Delete Scheme"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
                                 </div>
-                            ))}
+                            )}
+
+                            <div className="form-group">
+                                <label className="form-label">Max Loan to Value (%)</label>
+                                <input
+                                    type="number" className="input-field"
+                                    value={maxLoan} onChange={e => setMaxLoan(e.target.value)}
+                                    placeholder="75" max="100" required
+                                />
+                            </div>
+                            <button type="submit" className="btn-primary">
+                                <Save size={16} /> Add Scheme
+                            </button>
+                        </form>
+
+                        <div className="history-list">
+                            <h4 className="history-title">Active Schemes</h4>
+                            <div className="schemes-scroll-area">
+                                {schemes.map(s => (
+                                    <div key={s._id} className="history-item">
+                                        <div style={{ flex: 1 }}>
+                                            <span>{s.schemeName}</span>
+                                            <div className="s-det-r">
+                                                <span className="scheme-rate-text">M1: {s.interestMonths?.m1}% | After: {s.interestMonths?.afterValidity}% / {s.maxLoanPercentage}% LTV</span>
+                                                {s.preInterestMonths > 0 && <span className="scheme-pre-interest">Pre: {s.preInterestMonths} Mos</span>}
+                                                <span style={{ fontSize: '0.8rem', color: '#2563eb', display: 'block', marginTop: '4px', fontWeight: '500' }}>
+                                                    Active Loans: {s.activeLoanCount || 0}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button
+                                                onClick={() => handlePrintScheme(s)}
+                                                className="btn-print-scheme"
+                                                title="Print Loan List"
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4b5563' }}
+                                            >
+                                                <Printer size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteScheme(s._id)}
+                                                className="btn-delete-scheme"
+                                                title="Delete Scheme"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
                     </div>
                 )}
             </div>

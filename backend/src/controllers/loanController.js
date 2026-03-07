@@ -5,6 +5,7 @@ import Loan from '../models/Loan.js';
 import Item from '../models/Item.js';
 import Scheme from '../models/Scheme.js';
 import GoldRate from '../models/GoldRate.js';
+import Deduction from '../models/Deduction.js';
 import Payment from '../models/Payment.js';
 import SchemeRequest from '../models/SchemeRequest.js';
 import { notifyAdminsAndStaff } from '../services/notificationService.js';
@@ -148,6 +149,7 @@ const createLoan = async (req, res) => {
         }
 
         let goldRateObj = await GoldRate.findOne().sort({ rateDate: -1 });
+        let deductionObj = await Deduction.findOne();
 
         if (!goldRateObj || !(goldRateObj.ratePerGram22k > 0 || goldRateObj.ratePerGram20k > 0 || goldRateObj.ratePerGram18k > 0)) {
             console.log("Error: Gold Rate not set");
@@ -155,31 +157,41 @@ const createLoan = async (req, res) => {
             return res.status(400).json({ message: "Gold rate not set by admin" });
         }
 
-
         let totalWeight = 0;
         let totalValuation = 0;
 
+        const deduction22k = deductionObj?.deduction22k || 0;
+        const deductionOrdinary = deductionObj?.deductionOrdinary || 0;
+
+        // Group items by purity to calculate cumulative deduction based on total weight per purity
+        const purityStats = {
+            '22k': { totalWeight: 0, rate: goldRateObj.ratePerGram22k, deduction: deduction22k },
+            '20k': { totalWeight: 0, rate: goldRateObj.ratePerGram20k, deduction: deductionOrdinary },
+            '18k': { totalWeight: 0, rate: goldRateObj.ratePerGram18k, deduction: deductionOrdinary }
+        };
+
         for (const item of itemsData) {
-            totalWeight += parseFloat(item.netWeight);
-            let rate = 0;
-            if (item.purity === '22k') {
-                rate = goldRateObj.ratePerGram22k;
-                if (goldRateObj.deduction22k) rate -= rate * (goldRateObj.deduction22k / 100);
-            } else if (item.purity === '20k') {
-                rate = goldRateObj.ratePerGram20k;
-                if (goldRateObj.deductionOrdinary) rate -= rate * (goldRateObj.deductionOrdinary / 100);
-            } else if (item.purity === '18k') {
-                rate = goldRateObj.ratePerGram18k;
-                if (goldRateObj.deductionOrdinary) rate -= rate * (goldRateObj.deductionOrdinary / 100);
+            const w = parseFloat(item.netWeight) || 0;
+            totalWeight += w;
+            if (purityStats[item.purity]) {
+                purityStats[item.purity].totalWeight += w;
             }
+        }
 
-            if (!rate || rate <= 0) {
-                console.error(`Validation Error: Gold rate for ${item.purity} is missing (Rate: ${rate})`);
-                cleanupFiles(req.files);
-                return res.status(400).json({ message: `Gold rate for ${item.purity} is not set by admin` });
+        for (const purity in purityStats) {
+            const stats = purityStats[purity];
+            if (stats.totalWeight > 0) {
+                let currentRate = stats.rate;
+                const totalDeductionPercent = stats.deduction * stats.totalWeight;
+                if (totalDeductionPercent) currentRate -= currentRate * (totalDeductionPercent / 100);
+
+                if (!currentRate || currentRate <= 0) {
+                    console.error(`Validation Error: Effective Gold rate for ${purity} is missing or zero (Rate: ${currentRate})`);
+                    cleanupFiles(req.files);
+                    return res.status(400).json({ message: `Gold rate for ${purity} is not set correctly by admin or deduction exceeds 100%` });
+                }
+                totalValuation += stats.totalWeight * currentRate;
             }
-
-            totalValuation += parseFloat(item.netWeight) * rate;
         }
 
         const maxLoan = totalValuation * (appliedMaxLoanPercent / 100);
@@ -264,7 +276,7 @@ const createLoan = async (req, res) => {
             const oldLoan = await Loan.findById(renewFromLoanId);
             if (oldLoan && oldLoan.status !== 'closed') {
                 const calculatedOldLoan = calculateLoanPayables(oldLoan);
-                
+
                 const settlementPayment = new Payment({
                     loan: oldLoan._id,
                     amount: calculatedOldLoan.payableAmount,
@@ -279,7 +291,7 @@ const createLoan = async (req, res) => {
                 oldLoan.currentBalance = 0;
                 oldLoan.payableAmount = 0;
                 await oldLoan.save();
-                
+
                 // Track renewal relationship if we wanted to, but the payment remark suffices.
             }
         }
