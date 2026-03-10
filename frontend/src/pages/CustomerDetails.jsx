@@ -20,6 +20,7 @@ const CustomerDetails = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('loans');
+    const [auditLogs, setAuditLogs] = useState([]);
 
     useEffect(() => {
         fetchCustomerData();
@@ -28,9 +29,10 @@ const CustomerDetails = () => {
     const fetchCustomerData = async () => {
         try {
 
-            const [custRes, loansRes] = await Promise.all([
+            const [custRes, loansRes, auditRes] = await Promise.all([
                 api.get(`/customers/${id}`),
-                api.get('/loans')
+                api.get('/loans'),
+                api.get(`/audit-logs/Customer/${id}`) 
             ]);
 
             setCustomer(custRes.data);
@@ -39,6 +41,10 @@ const CustomerDetails = () => {
                 (l.customer?._id === id) || (l.customer === id)
             );
             setLoans(customerLoans);
+            
+            // The API response might be an array or an object with a 'data' property
+            setAuditLogs(auditRes.data.data || auditRes.data || []);
+
         } catch (error) {
             console.error("Error fetching details", error);
         } finally {
@@ -211,7 +217,42 @@ const CustomerDetails = () => {
 
                 {activeTab === 'audit' && (
                     <div className="audit-section">
-                        <p className="text-gray-500 italic">Audit logs (edits, deletions) will appear here in future updates.</p>
+                        <h3>Audit History</h3>
+                        {auditLogs.length === 0 ? (
+                            <p className="text-gray-500 italic mt-4">No audit logs found for this customer.</p>
+                        ) : (
+                            <table className="detail-table mt-4">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Action</th>
+                                        <th>Performed By</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {auditLogs.map(log => (
+                                        <tr key={log._id}>
+                                            <td className="whitespace-nowrap">
+                                                {new Date(log.createdAt).toLocaleString('en-IN', {
+                                                    year: 'numeric', month: 'short', day: 'numeric',
+                                                    hour: '2-digit', minute: '2-digit'
+                                                })}
+                                            </td>
+                                            <td>
+                                                <span className={`status-pill ${log.action.includes('CREATE') ? 'status-active' : 'status-closed'}`}>
+                                                    {log.action.replace(/_/g, ' ')}
+                                                </span>
+                                            </td>
+                                            <td>{log.actorName || 'System'}</td>
+                                            <td className="text-sm text-gray-600">
+                                                {log.details ? JSON.stringify(log.details) : '-'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 )}
             </div>

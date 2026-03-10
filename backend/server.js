@@ -15,6 +15,7 @@ import notificationRoutes from './src/routes/notificationRoutes.js';
 import auctionRoutes from './src/routes/auctionRoutes.js';
 import branchRoutes from './src/routes/branchRoutes.js';
 import schemeRequestRoutes from './src/routes/schemeRequestRoutes.js';
+import auditLogRoutes from './src/routes/auditLogRoutes.js';
 import startOverdueJob from './src/jobs/overdueJob.js';
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/api/vouchers', voucherRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/auctions', auctionRoutes);
+app.use('/api/audit-logs', auditLogRoutes);
 
 // Debug route
 app.get('/api/debug/customer/:id', async (req, res) => {

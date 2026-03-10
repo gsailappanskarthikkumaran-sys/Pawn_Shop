@@ -1,6 +1,7 @@
 import Customer from '../models/Customer.js';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
+import { createAuditLog } from './auditLogController.js';
 
 const cleanupFiles = (files) => {
     if (!files) return;
@@ -104,6 +105,19 @@ const createCustomer = async (req, res) => {
             state
         });
 
+        // Create Audit Log
+        if (req.user) {
+            await createAuditLog({
+                action: 'CREATE_CUSTOMER',
+                entityType: 'Customer',
+                entityId: customer._id,
+                actor: req.user._id,
+                actorName: req.user.name || 'Staff',
+                details: { name: customer.name, phone: customer.phone },
+                ipAddress: req.ip
+            });
+        }
+
         res.status(201).json(customer);
 
     } catch (error) {
@@ -186,6 +200,20 @@ const updateCustomer = async (req, res) => {
         }
 
         const updatedCustomer = await customer.save();
+
+        // Create Audit Log
+        if (req.user) {
+            await createAuditLog({
+                action: 'UPDATE_CUSTOMER',
+                entityType: 'Customer',
+                entityId: updatedCustomer._id,
+                actor: req.user._id,
+                actorName: req.user.name || 'Staff',
+                details: { updatedFields: Object.keys(req.body) },
+                ipAddress: req.ip
+            });
+        }
+
         res.json(updatedCustomer);
 
     } catch (error) {
