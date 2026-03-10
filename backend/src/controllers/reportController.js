@@ -7,9 +7,11 @@ const normalizeCustomerPaths = (customer) => {
     const fields = ['photo', 'aadharCard', 'panCard'];
     fields.forEach(field => {
         if (customer[field] && typeof customer[field] === 'string') {
-            const filename = customer[field].split(/[/\\]/).pop();
-            if (filename) {
-                customer[field] = `src/uploads/${filename}`;
+            if (!customer[field].startsWith('http')) {
+                const filename = customer[field].split(/[/\\]/).pop();
+                if (filename) {
+                    customer[field] = `src/uploads/${filename}`;
+                }
             }
         }
     });
