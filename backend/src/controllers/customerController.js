@@ -3,16 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 
 const cleanupFiles = (files) => {
-    if (!files) return;
-    Object.values(files).forEach(fileArray => {
-        fileArray.forEach(file => {
-            try {
-                fs.unlinkSync(file.path);
-            } catch (err) {
-                console.error("Failed to delete file:", file.path, err);
-            }
-        });
-    });
+    // No-op for Cloudinary as files are not yet uploaded or are on Cloudinary
+    // If you want to delete from Cloudinary, you'd need their public_id.
+    // For now, doing nothing.
 };
 
 const normalizeCustomerPaths = (customer) => {
@@ -20,9 +13,12 @@ const normalizeCustomerPaths = (customer) => {
     const fields = ['photo', 'aadharCard', 'panCard'];
     fields.forEach(field => {
         if (customer[field] && typeof customer[field] === 'string') {
-            const filename = customer[field].split(/[/\\]/).pop();
-            if (filename) {
-                customer[field] = `src/uploads/${filename}`;
+            // Only normalize if it's not already a URL
+            if (!customer[field].startsWith('http')) {
+                const filename = customer[field].split(/[/\\]/).pop();
+                if (filename) {
+                    customer[field] = `src/uploads/${filename}`;
+                }
             }
         }
     });
@@ -50,13 +46,13 @@ const createCustomer = async (req, res) => {
 
         if (req.files) {
             if (req.files['photo']) {
-                photoPath = `src/uploads/${req.files['photo'][0].filename}`;
+                photoPath = req.files['photo'][0].path;
             }
             if (req.files['aadharCard']) {
-                aadharCardPath = `src/uploads/${req.files['aadharCard'][0].filename}`;
+                aadharCardPath = req.files['aadharCard'][0].path;
             }
             if (req.files['panCard']) {
-                panCardPath = `src/uploads/${req.files['panCard'][0].filename}`;
+                panCardPath = req.files['panCard'][0].path;
             }
         }
 
@@ -180,9 +176,9 @@ const updateCustomer = async (req, res) => {
         customer.state = state || customer.state;
 
         if (req.files) {
-            if (req.files['photo']) customer.photo = `src/uploads/${req.files['photo'][0].filename}`;
-            if (req.files['aadharCard']) customer.aadharCard = `src/uploads/${req.files['aadharCard'][0].filename}`;
-            if (req.files['panCard']) customer.panCard = `src/uploads/${req.files['panCard'][0].filename}`;
+            if (req.files['photo']) customer.photo = req.files['photo'][0].path;
+            if (req.files['aadharCard']) customer.aadharCard = req.files['aadharCard'][0].path;
+            if (req.files['panCard']) customer.panCard = req.files['panCard'][0].path;
         }
 
         const updatedCustomer = await customer.save();

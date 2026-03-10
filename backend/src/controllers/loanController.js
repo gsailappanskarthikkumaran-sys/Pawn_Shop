@@ -12,16 +12,7 @@ import { notifyAdminsAndStaff } from '../services/notificationService.js';
 
 
 const cleanupFiles = (files) => {
-    if (!files) return;
-    if (Array.isArray(files)) {
-        files.forEach(file => {
-            try {
-                fs.unlinkSync(file.path);
-            } catch (err) {
-                console.error("Failed to delete file:", file.path, err);
-            }
-        });
-    }
+    // No-op for Cloudinary as files are not yet uploaded or are on Cloudinary
 };
 
 const normalizeLoanPaths = (loan) => {
@@ -31,9 +22,11 @@ const normalizeLoanPaths = (loan) => {
         const fields = ['photo', 'aadharCard', 'panCard'];
         fields.forEach(field => {
             if (loan.customer[field] && typeof loan.customer[field] === 'string') {
-                const filename = loan.customer[field].split(/[/\\]/).pop();
-                if (filename) {
-                    loan.customer[field] = `src/uploads/${filename}`;
+                if (!loan.customer[field].startsWith('http')) {
+                    const filename = loan.customer[field].split(/[/\\]/).pop();
+                    if (filename) {
+                        loan.customer[field] = `src/uploads/${filename}`;
+                    }
                 }
             }
         });
@@ -42,7 +35,7 @@ const normalizeLoanPaths = (loan) => {
         loan.items.forEach(item => {
             if (item.photos && Array.isArray(item.photos)) {
                 item.photos = item.photos.map(photo => {
-                    if (typeof photo === 'string') {
+                    if (typeof photo === 'string' && !photo.startsWith('http')) {
                         const filename = photo.split(/[/\\]/).pop();
                         return filename ? `src/uploads/${filename}` : photo;
                     }
@@ -244,7 +237,7 @@ const createLoan = async (req, res) => {
 
 
 
-        const photoPaths = req.files ? req.files.map(f => `src/uploads/${f.filename}`) : [];
+        const photoPaths = req.files ? req.files.map(f => f.path) : [];
 
         const itemDocs = itemsData.map((item, index) => ({
             loan: createdLoan._id,
