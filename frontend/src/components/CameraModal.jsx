@@ -25,8 +25,8 @@ const CameraModal = ({ onCapture, onClose }) => {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: facingMode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
                 }
             });
             setStream(mediaStream);
