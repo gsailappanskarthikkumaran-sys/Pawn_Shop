@@ -142,15 +142,11 @@ const AddCustomer = () => {
 
         try {
             if (isEditMode) {
-                await api.put(`/customers/${id}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.put(`/customers/${id}`, data);
                 alert('Customer Updated Successfully!');
                 navigate(`/customers/${id}`);
             } else {
-                await api.post('/customers', data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post('/customers', data);
                 alert('Customer Added Successfully!');
                 navigate('/customers');
             }

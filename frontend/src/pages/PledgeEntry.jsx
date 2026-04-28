@@ -261,26 +261,22 @@ const PledgeEntry = () => {
         return weights;
     };
 
-    const getEffectiveRate = (purity, rateObj, totalPurityWeight) => {
+    const getEffectiveRate = (purity, rateObj) => {
         if (!rateObj) return 0;
         let rate = 0;
-        const weight = totalPurityWeight || 0;
 
         if (purity === '22k') {
             rate = rateObj.ratePerGram22k;
             const deductionBase = rateObj.deduction22k || 0;
-            const totalDeductionPercent = deductionBase * weight;
-            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
+            if (deductionBase) rate -= rate * (deductionBase / 100);
         } else if (purity === '20k') {
             rate = rateObj.ratePerGram20k;
             const deductionBase = rateObj.deductionOrdinary || 0;
-            const totalDeductionPercent = deductionBase * weight;
-            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
+            if (deductionBase) rate -= rate * (deductionBase / 100);
         } else if (purity === '18k') {
             rate = rateObj.ratePerGram18k;
             const deductionBase = rateObj.deductionOrdinary || 0;
-            const totalDeductionPercent = deductionBase * weight;
-            if (totalDeductionPercent) rate -= rate * (totalDeductionPercent / 100);
+            if (deductionBase) rate -= rate * (deductionBase / 100);
         }
         return rate;
     };
@@ -294,7 +290,7 @@ const PledgeEntry = () => {
         ['22k', '20k', '18k'].forEach(purity => {
             const weight = purityWeights[purity];
             if (weight > 0) {
-                const rate = getEffectiveRate(purity, goldRate, weight);
+                const rate = getEffectiveRate(purity, goldRate);
                 if (!rate || rate <= 0) {
                     missingRate = true;
                 }
@@ -342,9 +338,7 @@ const PledgeEntry = () => {
         }
 
         try {
-            await api.post('/loans', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/loans', data);
             alert('Pledge Created Successfully!');
 
         } catch (error) {
@@ -607,10 +601,10 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (22k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('22k', goldRate, getPurityWeights()['22k']).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('22k', goldRate).toFixed(2)}/g</div>
                                         {goldRate.deduction22k > 0 && (
                                             <div style={{ fontSize: '10px', color: '#64748b' }}>
-                                                (Base: ₹{goldRate.ratePerGram22k} - {goldRate.deduction22k}% × {getPurityWeights()['22k']}g = {(goldRate.deduction22k * getPurityWeights()['22k']).toFixed(2)}%)
+                                                (Base: ₹{goldRate.ratePerGram22k} - {goldRate.deduction22k}%)
                                             </div>
                                         )}
                                     </div>
@@ -620,10 +614,10 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (20k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('20k', goldRate, getPurityWeights()['20k']).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('20k', goldRate).toFixed(2)}/g</div>
                                         {goldRate.deductionOrdinary > 0 && (
                                             <div style={{ fontSize: '10px', color: '#64748b' }}>
-                                                (Base: ₹{goldRate.ratePerGram20k} - {goldRate.deductionOrdinary}% × {getPurityWeights()['20k']}g = {(goldRate.deductionOrdinary * getPurityWeights()['20k']).toFixed(2)}%)
+                                                (Base: ₹{goldRate.ratePerGram20k} - {goldRate.deductionOrdinary}%)
                                             </div>
                                         )}
                                     </div>
@@ -633,10 +627,10 @@ const PledgeEntry = () => {
                                 <div className="calc-row">
                                     <span className="calc-label">Rate (18k)</span>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div className="calc-val">₹{getEffectiveRate('18k', goldRate, getPurityWeights()['18k']).toFixed(2)}/g</div>
+                                        <div className="calc-val">₹{getEffectiveRate('18k', goldRate).toFixed(2)}/g</div>
                                         {goldRate.deductionOrdinary > 0 && (
                                             <div style={{ fontSize: '10px', color: '#64748b' }}>
-                                                (Base: ₹{goldRate.ratePerGram18k} - {goldRate.deductionOrdinary}% × {getPurityWeights()['18k']}g = {(goldRate.deductionOrdinary * getPurityWeights()['18k']).toFixed(2)}%)
+                                                (Base: ₹{goldRate.ratePerGram18k} - {goldRate.deductionOrdinary}%)
                                             </div>
                                         )}
                                     </div>
@@ -728,7 +722,7 @@ const PledgeEntry = () => {
                         <div className="total-row net-cash-row">
                             <span className="dark-strong">Net Cash Disbursed</span>
                             <span className="total-val dark-text">
-                                ₹{((parseFloat(formData.requestedLoan) || 0) - (parseFloat(preInterestAmount) || 0) - (parseFloat(processingCharges) || 0) - (oldLoanData ? (oldLoanData.payableAmount || 0) : 0)).toFixed(2)}
+                                ₹{((parseFloat(formData.requestedLoan) || 0) - (parseFloat(preInterestAmount) || 0) - (oldLoanData ? (oldLoanData.payableAmount || 0) : 0)).toFixed(2)}
                             </span>
                         </div>
 

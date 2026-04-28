@@ -110,13 +110,22 @@ const createLoan = async (req, res) => {
         }
 
 
-        const scheme = await Scheme.findById(schemeId);
+        const scheme = await Scheme.findById(schemeId).lean();
         if (!scheme) {
             cleanupFiles(req.files);
             return res.status(404).json({ message: 'Scheme not found' });
         }
 
         let appliedInterestMonths = scheme.interestMonths;
+        if (!appliedInterestMonths && scheme.interestRate !== undefined) {
+            const reqRate = scheme.interestRate;
+            appliedInterestMonths = {
+                m1: reqRate, m2: reqRate, m3: reqRate, m4: reqRate, m5: reqRate,
+                m6: reqRate, m7: reqRate, m8: reqRate, m9: reqRate, m10: reqRate,
+                m11: reqRate, m12: reqRate, afterValidity: reqRate
+            };
+        }
+
         let appliedTenure = scheme.tenureMonths;
         let appliedMaxLoanPercent = scheme.maxLoanPercentage;
 
@@ -132,11 +141,33 @@ const createLoan = async (req, res) => {
                 return res.status(400).json({ message: 'No approved custom scheme request found for this customer.' });
             }
 
-            if (approvedRequest.proposedValues) {
-                appliedInterestMonths = approvedRequest.proposedValues.interestMonths;
-                appliedTenure = approvedRequest.proposedValues.tenureMonths;
-                if (approvedRequest.proposedValues.maxLoanPercentage) {
-                    appliedMaxLoanPercent = approvedRequest.proposedValues.maxLoanPercentage;
+            let customSchemeValuesObj = null;
+            if (customSchemeValues) {
+                try {
+                    customSchemeValuesObj = typeof customSchemeValues === 'string' ? JSON.parse(customSchemeValues) : customSchemeValues;
+                } catch (e) {
+                    console.error("Failed to parse customSchemeValues", e);
+                }
+            }
+
+            // Use customSchemeValuesObj from the frontend, since Mongoose may strip older fields from the DB document
+            if (customSchemeValuesObj) {
+                if (customSchemeValuesObj.interestMonths) {
+                    appliedInterestMonths = customSchemeValuesObj.interestMonths;
+                } else if (customSchemeValuesObj.interestRate !== undefined) {
+                    const reqRate = customSchemeValuesObj.interestRate;
+                    appliedInterestMonths = {
+                        m1: reqRate, m2: reqRate, m3: reqRate, m4: reqRate, m5: reqRate,
+                        m6: reqRate, m7: reqRate, m8: reqRate, m9: reqRate, m10: reqRate,
+                        m11: reqRate, m12: reqRate, afterValidity: reqRate
+                    };
+                }
+
+                if (customSchemeValuesObj.tenureMonths) {
+                    appliedTenure = customSchemeValuesObj.tenureMonths;
+                }
+                if (customSchemeValuesObj.maxLoanPercentage) {
+                    appliedMaxLoanPercent = customSchemeValuesObj.maxLoanPercentage;
                 }
             }
         }
@@ -175,8 +206,7 @@ const createLoan = async (req, res) => {
             const stats = purityStats[purity];
             if (stats.totalWeight > 0) {
                 let currentRate = stats.rate;
-                const totalDeductionPercent = stats.deduction * stats.totalWeight;
-                if (totalDeductionPercent) currentRate -= currentRate * (totalDeductionPercent / 100);
+                if (stats.deduction) currentRate -= currentRate * (stats.deduction / 100);
 
                 if (!currentRate || currentRate <= 0) {
                     console.error(`Validation Error: Effective Gold rate for ${purity} is missing or zero (Rate: ${currentRate})`);
@@ -188,12 +218,13 @@ const createLoan = async (req, res) => {
         }
 
         const maxLoan = totalValuation * (appliedMaxLoanPercent / 100);
-        console.log("Valuation debug:", { totalValuation, maxLoan, requestedLoanAmount });
+        const reqLoanAmt = parseFloat(requestedLoanAmount) || 0;
+        console.log("Valuation debug:", { totalValuation, maxLoan, reqLoanAmt });
 
-        if (requestedLoanAmount > maxLoan) {
-            console.error(`Validation Error: Requested ${requestedLoanAmount} > Max ${maxLoan}`);
+        if (reqLoanAmt > maxLoan + 0.01) {
+            console.error(`Validation Error: Requested ${reqLoanAmt} > Max ${maxLoan}`);
             cleanupFiles(req.files);
-            return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan}` });
+            return res.status(400).json({ message: `Loan amount exceeds limit of ${maxLoan.toFixed(2)}` });
         }
 
 
@@ -214,6 +245,17 @@ const createLoan = async (req, res) => {
 
         const loanId = `LN-${today}-${String(countToday + 1).padStart(3, '0')}`;
 
+        let userBranch = req.user.branch;
+        if (!userBranch) {
+            const defaultBranch = await mongoose.model('Branch').findOne();
+            if (defaultBranch) {
+                userBranch = defaultBranch._id;
+            } else {
+                cleanupFiles(req.files);
+                return res.status(400).json({ message: 'No branch found in system. Please create a branch first.' });
+            }
+        }
+
         const loan = new Loan({
             loanId: loanId,
             customer: customerId,
@@ -229,7 +271,7 @@ const createLoan = async (req, res) => {
             dueDate: dueDate,
             nextPaymentDate: nextPaymentDate,
             createdBy: req.user._id,
-            branch: req.user.branch,
+            branch: userBranch,
             currentBalance: requestedLoanAmount
         });
 
@@ -294,7 +336,7 @@ const createLoan = async (req, res) => {
     } catch (error) {
         console.error("createLoan Exception:", error);
         cleanupFiles(req.files);
-        res.status(400).json({ message: 'Error creating loan', error: error.message });
+        res.status(400).json({ message: `Error creating loan: ${error.message}`, error: error.message });
     }
 };
 

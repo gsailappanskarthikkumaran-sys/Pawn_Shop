@@ -146,7 +146,7 @@ const PrintView = () => {
 
             <div className="paper-sheet">
                 <div className="print-header">
-                    <div className="company-name bold mono"><img src={logo} style={{ width: '78px', height: '78px' }} /> MAHES BANKERS</div>
+                    <div className="company-name bold mono"><img src={logo} style={{ width: '78px', height: '78px' }} /> <samp style={{ fontWeight: 'bold', fontSize: '65px' }}>MAHES BANKERS</samp></div>
                     <div className="company-details mono">
                         2005/1 – PKN ROAD, SIVAKASI – 626123<br />
                         LICENCE NO: TN-2020230415119<br />
@@ -272,6 +272,9 @@ const LoanReceipt = ({ loan, copyType }) => (
                 </div>
                 <div style={{ textAlign: 'right' }}>
                     <div>LOAN AMOUNT DISBURSED : <span className="bold">RS. {loan.loanAmount}</span></div>
+                    {loan.processingCharges > 0 && (
+                        <div>SERVICE CHARGES (EXTRA) : <span className="bold">RS. {loan.processingCharges}</span></div>
+                    )}
                     {loan.preInterestAmount > 0 && (
                         <div>PRE-INTEREST COLLECTED : <span className="bold">RS. {loan.preInterestAmount}</span></div>
                     )}
